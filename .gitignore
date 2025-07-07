@@ -1,0 +1,7 @@
+build/
+output/
+.cache/
+.venv/
+**/.ipynb_checkpoints/
+CMakeCache.txt
+CMakeUserPresets.json
