@@ -119,7 +119,7 @@ void Population::reproduce() {
   }
   for (int i = 0; i < new_genes; i++) {
     if(params.v_stretch == 0) {
-      add_random_gene(); // TODO: stretch method
+      add_random_gene();
     } else {
       add_stretched_gene();
     }
