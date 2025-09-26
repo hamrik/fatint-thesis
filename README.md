@@ -5,16 +5,44 @@ aiming to reproduce the findings in [Evolutionary Technology and Phenotype Plast
 
 See `INSTALL.md` on how to set up each.
 
+## Comparison
+
 |Original paper|C++ reimplementation|
 |-----|-----|
-|<img src="docs/images/orig_default.png" alt="Results from the original paper">|<img src="docs/images/cpp_p_encounter.png" alt="Results from the C++ reimplementation">|
-|<img src="docs/images/orig_speciation.png" alt="Results from the original paper">|<img src="docs/images/cpp_m_limit.png" alt="Results from the C++ reimplementation">|
+|![Results from the original paper](docs/images/orig_default.png)|![Results from the C++ reimplementation](docs/images/cpp_p_encounter.png)|
+||![Results from the C++ reimplementation](docs/images/cpp_p_mutation.png)|
+||![Results from the C++ reimplementation](docs/images/cpp_p_crossing.png)|
+|![Results from the original paper](docs/images/orig_speciation.png)|![Results from the C++ reimplementation](docs/images/cpp_p_change.png)|
+||![Results from the C++ reimplementation](docs/images/cpp_m_limit.png)|
+||![Results from the C++ reimplementation](docs/images/cpp_v_stretch.png)|
 
 ## Usage
 
 ### NETLOGO implementation
 
-TODO
+1. Install NetLogo 6 or newer
+2. Launch NetLogo and select `File` > `Open...`
+   ![NetLogo Menu](docs/images/screenshots/netlogo_menu_open.png)
+3. Browse to and select `model.nlogo`
+4. Set the simulation parameters then click `setup`
+   ![NetLogo Menu](docs/images/screenshots/netlogo_model_ui.png)
+5. Click either `1 step`, `500 steps` or `Go`
+
+To run multiple runs in parallel:
+
+1. Open `model.logo` as above
+2. Select `Tools` > `BahaviorSpace`
+   ![NetLogo Menu](docs/images/screenshots/netlogo_menu_behaviorspace.png)
+3. Select an experiment.
+   ![NetLogo Menu](docs/images/screenshots/netlogo_behaviorspace_ui.png)
+4. Optional, recommended: click `Edit` to set parameters.
+   ![NetLogo Menu](docs/images/screenshots/netlogo_behaviorspace_edit.png)
+5. Click `Run`
+6. Set the output file locations
+   ![NetLogo Menu](docs/images/screenshots/netlogo_behaviorspace_run.png)
+7. Optional, recommended: unselect `Update View` and `Update plots`
+8. Click `OK`
+   ![NetLogo Menu](docs/images/screenshots/netlogo_behaviorspace_running.png)
 
 ### C++ implementation
 
@@ -40,7 +68,7 @@ Usage:
                                 Initial number of genes
                                 (default: 5)
 
-      --p_encounter arg         Probability of reproduction attempt 
+      --p_encounter arg         Probability of reproduction attempt
                                 (default: 0.1)
 
       --p_change arg            Probability of new gene per successful reproduction
@@ -71,10 +99,10 @@ Usage:
       --m_limit arg             Maximum number of offsprings per reproduction
                                 (default: 15)
 
-      --m_slope arg             How much should similarity affect offspring 
+      --m_slope arg             How much should similarity affect offspring
                                 count (default: 0.0)
 
-      --e_increase arg          Amount of energy the environment 
+      --e_increase arg          Amount of energy the environment
                                 replenishes after each iteration
                                 (default: 1000.0)
 
