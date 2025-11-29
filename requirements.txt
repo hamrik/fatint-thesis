@@ -1,5 +1,0 @@
-ipywidgets
-jupyterlab
-matplotlib
-polars
-tqdm
