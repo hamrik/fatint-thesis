@@ -2,8 +2,15 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 project(testlibfatint)
 
 set(TESTS
-  "model/TestFormulas.cpp"
-  "model/TestUtils.cpp"
+  model/TestFormulas.cpp
+  model/TestUtils.cpp
+  genetics/TestGeneticsImpl.cpp
+  simulation/TestSimulationUtils.cpp
+  simulation/TestSimulator.cpp
+  math/TestRandom.cpp
+  math/TestStatistics.cpp
+  measurement/TestDisjointSetsSpeciesCounter.cpp
+  measurement/TestReservoirSampling.cpp
 )
 
 enable_testing()

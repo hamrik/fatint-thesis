@@ -1,0 +1,112 @@
+#include "genetics/GeneticsImpl.hpp"
+
+#include <cassert>
+
+#include "measurement/ReservoirSampling.hpp"
+#include "model/formulas.hpp"
+
+namespace fatint::genetics {
+
+SimilarityImpl::SimilarityImpl(const model::Limits& limits)
+  : limits(limits)
+{
+}
+
+auto
+SimilarityImpl::compatible(const model::Genotype& a,
+                           const model::Genotype& b) const -> bool
+{
+  assert(a.size() == b.size());
+  double sum = 0;
+  for (size_t i = 0; i < a.size(); i++) {
+    double delta = a[i] - b[i];
+    sum += delta * delta;
+  }
+  return sum <= limits.m_limit * limits.m_limit;
+}
+
+auto
+SelectionImpl::select(math::Random& random,
+                      const ISimilarity& similarity,
+                      size_t index,
+                      const model::Population& entities) -> std::optional<size_t>
+{
+  measurement::ReservoirSampling<size_t> sampler;
+
+  for (size_t i = 0; i < entities.size(); i++) {
+    if (i == index) {
+      continue;
+    }
+    if (!similarity.compatible(entities[index].genotype,
+                               entities[i].genotype)) {
+      continue;
+    }
+    sampler.add(random, i);
+  }
+
+  return sampler.get();
+}
+
+void
+MutationImpl::mutate(math::Random& random,
+                     double p_mutation,
+                     int v_mutation,
+                     model::Genotype& genotype)
+{
+  for (auto& gene : genotype) {
+    if (random.chance(p_mutation)) {
+      gene += random.random(-v_mutation, v_mutation);
+    }
+  }
+}
+
+void
+CrossoverImpl::crossover(math::Random& random,
+                         double p_crossing,
+                         const model::Genotype& a,
+                         const model::Genotype& b,
+                         model::Genotype& out)
+{
+  assert(a.size() == b.size());
+  assert(out.size() == a.size());
+  for (size_t i = 0; i < a.size(); i++) {
+    if (random.chance(p_crossing)) {
+      out[i] = b[i];
+    } else {
+      out[i] = a[i];
+    }
+  }
+}
+
+auto
+ValidatorImpl::validate(const model::Limits& limits,
+                        const model::Genotype& genotype) const -> bool
+{
+  for (auto gene : genotype) {
+    if (gene < limits.v_min || gene > limits.v_max) {
+      return false;
+    }
+  }
+  return true;
+}
+
+void
+RandomAlleleAdder::add_allele(math::Random& random,
+                              const model::Limits& limits,
+                              const model::AlleleParameters& parameters,
+                              model::Genotype& genotype)
+{
+  genotype.push_back(random.random(limits.v_min, limits.v_max));
+}
+
+void
+VStretchAlleleAdder::add_allele(math::Random& random,
+                                const model::Limits& limits,
+                                const model::AlleleParameters& parameters,
+                                model::Genotype& genotype)
+{
+  genotype.push_back(model::stretch_allele(
+    genotype.back(), limits.v_min, limits.v_max, parameters.v_stretch));
+}
+
+} // namespace fatint::genetics

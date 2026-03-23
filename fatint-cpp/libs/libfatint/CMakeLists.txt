@@ -9,6 +9,16 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 add_library(libfatint
     src/model/types.cpp
     src/model/utils.cpp
+    src/genetics/GeneticReproduction.cpp
+    src/genetics/GeneticsImpl.cpp
+    src/math/Random.cpp
+    src/math/Statistics.cpp
+    src/simulation/Environment.cpp
+    src/simulation/Experiment.cpp
+    src/simulation/Simulator.cpp
+    src/simulation/types.cpp
+    src/simulation/utils.cpp
+    src/measurement/DisjointSetsSpeciesCounter.cpp
 )
 target_include_directories(libfatint PUBLIC
     include
