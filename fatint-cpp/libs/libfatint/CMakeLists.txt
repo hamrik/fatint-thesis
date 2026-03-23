@@ -10,7 +10,10 @@ add_library(libfatint
     src/model/types.cpp
     src/model/utils.cpp
 )
-target_include_directories(libfatint PUBLIC "include")
+target_include_directories(libfatint PUBLIC
+    include
+    external
+)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(libfatint PRIVATE -fsanitize=address -fno-omit-frame-pointer)
@@ -18,6 +21,5 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if (ENABLE_TESTING)
-    enable_testing()
     add_subdirectory(tests)
 endif()
