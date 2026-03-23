@@ -19,6 +19,8 @@ add_library(libfatint
     src/simulation/types.cpp
     src/simulation/utils.cpp
     src/measurement/DisjointSetsSpeciesCounter.cpp
+    src/io/CSVWriter.cpp
+    src/io/SVGWriter.cpp
 )
 target_include_directories(libfatint PUBLIC
     include
