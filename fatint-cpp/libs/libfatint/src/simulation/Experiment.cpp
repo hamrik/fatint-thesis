@@ -27,8 +27,8 @@ Experiment::Experiment(ExperimentParameters parameters,
 {
 }
 
-ExperimentStates
-Experiment::run()
+auto
+Experiment::run() -> ExperimentStates
 {
   Simulator simulator(similarity,
                       selection,
@@ -71,8 +71,8 @@ ExperimentSweep::ExperimentSweep(ExperimentSweepParameters parameters,
 {
 }
 
-ExperimentSweepStates
-ExperimentSweep::run()
+auto
+ExperimentSweep::run() -> ExperimentSweepStates
 {
   std::cerr << "Running " << parameters.experiments << " experiments, "
             << parameters.starting_parameters.runs << " runs per experiment, "

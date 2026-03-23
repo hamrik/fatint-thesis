@@ -1,0 +1,31 @@
+name: Test C++ reference CLI program
+on:
+  push:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v6
+      - name: Install dependencies
+        id: setup
+        run: |
+          sudo apt-get update
+          sudo apt-get upgrade -y
+          sudo apt-get install -y build-essential cmake
+      - name: Configure project
+        id: configure
+        run: |
+          cd fatint-cpp
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+      - name: Build project
+        id: build
+        run: |
+          cd fatint-cpp
+          cmake --build build --config Debug --parallel
+      - name: Run tests
+        id: test
+        run: |
+          cd fatint-cpp/build/
+          ./fatint

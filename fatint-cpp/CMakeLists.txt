@@ -7,6 +7,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 add_subdirectory(libs/libfatint)
 
 add_executable(fatint "src/main.cpp")
+target_include_directories(fatint PUBLIC "external")
 target_link_libraries(fatint PRIVATE libfatint)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")

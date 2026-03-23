@@ -7,10 +7,10 @@
 
 namespace fatint::simulation {
 
-model::Entity
+auto
 random_entity(math::Random& random,
               const model::Limits& limits,
-              size_t allele_count)
+              size_t allele_count) -> model::Entity
 {
   model::Entity entity;
   entity.age = 0;
@@ -36,8 +36,8 @@ Simulator::Simulator(genetics::ISimilarity& similarity,
 {
 }
 
-RunStates
-Simulator::run(math::Random& random, const RunParameters& params)
+auto
+Simulator::run(math::Random& random, const RunParameters& params) -> RunStates
 {
   std::vector<State> states;
   states.reserve(params.steps);
@@ -82,11 +82,11 @@ Simulator::run(math::Random& random, const RunParameters& params)
   return states;
 }
 
-bool
+auto
 Simulator::tick(math::Random& random,
                 const RunParameters& params,
                 Environment& environment,
-                model::Population& population)
+                model::Population& population) -> bool
 {
   for (size_t i : random.random_indices(population.size())) {
     // Iterate over population in random order to prevent older entities from
@@ -105,10 +105,10 @@ Simulator::tick(math::Random& random,
   return population.size() > 0;
 }
 
-size_t
+auto
 Simulator::reproduce(math::Random& random,
                      const RunParameters& params,
-                     model::Population& population)
+                     model::Population& population) -> size_t
 {
   size_t new_allele_count = 0;
   for (size_t i = 0; i < population.size(); i++) {
@@ -146,8 +146,8 @@ Simulator::add_allele(math::Random& random,
   }
 }
 
-size_t
-Simulator::count_species(const model::Population& population)
+auto
+Simulator::count_species(const model::Population& population) -> size_t
 {
   return species_counter.count_species(similarity, population);
 }
