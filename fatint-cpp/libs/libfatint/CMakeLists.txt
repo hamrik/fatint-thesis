@@ -7,7 +7,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 
 add_library(libfatint
-    src/stub.cpp
+    src/model/types.cpp
+    src/model/utils.cpp
 )
 target_include_directories(libfatint PUBLIC "include")
 
