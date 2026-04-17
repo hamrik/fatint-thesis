@@ -1,17 +1,17 @@
 #import "../../lib/elteikthesis.typ": todo
 
-== C++ implementation
+== C++ implementáció
 
 #todo("Document C++ requirements, usage")
 
-=== System requirements
+=== Rendszerkövetelkények
 
-=== Installation
+=== Telepítés
 
-=== Command-line options
+=== Parancssori opciók
 
-=== Running an experiment
+=== Egy kísérlet futtatása
 
-=== Running an experiment sweep
+=== Egy paramétervizsgálat futtatása
 
-=== Plotting graphs
+=== Grafikon előállítása

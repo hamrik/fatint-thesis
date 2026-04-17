@@ -1,5 +1,5 @@
 // ELTE FI Thesis Template for Typst
-// Converted from elteikthesis.cls v2.4
+// Converted from elteikthesis.cls v2.4 using Claude Sonnet
 
 #let thesis(
   title: "Thesis Title",
@@ -207,7 +207,7 @@
       grid(
         columns: (1fr, 1fr),
         gutter: 40pt,
-        align: (center, center),
+        align: center,
         [
           #text(size: 12pt, style: "italic")[#labels.int-supervisor:] \
           #text(size: 12pt)[#supervisor] \
@@ -224,7 +224,7 @@
       grid(
         columns: (1fr, 1fr),
         gutter: 40pt,
-        align: (center, center),
+        align: center,
         [
           #text(size: 12pt, style: "italic")[#labels.supervisor:] \
           #text(size: 12pt)[#supervisor] \

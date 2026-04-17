@@ -1,113 +1,109 @@
-#import "../../lib/elteikthesis.typ": definition, todo
+#import "/lib/elteikthesis.typ": definition, todo
 
-== NetLogo implementation
-
-The primary goal of this thesis is to reproduce the findings in @fatint using the NetLogo framework.
+== NetLogo implementáció
 
 #todo("Describe what NetLogo is")
 
-=== System requirements
+=== Rendszerkövetelmények
 
-- NetLogo 6 or newer
-- Java 1.4 or newer
-- At least 256MB of RAM
-- At least 25MB of disk space
+- NetLogo 6
+- Java 1.4 vagy újabb
+- Legalább 256MB rendszermemória
+- Legalább 25MB térhely
 
 #todo("Verify system req")
 
-=== Installation and launching
+=== Telepítés és indítás
 
-+ Make sure to download the model `model.nlogo` file and any `.nls` files from the project repository.
-+ Download and launch the NetLogo installer from #link("https://www.netlogo.org")
-+ Open NetLogo. An empty main window should appear.
-+ In the menu bar click *File*, then select *Open*. See @nl-menu.
-+ Browse to and select `model.nlogo`.
-+ The main window should populate with controls for the simulation. See @nl-controls.
++ Töltsön le a teljes repót, vagy annak `fatint-netlogo` nevű mappáját.
++ Töltse le és indítsa el a NetLogo 6-os verziójának telepítőjét a #link("https://www.netlogo.org") weboldalról.
++ Nyissa meg a NetLogo programot. Egy üres ablak fog megnyílni.
++ A menüsorban kattintson a *File* (_Fájl_) menüre, majd válassza ki az *Open* (_megnyitás_) opciót. Lásd @nl-menu.
++ Tallózza majd válassza ki a `model.nlogo` nevű fájlt.
++ Az ablak megjeleníti a szimuláció paramétereiből és mérhető tulajdonságaiból álló kezelőfelületet. Lásd @nl-controls.
 
 #grid(
   columns: (1fr, 1fr),
   [#figure(
     image("../../assets/screenshots/netlogo_menu_open.png"),
-    caption: [ The NetLogo main window with the File menu open ]
+    caption: [ A NetLogo 6 fő ablaka, a lenyitott _Fájl_ menüvel ]
   ) <nl-menu>],
   [#figure(
     image("../../assets/screenshots/netlogo_model_ui.png"),
-    caption: [ The NetLogo main window showing model parameters ]
+    caption: [ A NetLogo 6 fő ablaka a modell paraméter mezőkkel ]
   ) <nl-controls>]
 )
 
-=== Running a simulation
+=== A szimuláció futtatása
 
-The green boxes are parameters you can set by typing the white text fields.
+A zöld dobozok olyan paraméterek, melyek kívánt értékeit a fehér mezőbe írhatja. Azon zöld dobozok melyek nem tartalmaznak fehér mezőt, egyszerű ki/be kapcsolók. A kapcsoló piros nyelvére kattintva állítható. Ha a kapcsoló piros nyelve felfelé néz, akkor az opció be van kapcsolva.
 
-The parameters of the model are described in @model-desc.
 
-/ Starting population: How many entities are created in the first cycle
-/ Starting allele count: How many alleles each entity has in their genotype in the first cycle
-/ Use stretch method: When introducing a new allele, each entity gains a random one by default. This switch replaces the randomness with @stretch-formula.
+/ Starting population: A szimuláció első lépése ekkora populációval indul
+/ Starting allele count: Ennyi génnel indul minden egyed genotípusa az első körben
+/ Use stretch method: Új gént véletlenszám generálás helyett az @stretch-formula egyenletben megfogalmazott _"Stretch"_ módszer határozza meg.
 
-The following parameters do not affect model behavior but may affect performance:
+A modell további paramétereinek jelentéséről részletes leírást talál a @model-desc fejezetben.
 
-/ Measure every n steps: Counting species is expensive. This setting limits counting to every few steps.
-/ Use DS: Use Disjoint-Sets algorithm instead of Depth-First Search to count distinct species. Slightly improves performance.
+Az alábbi paraméterek nem befolyásolják a szimuláció lefutását, de hatással lehetnek annak hatékonyságára:
 
-#todo("Compare DS and DFS performance. Maybe remove the slower one entirely.")
+/ Measure every n steps: A fajok megszámlálása erőforrásigényes. Ezzel az opcióval megszabható, hogy hány szimulációs lépésenként fusson számlálás.
+/ Use DS: A Diszjunkt-Halmaz algoritmus használata naív mélységi bejárás helyett.
 
-The purple boxes are buttons.
+#todo("Compare DS and DFS performance.")
 
-/ Setup: Resets and model and prepares it for a new simulation.
-/ 1 step: Performs one cycle of the simulation.
-/ 500 steps: Performs at most 500 cycles of the simulation.
-/ Go: Continuously runs the simulation until the population drops to zero.
-/ Plus: Manually introduces a new allele to every entity.
+A lila dobozok nyomógombok:
 
-The yellow boxes tracks the state of the population in the model.
+/ Setup: Kezdőállapotba állítja a szimulációt.
+/ 1 step: Lefuttat pontosan egy szimulációs kört.
+/ 500 steps: Lefuttat legfejlebb 500 szimulációs kört.
+/ Go: Folyamatosan futtatja a szimulációt amíg a populáció létszáma nullára nem csökken.
+/ `+`: Kikényszeríti egy új gén bevezetését minden egyed genotípusába.
 
-/ Population: The amount of entities currently in the simulation
-/ Species count: The number of species the population can be grouped into based on reproduction compatibility.
-/ Allele count: The number of alleles every entity has in their genotype.
+A sárga dobozban nyomon követhető a szimuláció aktuális állapota.
+
+/ Population: A szimulációs körben részt vevő egyedek száma.
+/ Species count: A szimulációban fellelhető fajok száma.
+/ Allele count: Az egyedek genotípusának elemszáma (gének száma).
 
 #todo[_Allele_ is an incorrect term for this, use _Gene_]
 
-=== Running an experiment
+=== Egy kísérlet futtatása
 
-#definition(title: "Experiment")[
-  Running the simulation with the same parameters but a different random seed multiple times, then compiling the results.
+#definition(title: "Kísérlet")[
+  A szimuláció többszöri futtatása ugyanazon kezdő paraméterekkel, de különböző véletlen számokkal.
 ]
 
-+ Click *Tools* in the menu bar then select *BehaviorSpace*. See @nl-bs-menu.
-+ A window listing the various preconfigured experiments will open. See @nl-bs-list.
-+ Select your desired experiment. You may click *Edit* to modify it, see @nl-bs-edit. Once satisfied and click *Run*.
-+ A Run dialog will open. See @nl-bs-run. Browse where to save the outputs. #todo("Describe each output format")
-+ Select whether you want the plots to update during the simulation. This may slow it down.
-+ Click *OK* to start the experiment. A window showing the current state of the model will open. See @nl-bs-run.
-
 #grid(
-  columns: (1fr, 1fr, 1fr),
-  [#figure(
-    image("../../assets/screenshots/netlogo_menu_behaviorspace.png"),
-    caption: [NetLogo BehaviorSpace experiment list window]
-  ) <nl-bs-menu>],
-  [#figure(
-    image("../../assets/screenshots/netlogo_behaviorspace_ui.png"),
-    caption: [NetLogo BehaviorSpace experiment list window]
-  ) <nl-bs-list>],
-  [#figure(
-    image("../../assets/screenshots/netlogo_behaviorspace_edit.png"),
-    caption: [NetLogo BehaviorSpace experiment editor window]
-  ) <nl-bs-edit>],
-  [#figure(
-    image("../../assets/screenshots/netlogo_behaviorspace_run.png"),
-    caption: [NetLogo BehaviorSpace run options]
-  ) <nl-bs-run>],
-  [#figure(
-    image("../../assets/screenshots/netlogo_behaviorspace_running.png"),
-    caption: [NetLogo BehaviorSpace run]
-  ) <nl-bs-running>],
+  columns: (1fr, 1fr),
+  gutter: 0.5cm,
+  align: horizon,
+  image("../../assets/screenshots/netlogo_menu_behaviorspace.png"),
+  [
+    A menüsorban kattintson a *Tools* (_Eszközök_) menüre és válassza ki a *BehaviorSpace* opciót.
+  ],
+  image("../../assets/screenshots/netlogo_behaviorspace_ui.png"),
+  [
+    Egy felugró ablak felsorolja az előre beállított kísérleteket.
+    Válassza ki a kívánt kísérletet.
+  ],
+  image("../../assets/screenshots/netlogo_behaviorspace_edit.png"),
+  [
+    Az *Edit* (_Szerkesztés_) gombra kattintva testreszabhatók a szimulációs paraméterek.
+  ],
+  image("../../assets/screenshots/netlogo_behaviorspace_run.png"),
+  [
+    A *Run* (_Futtatás_) gombra kattintva egy dialógus fog megnyílni. Az egyes fájl mezőkben tallózza ki az eredmények mentési útvonalát. #todo("Describe each output format")
+    Ebben a dialógusban megadhatja, hogy a gráfok a szimuláció alatt folyamatosan frissüljenek-e. Ez lassíthatja a kísérlet futását.
+  ],
+  image("../../assets/screenshots/netlogo_behaviorspace_running.png"),
+  [
+    Az *OK* gombra kattintva elindul a szimuláció. Egy ablak fogja mutatni annak aktuális állását. A szimuláció végén követően az ablak automatikusan bezárul.
+  ],
 )
 
-=== Running an experiment sweep
+=== Egy kíséletsor futtatása
 
-#definition(title: "Experiment sweep")[
-  Running multiple experiments, where the only difference is in a single parameter. The value of the parameter is increased between every experiment.
+#definition(title: "Kísérletsor")[
+  Olyan kísérletek sorozata, melyek csak egy paraméterben térnek egy egymástól.
 ]
