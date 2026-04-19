@@ -5,4 +5,3 @@ output/
 **/.ipynb_checkpoints/
 CMakeCache.txt
 CMakeUserPresets.json
-*.pdf
