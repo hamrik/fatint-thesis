@@ -2,48 +2,66 @@
 
 == A modell leírása <model-desc>
 
-Nyitott evolúciónak hívjuk azon szimulációs rendszereket, melyek folyamatosan új komplexitást alkotnak, nem rekednek meg egy adott állapotban. Fontos megjegyezni, hogy ezek nem optimalizációs algoritmusok, nincs "céljuk" vagy minimalizálandó "költségfüggvényük".
+*Nyitott evolúciónak* hívjuk azon szimulációs rendszereket, melyek folyamatosan új komplexitást alkotnak, nem rekednek meg egy adott állapotban. Fontos megjegyezni, hogy ezek nem optimalizációs algoritmusok, nincs "céljuk" vagy minimalizálandó "költségfüggvényük".
 
-A FATINT modell (melynek neve a Fat Interactions, magyarul kövér interakciók rövidítése) egy olyan egyed szimulációs modell, melyek célja a nyitott evolúció demonstrálása egy stabil, de folyamatosan változó "ökoszisztéma" fenntartásával. Ezt arra a megfigyelésre alapozza, hogy való életben az élőlények génjeinek működésére hatást gyakorol a környezetük és az élőlények egymással való viselkedése.
+A *FATINT* modell (melynek neve a Fat Interactions, magyarul kövér interakciók rövidítése) egy olyan egyed szimulációs modell, melynek célja a nyitott evolúció demonstrálása egy stabil, de folyamatosan változó "ökoszisztéma" fenntartásával. Ezt arra a megfigyelésre alapozza, hogy való életben az élőlények génjeinek működésére hatást gyakorol a környezetük és az élőlények egymással való viselkedése.
 
-A cikk egy lehetséges példaként a zsiráfok nyakának hozza fel, mely akkor vált egy fontos, meghatározó tulajdonsággá, amikor az egymással összecsapó hímek a nyakuk hosszának függvényében tudtak sikeresen párt találni.
+A cikk egy lehetséges példaként a zsiráfok nyakát hozza fel, mely akkor vált egy fontos, meghatározó tulajdonsággá, amikor az egymással összecsapó hímek a nyakuk hosszának függvényében tudtak sikeresen párt találni.
 
-=== Változók
+A FATINT modellben semleges nemű egyedeket szimulálunk. Ezek az egyedek energiát vesznek fel a környezetből, párosodnak, veszítenek energiájukból, és végül meghalnak, ha a környezet nem tud minden elő egyedet eltartani, vagy ha az egyed kora előrehaladtával már nem képes megfelelően hasznosítani a felvett energiát.
 
-A FATINT modellben egy semleges nemű egyedekből álló populáció evolúcióját vizsgáljuk. Az egyedek az alábbi tulajdonságokkal rendelkeznek:
+Minden egyednek van egy genotípusa (egész számok vektoraként ábrázolva), mely meghatározza, hogy mely további egyedekkel tud párosodni (egy meghatározott távolságmetrika és küszöbérték szerint). Ezen párosodási "preferenciák" mentén az egyedek külön halmazokba sorolhatók, ahol az egyes egyedek a halmazukon kívül eső egyedekkel nem tudnak párosodni. Ezeket a halmazokat nevezzük *fajoknak*. A modell célja, hogy az idő előrehaladtával újabb és újabb fajokat alkosson, ezzel demonstrálva a nyitott evolúciót.
 
-/ Kor: A egyed által megélt szimulációs körök száma.
-/ Energia: Egy nemnegatív szám, mely az egyed energiaszintjét reprezentálja. Ha kör végén nulla, az egyed "meghal", és eltávolításra kerül a szimulációból.
-/ Genotípus: A egész számokból álló vektor, melynek segítségével meghatározható, hogy az adott egyed mely egyéb egyedekkel "kompatibilis". Ezen egyedekkel van lehetősége az egyednak párosodni. A vektor egyes elemei az úgynevezett *gének*.
+Egy faj felfogható azon gráf összefüggő komponensének, melynek csúcsai az életben lévő egyedek, az élek pedig a párosodni képes párok.
+#todo("This second definition is a little out of place here")
 
+Új fajok több módon is létrejöhetnek:
+- Egy egyed halálával annak faja két vagy több külön fajjá eshet szét, ha a két új faj között ez az egy egyed volt a "kapocs".
+- Párosodás során két szülő egyed létrehozhat egy vagy több gyermek egyedet. Ezen egyedek mindkét szülőtől örökölnek géneket, ezen felül pedig mutálódhatnak is. Előfordulhat, hogy az új egyedek már képesek más fajok egyedeivel párosodni, egyesítve két vagy több fajt egy új fajjá. Az is előfordulhat, hogy nem képesek párosodni senkivel, önmagukban alkotva új fajokat.
+- A szimuláció során kiválthatunk egy olyan eseményt, mely minden egyed genotípusát egyszerre bővíti, módosítva a párosodási preferenciáikat. Ez megfeleltethető a környezeti változások által aktivált géneknek. Ezen események új fajok kialakulásához vezethetnek, a korábbiak szétesésével vagy összeolvadásával.
 
-A környezet amiben az egyedek "élnek" az alábbi tulajdonságokkal rendelkezik:
-
-/ Energia: A környezet elérhető energiatartaléka. Ha elfogy, az egyedek nem tudják kipótolni saját energiaszintjüket.
-/ Génszám: Meghatározza, hogy az egyes egyedek genotípusa hány elemből áll.
-
-#definition[
-  A legfontosabb emergens tulajdonsága a modellnek azon *fajok* száma, melyekbe az egyes egyedek egy adott körben sorolhatók.
-
-  Egy faj azon, a szimulációban az adott körben részt vevő egyedek alhalmaza, melyek csak az adott alhalmazba tartozó egyedekkel kompatibilisek.
-
-  Ha az egyedekből alkotunk egy olyan gráfot, melynek csúcsai az egyedek, az élei pedig a kompatibilis párok, akkor a fajok száma a gráf összefüggő komponenseinek száma.
-]
 #todo[
   *CRUTIAL* It is unclear whether syllogism is a requirement when assigning an entity to a species. Does the entity have to be compatible with
   - at least one entity in the species, or
   - every entity in the species
   to be considered a member of the species?
 
-  Current implementations imply the former, but may not fit the conventional definition of the term _species_.
-  Switching to the latter requires reimplementating the species counting algorithms.
-
-  Perhaps keep both approaches as an option?
+  Current implementations imply the former, because the paper mentions that _"species are identified as connected components"_.
+  This may not fit the conventional definition of the term _species_.
+  Switching to the latter requires reimplementing the species counting algorithms and makes species much harder to form.
 ]
 
-A fenti tulajdonságok a szimuláció előrehaladtával változnak. Egyéb mérhető tulajdonsások például a populáció számossága, a környezet energiatartalékának alakulása, vagy a populáció korának statisztikái.
+=== A szimuláció körei
 
-Az alábbi paraméterek viszont a szimuláció előtt beállításra kerülnek, és a szimuláció futása során nem változnak.
+A szimuláció körökre van osztva. Minden kör az alábbi forgatókönyvet követi:
+
++ A környezet energiatartalékát növeljük $E_"increase"$ értékével.
++ Minden egyed megpróbál energiát magához venni a környezetből, az igazságosság érdekében véletlenszerű sorrendben.
++ Minden egyed energiát veszít, lásd @energy-gain-formula.
++ Azon egyedeket, melyek energiaszintje 0-ra csökkent, eltávolítjuk.
++ Minden további egyed külön-külön $P_"encounter"$ valószínűséggel véletlenszerűen keres egy kompatibilis párt.
++ Minden kompatibilis páros az @offspring-count-formula egyenletnek megfelelő számú új egyedet hoz létre. Egy új egyed génjeit az alábbi módon határozzuk meg:
+  + $P_"crossover"$ valószínűséggel az egyik, vagy másik szülő génjét vesszük alapul.
+  + $P_"mutation"$ valószínűséggel a gént módosítjuk véletlenszerűen $[-V_"mutation", V_"mutation"]$ közötti értékkel.
+  + Ha a gén egy meghatározott alléltartományon ($[V_"min", V_"max"]$) kívül esik, a gyermeket azonnal eltávolítjuk.
++ Minden egyes új egyed után $P_"change"$ valószínűséggel hozzáadunk egy-egy új gént az összes meglévő és jövőben létrejövő egyed genotípusához.
+
+A szimuláció minden köre után méréseket végezhetünk, például az egyedek számát vagy a környezet energiaszintjét. A legfontosabb emergens tulajdonság azonban az egyedek párosodási preferenciái által alkotott fajok száma.
+
+=== Változók
+
+Az egyedek az alábbi tulajdonságokkal rendelkeznek:
+
+/ Kor: A egyed által megélt szimulációs körök száma.
+/ Energia: Egy nemnegatív szám, mely az egyed energiaszintjét reprezentálja. Ha kör végén nulla, az egyed "meghal", és eltávolításra kerül a szimulációból.
+/ Genotípus: A egész számokból álló vektor, melynek segítségével meghatározható, hogy az adott egyed mely további egyedekkel tud párosodni. A vektor elemeit *génekek* hívjuk.
+
+Az egyedek közös környezete alábbi tulajdonságokkal rendelkezik:
+
+/ Energia: A környezet elérhető energiatartaléka. Ha elfogy, az egyedek nem tudják kipótolni saját energiaszintjüket.
+/ Génszám: Meghatározza, hogy az egyes egyedek genotípusa hány elemből áll.
+
+A fenti tulajdonságok a szimuláció előrehaladtával változnak. Az alábbi paraméterek viszont a szimuláció előtt beállításra kerülnek, és a szimuláció futása során nem változnak.
 
 === Energiával kapcsolatos paraméterek
 
@@ -66,18 +84,6 @@ Az alábbi paraméterek viszont a szimuláció előtt beállításra kerülnek, 
 / $P_"mutation"$, avagy mutáció valószínűsége: meghatározza annak a valószínűségét, hogy az újonnan létrejövő egyed egy adott génje eltolódik a szülő génjéhez képest
 / $V_"mutation"$, mutáció mértéke: meghatározza, hogy mutáció során a gén legfeljebb mekkora mértékben tolódhat el bármely irányba.
 / $P_"change"$, avagy génállomány módosulás valószínűsége: meghatározza annak a valószínűségét, hogy egy új egyed létrejötte nyomán hozzáadunk-e minden egyes egyed genotípusához egy-egy új gént.
-
-=== Körök
-
-A szimuláció körökre van osztva, minden kör az alábbi forgatókönyvet követi:
-
-+ A környezet energiatartalékát növeljük $E_"increase"$ értékével.
-+ Minden egyed megpróbál energiát magához venni a környezetből, az igazságosság érdekében véletlenszerű sorrendben.
-+ Minden egyed energiát veszít.
-+ Azon egyedeket, melyek energiaszintje 0-ra csökkent, eltávolítjuk.
-+ Minden további egyed külön-külön $P_"encounter"$ valószínűséggel véletlenszerűen keres egy kompatibilis párt.
-+ Minden kompatibilis páros az @offspring-count-formula egyenletnek megfelelő számú új egyedet hoz létre genetikus operátorokkal.
-+ Minden egyes új egyed után $P_"change"$ valószínűséggel hozzáadunk egy-egy új gént az összes meglévő és jövőben létrejövő egyed genotípusában.
 
 === Egyenletek
 

@@ -3,7 +3,7 @@
 #show: thesis.with(
   university: "Eötvös Loránd Tudományegyetem",
   faculty: "Informatikai kar",
-  department: "Számítógéptudományi Tenszék",
+  department: "Mesterséges Intelligencia Tanszék",
 
   title: [
     Evolutionary Technology:
@@ -11,10 +11,10 @@
     Replication of the FATINT system
   ],
 
-  author: "Szabin Hamrik",
+  author: "Hamrik Szabin",
   degree: "Programtervező informatikus BSc",
 
-  supervisor: "László Gulyás Dr.",
+  supervisor: "Gulyás László",
   affiliation: "Mesterséges Intelligencia Tanszék",
 
   city: "Budapest",

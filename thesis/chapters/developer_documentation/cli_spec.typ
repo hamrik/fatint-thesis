@@ -1,14 +1,115 @@
 #import "/lib/elteikthesis.typ": todo
+#import "/lib/plot.typ": avg_species_plot
 
-== C++ implementáció
+== C++ implementáció <cli-spec>
 
-#todo("Rationale for implementing in C++ vs NetLogo. Compare performance.")
-
-=== Specifikáció
+Egy parancssori eszköz és könyvtár a FATINT modell alapú szimulációk futtatására. Bővebben a felhasználói dokumentációban: @cli-user-manual.
 
 === Architektúra
 
-=== Forráskód fordítása
+A C++ implementáció erősen épít a _"Stratégia"_ fejlesztési mintára, mert a szimuláció minden eleme, a genetikus algorimusoktól a fajszámolásig egy-egy különálló, cserélhető algoritmus, melyeket az `Simulator` osztály hangol össze.
+
+#todo("Describe pluggable nature, strategy pattern and the available modules")
+
+#import "@preview/pintorita:0.1.4"
+#show raw.where(lang: "pintorita"): it => pintorita.render(it.text)
+```pintorita
+classDiagram
+  class Simulator {
+    - ISimilarity similarity
+    - ISelection selection
+    - IReproduction reproduction
+    - IValidator validator
+    - IAlleleAdder allele_adder
+    - ISpeciesCounter species_counter
+  }
+
+  class ISimilarity {
+
+  }
+  class ISelection {
+
+  }
+  class IReproduction {
+
+  }
+  class IValidator {
+
+  }
+  class IAlleleAdder {
+
+  }
+  class ISpeciesCounter {
+
+  }
+
+  Simulator *-- ISimilarity
+  Simulator *-- ISelection
+  Simulator *-- IReproduction
+  Simulator *-- IValidator
+  Simulator *-- IAlleleAdder
+  Simulator *-- ISpeciesCounter
+
+  class GeneticReproduction {
+    - IMutation mutation
+    - ICrossover crossover
+  }
+  IReproduction <|.. GeneticReproduction
+
+  class IMutation {
+
+  }
+  GeneticReproduction *-- IMutation
+
+  class ICrossover {
+
+  }
+  GeneticReproduction *-- ICrossover
+
+  class MutationImpl {
+
+  }
+  IMutation <|.. MutationImpl
+
+  class CrossoverImpl {
+
+  }
+  ICrossover <|.. CrossoverImpl
+
+  class SimilarityImpl {
+
+  }
+  ISimilarity <|.. SimilarityImpl
+
+  class SelectionImpl {
+
+  }
+  ISelection <|.. SelectionImpl
+
+  class ValidatorImpl {
+
+  }
+  IValidator <|.. ValidatorImpl
+
+  class RandomAlleleAdder {
+
+  }
+  IAlleleAdder <|-- RandomAlleleAdder
+
+  class StretchAlleleAdder {
+
+  }
+  IAlleleAdder <|-- StretchAlleleAdder
+
+  class DisjointSetsSpeciesCounter {
+
+  }
+  ISpeciesCounter <|.. DisjointSetsSpeciesCounter
+```
+
+#todo("The class diagram is incomplete, finish it")
+
+=== Forráskód fordítása <build-from-source>
 
 A forráskód fordításához a következő elemekre van szükség:
 
@@ -16,9 +117,7 @@ A forráskód fordításához a következő elemekre van szükség:
 - Egy C++20 szabványt támogató *C++ fordító* (pl. GCC 9 vagy újabb)
 - Intel Thread Building Blocks (Elhagyható, de ajánlott, különben a szimuláció egyetlen szálon fog futni, jelentősen lassítva azt)
 
-#todo("Migrate from TBB to custom job queue")
-
-#todo("Check versions")
+#todo("Migrate from TBB to hand-built job queue")
 
 Minden további függőséget már tartalmaz a repó.
 
@@ -32,6 +131,11 @@ $ cmake --build build --parallel
 A kész program a `./build/fatint` mappába kerül.
 
 === Tesztek futtatása
+
+A C++ implementáció tesztelésekor meg kell győződni arról, hogy a modell ugyanúgy viselkedik,
+ahogy a @fatint cikkben le van írva, továbbá, hogy az eredmények reprodukálhatóak. Ezt egység-
+és integrációs tesztekkel érjük el, melyeket a repóban beállított CI pipeline is lefuttat minden
+commit feltöltése után.
 
 ==== Automatizált tesztek
 
@@ -118,3 +222,41 @@ fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 \
   - Computing Cross-Correlation, Dynamic Time Wapring or Fréchet distance
   - Comparing inter-spike intervals
 ])
+
+#todo("Contextualize the results below")
+#todo("Include NetLogo results and compare, verify identical behavior")
+#todo("There is a clear regression in the C++ implementation. Find and fit it ASAP")
+
+==== Eredmények
+
+#figure(
+  avg_species_plot("/data/p_encounter_0.05-0.10.csv", "p_encounter"),
+  caption: "Fajok számának alakulása a párosodási valószínűség függvényében"
+)
+
+#figure(
+  avg_species_plot("/data/p_mutation_0.00-0.50.csv", "p_mutation"),
+  caption: "Fajok számának alakulása a génmutáció valószínűségének függvényében"
+)
+
+#figure(
+  avg_species_plot("/data/p_crossing_0.00-0.80.csv", "p_crossing"),
+  caption: "Fajok számának alakulása a gyermekek génjeinek diverzifikálódásának függvényében."
+)
+#figure(
+  avg_species_plot("/data/p_change_0.0005-0.001.csv", "p_change"),
+  caption: "Fajok számának alakulása az új gének aktivációjának valószínűségének függvényében."
+)
+#figure(
+  avg_species_plot("/data/p_change_0.0005_m_limit_0-20.csv", "m_limit"),
+  caption: "Fajok számának alakulása a párosodási preferencia küszöbértékének függvényében."
+)
+#figure(
+  avg_species_plot("/data/p_change_0.0005_v_stretch_1-20.csv", "v_stretch"),
+  caption: [Fajok számának alakulása a _"stretch"_ forumla együtthatójának függvényében.]
+)
+
+#todo("Cut off outlier values from the beginning")
+#todo("Move graphs from dev manual to user manual or separate chapter")
+#todo("Compare with NetLogo")
+#todo("Compare with original paper")
