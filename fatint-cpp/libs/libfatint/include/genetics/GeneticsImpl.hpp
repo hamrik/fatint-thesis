@@ -10,18 +10,17 @@ namespace fatint::genetics {
 class SimilarityImpl : public ISimilarity
 {
 public:
-  SimilarityImpl(const model::Limits& limits);
-  bool compatible(const model::Genotype& a,
+  bool compatible(const model::Limits& limits,
+                  const model::Genotype& a,
                   const model::Genotype& b) const override;
 
-private:
-  const model::Limits limits;
 };
 
 class SelectionImpl : public ISelection
 {
 public:
   std::optional<size_t> select(math::Random& random,
+                               const model::Limits& limits,
                                const ISimilarity& similarity,
                                size_t index,
                                const model::Population& entities) override;

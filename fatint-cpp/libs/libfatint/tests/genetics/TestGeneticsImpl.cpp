@@ -12,12 +12,12 @@ TEST_CASE("SimilarityImpl - similar entities are compatible")
   fatint::model::Limits limits;
   limits.m_limit = 1;
 
-  fatint::genetics::SimilarityImpl similarity(limits);
+  fatint::genetics::SimilarityImpl similarity;
 
   fatint::model::Genotype a = { 0, 0, 0, 0, 0 };
   fatint::model::Genotype b = { 0, 0, 0, 0, 1 };
 
-  CHECK(similarity.compatible(a, b) == true);
+  CHECK(similarity.compatible(limits, a, b) == true);
 }
 
 TEST_CASE("SimilarityImpl - dissimilar entities are not compatible")
@@ -25,12 +25,12 @@ TEST_CASE("SimilarityImpl - dissimilar entities are not compatible")
   fatint::model::Limits limits;
   limits.m_limit = 1;
 
-  fatint::genetics::SimilarityImpl similarity(limits);
+  fatint::genetics::SimilarityImpl similarity;
 
   fatint::model::Genotype a = { 0, 0, 0, 0, 0 };
   fatint::model::Genotype b = { 0, 0, 0, 1, 1 };
 
-  CHECK(similarity.compatible(a, b) == false);
+  CHECK(similarity.compatible(limits, a, b) == false);
 }
 
 TEST_CASE("MutationImpl - does not mutate when p_mutation is 0")

@@ -11,7 +11,8 @@ class ISimilarity
 {
 public:
   virtual ~ISimilarity() = default;
-  virtual bool compatible(const model::Genotype& a,
+  virtual bool compatible(const model::Limits& limits,
+                          const model::Genotype& a,
                           const model::Genotype& b) const = 0;
 };
 
@@ -21,6 +22,7 @@ public:
   virtual ~ISelection() = default;
 
   virtual std::optional<size_t> select(math::Random& random,
+                                       const model::Limits& limits,
                                        const ISimilarity& similarity,
                                        size_t index,
                                        const model::Population& entities) = 0;

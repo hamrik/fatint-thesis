@@ -5,6 +5,8 @@
 #include "simulation/Environment.hpp"
 #include "simulation/types.hpp"
 
+#include <iostream>
+
 namespace fatint::simulation {
 
 auto
@@ -39,6 +41,8 @@ Simulator::Simulator(genetics::ISimilarity& similarity,
 auto
 Simulator::run(math::Random& random, const RunParameters& params) -> RunStates
 {
+  std::cerr << "Starting simulation with parameters: " << params << std::endl;
+
   std::vector<State> states;
   states.reserve(params.steps);
 
@@ -58,13 +62,14 @@ Simulator::run(math::Random& random, const RunParameters& params) -> RunStates
 
   for (size_t i = 0; i < params.steps; ++i) {
     if (!keep_running) {
-      states.push_back({ 0, allele_count, 0 });
+      states.push_back({ .entity_count=0, .allele_count=allele_count, .species_count=0 });
       continue;
     }
 
     environment.replenish(params.energy_parameters.e_increase);
 
     keep_running = tick(random, params, environment, population);
+    if(!keep_running )std::cerr << "Population depleted after " << i << " steps" << std::endl;
 
     size_t new_alleles = reproduce(random, params, population);
     allele_count += new_alleles;
@@ -72,7 +77,7 @@ Simulator::run(math::Random& random, const RunParameters& params) -> RunStates
       add_allele(random, params, population);
     }
 
-    size_t species_count = count_species(population);
+    size_t species_count = count_species(params.limits, population);
 
     states.push_back({ .entity_count = population.size(),
                        .allele_count = allele_count,
@@ -115,7 +120,7 @@ Simulator::reproduce(math::Random& random,
     if (!random.chance(params.reproduction_probabilities.p_encounter)) {
       continue;
     }
-    auto mate = selection.select(random, similarity, i, population);
+    auto mate = selection.select(random, params.limits, similarity, i, population);
     if (!mate.has_value()) {
       continue;
     }
@@ -147,9 +152,9 @@ Simulator::add_allele(math::Random& random,
 }
 
 auto
-Simulator::count_species(const model::Population& population) -> size_t
+Simulator::count_species(const model::Limits& limits, const model::Population& population) -> size_t
 {
-  return species_counter.count_species(similarity, population);
+  return species_counter.count_species(limits, similarity, population);
 }
 
 } // namespace fatint::simulation

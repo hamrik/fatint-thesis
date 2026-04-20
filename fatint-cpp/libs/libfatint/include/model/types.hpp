@@ -118,11 +118,11 @@ struct AlleleParameters
 struct EnergyParameters
 {
   /// The amount of energy replenished by the environment after each step.
-  double e_increase;
+  int e_increase;
   /// The amount of energy lost by an entity per step.
-  double e_consumption;
+  int e_consumption;
   /// The maximum amount of energy consumed by a single entity per step.
-  double e_intake;
+  int e_intake;
   /// Affects how much of the energy intake is wasted.
   double e_discount;
 

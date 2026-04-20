@@ -77,7 +77,7 @@ ExperimentSweep::run() -> ExperimentSweepStates
   std::cerr << "Running " << parameters.experiments << " experiments, "
             << parameters.starting_parameters.runs << " runs per experiment, "
             << parameters.starting_parameters.run_parameters.steps
-            << " steps per run" << std::endl;
+            << " steps per run" << "\n";
   std::cerr.flush();
 
   ExperimentSweepStates results;

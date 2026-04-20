@@ -7,13 +7,9 @@
 
 namespace fatint::genetics {
 
-SimilarityImpl::SimilarityImpl(const model::Limits& limits)
-  : limits(limits)
-{
-}
-
 auto
-SimilarityImpl::compatible(const model::Genotype& a,
+SimilarityImpl::compatible(const model::Limits& limits,
+                           const model::Genotype& a,
                            const model::Genotype& b) const -> bool
 {
   assert(a.size() == b.size());
@@ -27,6 +23,7 @@ SimilarityImpl::compatible(const model::Genotype& a,
 
 auto
 SelectionImpl::select(math::Random& random,
+                      const model::Limits& limits,
                       const ISimilarity& similarity,
                       size_t index,
                       const model::Population& entities) -> std::optional<size_t>
@@ -37,7 +34,8 @@ SelectionImpl::select(math::Random& random,
     if (i == index) {
       continue;
     }
-    if (!similarity.compatible(entities[index].genotype,
+    if (!similarity.compatible(limits,
+                               entities[index].genotype,
                                entities[i].genotype)) {
       continue;
     }

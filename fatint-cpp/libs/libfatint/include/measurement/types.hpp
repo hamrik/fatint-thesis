@@ -9,7 +9,8 @@ class ISpeciesCounter
 {
 public:
   virtual ~ISpeciesCounter() = default;
-  virtual size_t count_species(const genetics::ISimilarity& similarity,
+  virtual size_t count_species(const model::Limits& limits,
+                               const genetics::ISimilarity& similarity,
                                const model::Population& population) const = 0;
 };
 

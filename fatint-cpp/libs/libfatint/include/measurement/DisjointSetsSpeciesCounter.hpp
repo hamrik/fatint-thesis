@@ -9,7 +9,8 @@ namespace fatint::measurement {
 class DisjointSetsSpeciesCounter : public ISpeciesCounter
 {
 public:
-  size_t count_species(const genetics::ISimilarity& similarity,
+  size_t count_species(const model::Limits& limits,
+                       const genetics::ISimilarity& similarity,
                        const model::Population& population) const override;
 };
 

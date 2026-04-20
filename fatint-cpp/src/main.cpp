@@ -16,13 +16,13 @@
 
 template<typename T>
 auto
-def(std::string value)
+def(const std::string& value)
 {
   return cxxopts::value<T>()->default_value(value);
 }
 
-cxxopts::ParseResult
-define_args(cxxopts::Options& options, int argc, char** argv)
+auto
+define_args(cxxopts::Options& options, int argc, char** argv) -> cxxopts::ParseResult
 {
   auto opt = options.add_options();
 
@@ -139,15 +139,15 @@ define_args(cxxopts::Options& options, int argc, char** argv)
   return options.parse(argc, argv);
 }
 
-fatint::simulation::ExperimentSweepParameters
-parse_args(cxxopts::ParseResult& result)
+auto
+parse_args(cxxopts::ParseResult& result) -> fatint::simulation::ExperimentSweepParameters
 {
   try {
     fatint::simulation::ExperimentSweepParameters experiment_sweep_parameters;
     fatint::simulation::ExperimentParameters experiment_parameters;
     fatint::simulation::RunParameters initial_run_parameters = { 0 };
     fatint::simulation::RunParameters delta = { 0 };
-    int experiment_count = result["experiments"].as<unsigned int>();
+    unsigned int experiment_count = result["experiments"].as<unsigned int>();
 
     initial_run_parameters.steps = result["steps"].as<unsigned int>();
     initial_run_parameters.seed = result["seed"].as<unsigned int>();
@@ -235,8 +235,8 @@ parse_args(cxxopts::ParseResult& result)
   }
 }
 
-int
-main(int argc, char** argv)
+auto
+main(int argc, char** argv) -> int
 {
   cxxopts::Options options(argv[0], "FATINT simulation");
 
@@ -259,20 +259,17 @@ main(int argc, char** argv)
   fatint::simulation::ExperimentSweepParameters experiment_sweep_parameters =
     parse_args(opts);
 
-  fatint::genetics::SimilarityImpl similarity(
-    experiment_sweep_parameters.starting_parameters.run_parameters.limits);
+  fatint::genetics::SimilarityImpl similarity;
   fatint::genetics::SelectionImpl selection;
   fatint::genetics::MutationImpl mutation;
   fatint::genetics::CrossoverImpl crossover;
   fatint::genetics::GeneticReproduction reproduction(mutation, crossover);
   fatint::genetics::ValidatorImpl validator;
-  std::unique_ptr<fatint::genetics::IAlleleAdder> allele_adder;
-  if (experiment_sweep_parameters.starting_parameters.run_parameters
-        .allele_parameters.v_stretch > 0) {
-    allele_adder = std::make_unique<fatint::genetics::VStretchAlleleAdder>();
-  } else {
-    allele_adder = std::make_unique<fatint::genetics::RandomAlleleAdder>();
-  }
+
+  fatint::genetics::VStretchAlleleAdder vstretch_adder;
+  fatint::genetics::RandomAlleleAdder random_adder;
+  bool use_vstretch = experiment_sweep_parameters.starting_parameters.run_parameters.allele_parameters.v_stretch > 0;
+
   fatint::measurement::DisjointSetsSpeciesCounter species_counter;
 
   fatint::simulation::ExperimentSweep experiment_sweep(
@@ -281,7 +278,9 @@ main(int argc, char** argv)
     selection,
     reproduction,
     validator,
-    *allele_adder,
+    use_vstretch
+                ? (fatint::genetics::IAlleleAdder&)vstretch_adder
+                : (fatint::genetics::IAlleleAdder&)random_adder,
     species_counter);
   fatint::simulation::ExperimentSweepStates states = experiment_sweep.run();
 

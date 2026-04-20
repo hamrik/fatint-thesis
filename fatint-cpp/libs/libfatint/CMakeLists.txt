@@ -27,6 +27,11 @@ target_include_directories(libfatint PUBLIC
     external
 )
 
+find_package(TBB)
+if(TBB_FOUND)
+    target_link_libraries(libfatint PUBLIC TBB::tbb)
+endif()
+
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(libfatint PRIVATE -fsanitize=address -fno-omit-frame-pointer)
     target_link_options(libfatint PRIVATE -fsanitize=address -fno-omit-frame-pointer)

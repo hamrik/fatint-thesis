@@ -32,7 +32,7 @@ private:
   void add_allele(math::Random& random,
                   const RunParameters& params,
                   model::Population& population);
-  size_t count_species(const model::Population& population);
+  size_t count_species(const model::Limits& limits, const model::Population& population);
 
   genetics::ISimilarity& similarity;
   genetics::ISelection& selection;

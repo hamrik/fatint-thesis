@@ -15,7 +15,7 @@ TEST_CASE("Simulator - entities eventually die of old age")
   params.steps = 50;
   params.reproduction_probabilities.p_encounter = 0;
 
-  fatint::genetics::SimilarityImpl similarity(params.limits);
+  fatint::genetics::SimilarityImpl similarity;
   fatint::genetics::SelectionImpl selection;
   fatint::genetics::MutationImpl mutation;
   fatint::genetics::CrossoverImpl crossover;
@@ -48,7 +48,7 @@ TEST_CASE("Simulator - entities reproduce")
   params.limits.v_max = 100;
   params.limits.m_limit = 100;
 
-  fatint::genetics::SimilarityImpl similarity(params.limits);
+  fatint::genetics::SimilarityImpl similarity;
   fatint::genetics::SelectionImpl selection;
   fatint::genetics::MutationImpl mutation;
   fatint::genetics::CrossoverImpl crossover;
@@ -82,7 +82,7 @@ TEST_CASE("Simulator - simulation is deterministic")
   params.limits.v_max = 100;
   params.limits.m_limit = 100;
 
-  fatint::genetics::SimilarityImpl similarity(params.limits);
+  fatint::genetics::SimilarityImpl similarity;
   fatint::genetics::SelectionImpl selection;
   fatint::genetics::MutationImpl mutation;
   fatint::genetics::CrossoverImpl crossover;
@@ -121,7 +121,7 @@ TEST_CASE("Simulator - allele count increases")
   params.limits.m_limit = 100;
   params.reproduction_probabilities.p_change = 0.2;
 
-  fatint::genetics::SimilarityImpl similarity(params.limits);
+  fatint::genetics::SimilarityImpl similarity;
   fatint::genetics::SelectionImpl selection;
   fatint::genetics::MutationImpl mutation;
   fatint::genetics::CrossoverImpl crossover;

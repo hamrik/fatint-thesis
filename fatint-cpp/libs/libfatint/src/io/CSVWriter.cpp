@@ -45,8 +45,8 @@ CSVWriter::write_row(size_t step,
   dest << params.run_parameters.limits.v_max << ",";
   dest << params.run_parameters.allele_parameters.v_mutation << ",";
   dest << params.run_parameters.allele_parameters.v_stretch << ",";
-  dest << params.run_parameters.limits.m_limit << ",";
   dest << params.run_parameters.reproduction_parameters.m_const << ",";
+  dest << params.run_parameters.limits.m_limit << ",";
   dest << params.run_parameters.reproduction_parameters.m_slope << ",";
   dest << params.run_parameters.energy_parameters.e_increase << ",";
   dest << params.run_parameters.energy_parameters.e_consumption << ",";

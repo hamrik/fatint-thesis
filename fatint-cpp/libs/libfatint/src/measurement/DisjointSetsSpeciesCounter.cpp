@@ -67,13 +67,15 @@ private:
 
 auto
 DisjointSetsSpeciesCounter::count_species(
+  const model::Limits& limits,
   const genetics::ISimilarity& similarity,
   const model::Population& population) const -> size_t
 {
   DisjointSets sets(population.size());
   for (size_t i = 0; i < population.size(); i++) {
     for (size_t j = i + 1; j < population.size(); j++) {
-      if (similarity.compatible(population[i].genotype,
+      if (similarity.compatible(limits,
+                                population[i].genotype,
                                 population[j].genotype)) {
         sets.link(i, j);
       }
