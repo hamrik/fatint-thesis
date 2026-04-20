@@ -1,4 +1,4 @@
-#let avg_species_plot(src, prop, steps:6000) = {
+#let avg_species_plot(src, prop, steps:6000, cap:5) = {
   import "@preview/lilaq:0.6.0" as lq
 
   let data = lq.load-txt(read(src), header: true)
@@ -19,6 +19,7 @@
     xaxis: (exponent: 0),
     ylabel: "Fajok átlagos száma",
     yaxis: (exponent: 0),
+    ylim: (0, cap),
     legend: (position: (100% + 1em, 0%)),
     ..range(exp_count).map(i => plot_slice(i))
   )

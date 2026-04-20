@@ -41,9 +41,9 @@ A szimuláció körökre van osztva. Minden kör az alábbi forgatókönyvet kö
 + Azon egyedeket, melyek energiaszintje 0-ra csökkent, eltávolítjuk.
 + Minden további egyed külön-külön $P_"encounter"$ valószínűséggel véletlenszerűen keres egy kompatibilis párt.
 + Minden kompatibilis páros az @offspring-count-formula egyenletnek megfelelő számú új egyedet hoz létre. Egy új egyed génjeit az alábbi módon határozzuk meg:
-  + $P_"crossover"$ valószínűséggel az egyik, vagy másik szülő génjét vesszük alapul.
-  + $P_"mutation"$ valószínűséggel a gént módosítjuk véletlenszerűen $[-V_"mutation", V_"mutation"]$ közötti értékkel.
-  + Ha a gén egy meghatározott alléltartományon ($[V_"min", V_"max"]$) kívül esik, a gyermeket azonnal eltávolítjuk.
+  - $P_"crossover"$ valószínűséggel az egyik, vagy másik szülő génjét vesszük alapul.
+  - $P_"mutation"$ valószínűséggel a gént módosítjuk véletlenszerűen $[-V_"mutation", V_"mutation"]$ közötti értékkel.
+  - Ha a gén egy meghatározott alléltartományon ($[V_"min", V_"max"]$) kívül esik, a gyermeket azonnal eltávolítjuk.
 + Minden egyes új egyed után $P_"change"$ valószínűséggel hozzáadunk egy-egy új gént az összes meglévő és jövőben létrejövő egyed genotípusához.
 
 A szimuláció minden köre után méréseket végezhetünk, például az egyedek számát vagy a környezet energiaszintjét. A legfontosabb emergens tulajdonság azonban az egyedek párosodási preferenciái által alkotott fajok száma.

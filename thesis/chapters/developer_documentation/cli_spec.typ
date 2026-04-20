@@ -183,35 +183,23 @@ Mindkét implementációban úgy vannak megválasztva az alapértelmezett érté
 A @fatint cikkben szereplő kísérletek adaptált megfelelői a következők
 
 ```bash
-fatint -e 11 --p_encounter 0.05 --sweep_p_encounter 0.005 \
-> p_encounter_0.05-0.10.csv
-fatint -e 11 --p_encounter 0.05 --sweep_p_encounter 0.005 \
--f svg > p_encounter_0.05-0.10.svg
+fatint -e 11 --p_encounter 0.05 --sweep_p_encounter 0.005 --output  p_encounter_0.05-0.10.csv
+fatint -e 11 --p_encounter 0.05 --sweep_p_encounter 0.005 -f svg --output p_encounter_0.05-0.10.svg
 
-fatint -e 6 --p_mutation 0 --sweep_p_mutation 0.1 \
-> p_mutation_0.00-0.50.csv
-fatint -e 6 --p_mutation 0 --sweep_p_mutation 0.1 \
--f svg > p_mutation_0.00-0.50.svg
+fatint -e 6 --p_mutation 0 --sweep_p_mutation 0.1 --output p_mutation_0.00-0.50.csv
+fatint -e 6 --p_mutation 0 --sweep_p_mutation 0.1 -f svg --output p_mutation_0.00-0.50.svg
 
-fatint -e 9 --p_crossing 0 --sweep_p_mutation 0.1 \
-> p_crossing_0.00-0.80.csv
-fatint -e 9 --p_crossing 0 --sweep_p_mutation 0.1 \
--f svg > p_crossing_0.00-0.80.svg
+fatint -e 9 --p_crossing 0 --sweep_p_crossing 0.1 --output p_crossing_0.00-0.80.csv
+fatint -e 9 --p_crossing 0 --sweep_p_crossing 0.1 -f svg --output p_crossing_0.00-0.80.svg
 
-fatint -e 11 --p_change 0.0005 --sweep_p_mutation 0.00005 \
-> p_change_0.0005-0.001.csv
-fatint -e 11 --p_change 0.0005 --sweep_p_mutation 0.00005 \
--f svg > p_change_0.0005-0.001.svg
+fatint -e 11 --p_change 0.0005 --sweep_p_change 0.00005 --output p_change_0.0005-0.001.csv
+fatint -e 11 --p_change 0.0005 --sweep_p_change 0.00005 -f svg --output p_change_0.0005-0.001.svg
 
-fatint -e 21 --p_change 0.0005 --m_limit 0 --sweep_m_limit 1 \
-> p_change_0.0005_m_limit_0-20.csv
-fatint -e 21 --p_change 0.0005 --m_limit 0 --sweep_m_limit 1 \
--f svg > p_change_0.0005_m_limit_0-20.svg
+fatint -e 21 --p_change 0.0005 --m_limit 0 --sweep_m_limit 1 --output p_change_0.0005_m_limit_0-20.csv
+fatint -e 21 --p_change 0.0005 --m_limit 0 --sweep_m_limit 1 -f svg --output p_change_0.0005_m_limit_0-20.svg
 
-fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 \
-> p_change_0.0005_v_stretch_1-20.csv
-fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 \
--f svg > p_change_0.0005_v_stretch_1-20.svg
+fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 --output p_change_0.0005_v_stretch_1-20.csv
+fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 -f svg --output p_change_0.0005_v_stretch_1-20.svg
 ```
 
 #todo("Add command-line option to output multiple formats at once")
@@ -230,30 +218,77 @@ fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 \
 ==== Eredmények
 
 #figure(
-  avg_species_plot("/data/p_encounter_0.05-0.10.csv", "p_encounter"),
-  caption: "Fajok számának alakulása a párosodási valószínűség függvényében"
+  [
+    #avg_species_plot("/data/p_encounter_0.05-0.10.csv", "p_encounter")
+    #image("/assets/paper_excerpts/P_encounter__0.05__0.095.png")
+  ],
+  caption: [
+    Fajok számának alakulása a párosodási valószínűség függvényében.
+
+    Felül: a C++ implementáció eredménye.
+    Alul: a @fatint cikkből kiragadott grafikon.
+  ]
 )
 
 #figure(
-  avg_species_plot("/data/p_mutation_0.00-0.50.csv", "p_mutation"),
-  caption: "Fajok számának alakulása a génmutáció valószínűségének függvényében"
-)
+  [
+    #avg_species_plot("/data/p_mutation_0.00-0.50.csv", "p_mutation")
+    #image("/assets/paper_excerpts/P_mutation__0__0.5.png")
+  ],
+  caption: [
+    Fajok számának alakulása a génmutáció valószínűségének függvényében
 
-#figure(
-  avg_species_plot("/data/p_crossing_0.00-0.80.csv", "p_crossing"),
-  caption: "Fajok számának alakulása a gyermekek génjeinek diverzifikálódásának függvényében."
+    Felül: a C++ implementáció eredménye.
+    Alul: a @fatint cikkből kiragadott grafikon.
+  ]
 )
 #figure(
-  avg_species_plot("/data/p_change_0.0005-0.001.csv", "p_change"),
-  caption: "Fajok számának alakulása az új gének aktivációjának valószínűségének függvényében."
+  [
+    #avg_species_plot("/data/p_crossing_0.00-0.80.csv", "p_crossing")
+    #image("/assets/paper_excerpts/P_crossing__0__0.5.png")
+  ],
+  caption: [
+    Fajok számának alakulása a gyermekek génjeinek diverzifikálódásának függvényében.
+
+    Felül: a C++ implementáció eredménye.
+    Alul: a @fatint cikkből kiragadott grafikon.
+  ]
 )
 #figure(
-  avg_species_plot("/data/p_change_0.0005_m_limit_0-20.csv", "m_limit"),
-  caption: "Fajok számának alakulása a párosodási preferencia küszöbértékének függvényében."
+  [
+    #avg_species_plot("/data/p_change_0.0005-0.001.csv", "p_change", cap: 20)
+    #image("/assets/paper_excerpts/P_change__0.0005__0.001.png")
+  ],
+  caption: [
+    Fajok számának alakulása az új gének aktivációjának valószínűségének függvényében.
+
+    Felül: a C++ implementáció eredménye.
+    Alul: a @fatint cikkből kiragadott grafikon.
+  ]
 )
 #figure(
-  avg_species_plot("/data/p_change_0.0005_v_stretch_1-20.csv", "v_stretch"),
-  caption: [Fajok számának alakulása a _"stretch"_ forumla együtthatójának függvényében.]
+  [
+    #avg_species_plot("/data/p_change_0.0005_m_limit_0-20.csv", "m_limit")
+    #image("/assets/paper_excerpts/M_limit__0__20.png")
+  ],
+  caption: [
+    Fajok számának alakulása a párosodási preferencia küszöbértékének függvényében.
+
+    Felül: a C++ implementáció eredménye.
+    Alul: a @fatint cikkből kiragadott grafikon.
+  ]
+)
+#figure(
+  [
+    #avg_species_plot("/data/p_change_0.0005_v_stretch_1-20.csv", "v_stretch", cap: 20)
+    #image("/assets/paper_excerpts/V_stretch__1__20.png")
+  ],
+  caption: [
+    Fajok számának alakulása a _"stretch"_ forumla együtthatójának függvényében.
+
+    Felül: a C++ implementáció eredménye.
+    Alul: a @fatint cikkből kiragadott grafikon.
+  ]
 )
 
 #todo("Cut off outlier values from the beginning")
