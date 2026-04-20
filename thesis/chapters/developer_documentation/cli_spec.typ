@@ -219,24 +219,35 @@ fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 -f svg --output
 
 #figure(
   [
-    #avg_species_plot("/data/p_encounter_0.05-0.10.csv", "p_encounter")
+    #avg_species_plot("/data/default_params.csv")
+    #image("/assets/paper_excerpts/default_params.png")
+  ],
+  caption: [
+    Fajok számának alakulása alapértelmezett beállítások mellett.
+
+    Felül: a C++ implementáció eredménye.
+    Alul: a @fatint cikkből kiragadott grafikon.
+  ]
+)
+#figure(
+  [
+    #avg_species_plot("/data/p_encounter_0.05-0.10.csv", prop: "p_encounter", cap: 5)
     #image("/assets/paper_excerpts/P_encounter__0.05__0.095.png")
   ],
   caption: [
-    Fajok számának alakulása a párosodási valószínűség függvényében.
+    Fajok számának alakulása a párosodási valószínűség ($P_"encounter"$) függvényében.
 
     Felül: a C++ implementáció eredménye.
     Alul: a @fatint cikkből kiragadott grafikon.
   ]
 )
-
 #figure(
   [
-    #avg_species_plot("/data/p_mutation_0.00-0.50.csv", "p_mutation")
+    #avg_species_plot("/data/p_mutation_0.00-0.50.csv", prop: "p_mutation")
     #image("/assets/paper_excerpts/P_mutation__0__0.5.png")
   ],
   caption: [
-    Fajok számának alakulása a génmutáció valószínűségének függvényében
+    Fajok számának alakulása a génmutáció valószínűségének ($P_"mutation"$) függvényében
 
     Felül: a C++ implementáció eredménye.
     Alul: a @fatint cikkből kiragadott grafikon.
@@ -244,11 +255,11 @@ fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 -f svg --output
 )
 #figure(
   [
-    #avg_species_plot("/data/p_crossing_0.00-0.80.csv", "p_crossing")
+    #avg_species_plot("/data/p_crossing_0.00-0.80.csv", prop: "p_crossing")
     #image("/assets/paper_excerpts/P_crossing__0__0.5.png")
   ],
   caption: [
-    Fajok számának alakulása a gyermekek génjeinek diverzifikálódásának függvényében.
+    Fajok számának alakulása a gyermekek génjeinek diverzifikálódásának ($P_"crossing"$) függvényében.
 
     Felül: a C++ implementáció eredménye.
     Alul: a @fatint cikkből kiragadott grafikon.
@@ -256,11 +267,11 @@ fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 -f svg --output
 )
 #figure(
   [
-    #avg_species_plot("/data/p_change_0.0005-0.001.csv", "p_change", cap: 20)
+    #avg_species_plot("/data/p_change_0.0005-0.001.csv", prop: "p_change", cap: 20)
     #image("/assets/paper_excerpts/P_change__0.0005__0.001.png")
   ],
   caption: [
-    Fajok számának alakulása az új gének aktivációjának valószínűségének függvényében.
+    Fajok számának alakulása az új gének aktivációjának valószínűségének ($P_"change"$) függvényében.
 
     Felül: a C++ implementáció eredménye.
     Alul: a @fatint cikkből kiragadott grafikon.
@@ -268,11 +279,11 @@ fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 -f svg --output
 )
 #figure(
   [
-    #avg_species_plot("/data/p_change_0.0005_m_limit_0-20.csv", "m_limit")
+    #avg_species_plot("/data/p_change_0.0005_m_limit_0-20.csv", prop: "m_limit", cap: 30)
     #image("/assets/paper_excerpts/M_limit__0__20.png")
   ],
   caption: [
-    Fajok számának alakulása a párosodási preferencia küszöbértékének függvényében.
+    Fajok számának alakulása a párosodási preferencia küszöbértékének ($M_"limit"$) függvényében. $P_"change" = 0.0005$
 
     Felül: a C++ implementáció eredménye.
     Alul: a @fatint cikkből kiragadott grafikon.
@@ -280,11 +291,11 @@ fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 -f svg --output
 )
 #figure(
   [
-    #avg_species_plot("/data/p_change_0.0005_v_stretch_1-20.csv", "v_stretch", cap: 20)
+    #avg_species_plot("/data/p_change_0.0005_v_stretch_1-20.csv", prop: "v_stretch", cap: 6)
     #image("/assets/paper_excerpts/V_stretch__1__20.png")
   ],
   caption: [
-    Fajok számának alakulása a _"stretch"_ forumla együtthatójának függvényében.
+    Fajok számának alakulása a _"stretch"_ formula együtthatójának ($V_"stretch"$) függvényében.
 
     Felül: a C++ implementáció eredménye.
     Alul: a @fatint cikkből kiragadott grafikon.
