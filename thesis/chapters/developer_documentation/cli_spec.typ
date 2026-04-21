@@ -276,6 +276,7 @@ A szimuláció futásideje exponenciálisan nő, ahogy a környezet egyre több 
 )
 #figure(
   [
+    #netlogo_species_plot("/data/NetLogo-p_mutation.csv", [$P_"mutation"$])
     #avg_species_plot("/data/p_mutation_0.00-0.50.csv", "p_mutation")
     #image("/assets/paper_excerpts/P_mutation__0__0.5.png")
   ],
@@ -301,6 +302,7 @@ A szimuláció futásideje exponenciálisan nő, ahogy a környezet egyre több 
 )
 #figure(
   [
+    #netlogo_species_plot("/data/NetLogo-p_change.csv", [$P_"change"$], cap: 20)
     #avg_species_plot("/data/p_change_0.0005-0.001.csv", "p_change", cap: 20)
     #image("/assets/paper_excerpts/P_change__0.0005__0.001.png")
   ],
@@ -313,6 +315,7 @@ A szimuláció futásideje exponenciálisan nő, ahogy a környezet egyre több 
 )
 #figure(
   [
+    #netlogo_species_plot("/data/NetLogo-m_limit.csv", [$M_"limit"$], cap: 30)
     #avg_species_plot("/data/p_change_0.0005_m_limit_0-20.csv", "m_limit", cap: 30)
     #image("/assets/paper_excerpts/M_limit__0__20.png")
   ],
@@ -325,6 +328,7 @@ A szimuláció futásideje exponenciálisan nő, ahogy a környezet egyre több 
 )
 #figure(
   [
+    #netlogo_species_plot("/data/NetLogo-v_stretch.csv", [$V_"stretch"$], cap: 6)
     #avg_species_plot("/data/p_change_0.0005_v_stretch_1-20.csv", "v_stretch", cap: 6)
     #image("/assets/paper_excerpts/V_stretch__1__20.png")
   ],
