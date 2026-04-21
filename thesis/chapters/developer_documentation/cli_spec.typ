@@ -1,5 +1,5 @@
 #import "/lib/elteikthesis.typ": todo
-#import "/lib/plot.typ": avg_species_plot
+#import "/lib/plot.typ": *
 
 == C++ implementáció <cli-spec>
 
@@ -215,11 +215,43 @@ fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 -f svg --output
 #todo("Include NetLogo results and compare, verify identical behavior")
 #todo("There is a clear regression in the C++ implementation. Find and fit it ASAP")
 
-==== Eredmények
+== Teljesítmény
+
+#todo("Move to proper place")
+
+#figure(
+  species_counter_perf_plot("/data/species_counter_perf_3.csv"),
+  caption: [
+    Fajszámlálási idő az egyedek számának függvényében (logaritmikus ábrázolás). _"Single"_: Minden egyed közös fajhoz tartozik. _"Many"_: Minden egyed külön fajhoz tartozik.
+  ]
+)
+
+Megfigyelhető, hogy a fajszámláló algoritmusoknál fontosabb szempont a különböző fajok száma, mint az egyedek száma. A _"Single"_ esetekben minden egyed egy fajba tartozott, míg a _"Many"_ esetekben minden faj külön fajba. Alacsony fajszám mellett a mélységi bejárás teljesít jobban, míg sok faj esetén a diszjunkt-halmaz algoritmus.
+
+#figure(
+  simulator_perf_plot("/data/simulator_no_churn_perf.csv"),
+  caption: [
+    Szimuláció futásideje az egyedek számának függvényében. Hallhatatlan, steril egyedek.
+  ]
+)
+
+A szimuláció futásideje lineáris, ha az egyedek halhatatlanok és nem szaporodnak. A mérés során a fajszámlálás le volt tiltva.
+
+#figure(
+  simulator_perf_plot("/data/simulator_churn_perf.csv"),
+  caption: [
+  Szimuláció futásideje a környezet egyedeltartó képességének függvényében.
+  ]
+)
+
+A szimuláció futásideje exponenciálisan nő, ahogy a környezet egyre több egyedet képes eltartani, ezzel jelentősen növelve a populációból való törtlések és hozzáadások számát.
+
+= Eredmények
 
 #figure(
   [
-    #avg_species_plot("/data/default_params.csv")
+    #netlogo_species_plot("/data/NetLogo-default_params.csv", [Starting population])
+    #avg_species_plot("/data/default_params.csv", "starting_population")
     #image("/assets/paper_excerpts/default_params.png")
   ],
   caption: [
@@ -231,7 +263,8 @@ fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 -f svg --output
 )
 #figure(
   [
-    #avg_species_plot("/data/p_encounter_0.05-0.10.csv", prop: "p_encounter", cap: 5)
+    #netlogo_species_plot("/data/NetLogo-p_encounter.csv", [$P_"encounter"$])
+    #avg_species_plot("/data/p_encounter_0.05-0.10.csv", "p_encounter", cap: 5)
     #image("/assets/paper_excerpts/P_encounter__0.05__0.095.png")
   ],
   caption: [
@@ -243,7 +276,7 @@ fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 -f svg --output
 )
 #figure(
   [
-    #avg_species_plot("/data/p_mutation_0.00-0.50.csv", prop: "p_mutation")
+    #avg_species_plot("/data/p_mutation_0.00-0.50.csv", "p_mutation")
     #image("/assets/paper_excerpts/P_mutation__0__0.5.png")
   ],
   caption: [
@@ -255,7 +288,8 @@ fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 -f svg --output
 )
 #figure(
   [
-    #avg_species_plot("/data/p_crossing_0.00-0.80.csv", prop: "p_crossing")
+    #netlogo_species_plot("/data/NetLogo-p_crossing.csv", [$P_"crossing"$])
+    #avg_species_plot("/data/p_crossing_0.00-0.80.csv", "p_crossing")
     #image("/assets/paper_excerpts/P_crossing__0__0.5.png")
   ],
   caption: [
@@ -267,7 +301,7 @@ fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 -f svg --output
 )
 #figure(
   [
-    #avg_species_plot("/data/p_change_0.0005-0.001.csv", prop: "p_change", cap: 20)
+    #avg_species_plot("/data/p_change_0.0005-0.001.csv", "p_change", cap: 20)
     #image("/assets/paper_excerpts/P_change__0.0005__0.001.png")
   ],
   caption: [
@@ -279,7 +313,7 @@ fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 -f svg --output
 )
 #figure(
   [
-    #avg_species_plot("/data/p_change_0.0005_m_limit_0-20.csv", prop: "m_limit", cap: 30)
+    #avg_species_plot("/data/p_change_0.0005_m_limit_0-20.csv", "m_limit", cap: 30)
     #image("/assets/paper_excerpts/M_limit__0__20.png")
   ],
   caption: [
@@ -291,18 +325,13 @@ fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 -f svg --output
 )
 #figure(
   [
-    #avg_species_plot("/data/p_change_0.0005_v_stretch_1-20.csv", prop: "v_stretch", cap: 6)
+    #avg_species_plot("/data/p_change_0.0005_v_stretch_1-20.csv", "v_stretch", cap: 6)
     #image("/assets/paper_excerpts/V_stretch__1__20.png")
   ],
   caption: [
-    Fajok számának alakulása a _"stretch"_ formula együtthatójának ($V_"stretch"$) függvényében.
+    Fajok számának alakulása a _"stretch"_ formula együtthatójának ($V_"stretch"$) függvényében. $P_"change" = 0.0005$
 
     Felül: a C++ implementáció eredménye.
     Alul: a @fatint cikkből kiragadott grafikon.
   ]
 )
-
-#todo("Cut off outlier values from the beginning")
-#todo("Move graphs from dev manual to user manual or separate chapter")
-#todo("Compare with NetLogo")
-#todo("Compare with original paper")

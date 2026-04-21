@@ -12,7 +12,30 @@
 
 === Tesztelés
 
-A NetLogo 6 nem tartalmaz beépített tesztelési eszközözet, így ezt az implementációt kézzel kell tesztelni.
+A NetLogo 6 nem tartalmaz beépített tesztelési eszközöket, így ezt az implementációt kézzel kell tesztelni.
+
+A modell fájlba ágyazott kísérletek viszont futtathatóak a felület indítása nélkül is, a NetLogo gyökérmappájában található
+`NetLogo_Console` eszköz segítségével.
+
+```bash
+NetLogo$ ./NetLogo_Console --headless --model model.nlogo --experiment experiment-name --table output.csv --stats stats.csv
+```
+
+/ `--headless`: Ez a kapcsoló megakadályozza a felhasználói felület betöltését
+/ `--model`: Ennek a kapcsolónak kell megadni a modell fájl elérési útvonalát
+/ `--experiment`: A futtatni kívánt BehaviorSpace kísérlet neve
+/ `--table`: A szimuláció ereményének mentési útvonala
+/ `--stats`: A statisztikák mentési útvonala
+
+A @fatint cikkben szereplő kísérletek az alábbi nevekkel érhetők el ebben a modellben:
+
+- `default-settings`
+- `no-additional-alleles-sweep-encounter`
+- `no-additional-alleles-sweep-mutation`
+- `no-additional-alleles-sweep-crossing`
+- `random-new-allele-sweep-change`
+- `random-new-allele-sweep-mlimit`
+- `stretch-new-allele-sweep-stretch`
 
 ==== Populáció öregedése
 
@@ -25,5 +48,3 @@ A NetLogo 6 nem tartalmaz beépített tesztelési eszközözet, így ezt az impl
 #todo("Add seed control to the UI")
 
 #todo("Implement helper utilities to aid testing")
-
-#todo("Embed NetLogo BehaviorSpace results and compare to paper")
