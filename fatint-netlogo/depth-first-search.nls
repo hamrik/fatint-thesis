@@ -1,0 +1,23 @@
+to depth-first-traverse
+  set visited true
+  ask my-links [
+	ask both-ends with [not visited] [
+	  depth-first-traverse
+	]
+  ]
+end
+
+to dft-count-species
+  ask turtles [
+    set visited false
+  ]
+  set species-count 0
+  let unvisited turtles with [ visited = false ]
+  while [ any? unvisited ] [
+    set species-count species-count + 1
+    ask one-of unvisited [
+      depth-first-traverse
+    ]
+	set unvisited turtles with [ visited = false ]
+  ]
+end

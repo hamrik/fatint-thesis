@@ -1,19 +1,55 @@
+__includes [
+  "disjoint-sets.nls"
+  "depth-first-search.nls"
+]
+
 globals [
   available-energy
   population
   species-count
-  L
+  allele-count
+
+  M-limit-sqr
 ]
 turtles-own [
+  ;; Model
   phenotype
-  age
+  e-discounting
   accumulated-energy
 
+  ;; Depth First Search counting helper
   visited
 
+  ;; Disjoint-Sets counting helper
   parent
   rank
 ]
+links-own [
+  d-sqr
+]
+
+to reset
+  set V-min 0
+  set V-max 100
+  set P-encounter 0.1
+  set P-crossing 0.2
+  set P-mutation 0.1
+  set V-mutation 2
+  set M-limit 15
+  set M-slope 0
+  set M-const 1
+  set E-consumption 5
+  set E-intake 10
+  set E-discount 0.9
+  set E-increase 1000
+  set P-change 0
+  set V-stretch 1
+  set use-stretch-method false
+  set starting-allele-count 5
+  set starting-pop 100
+  set use-ds true
+  set measure-every-n-ticks 1
+end
 
 to-report random-gene
   report V-min + random (V-max - V-min)
@@ -21,34 +57,47 @@ end
 
 to setup
   clear-all
-  set available-energy 0
-  set population starting-pop
-  set L starting-allele-count
+  reset-ticks
+  set M-limit-sqr M-limit * M-limit
+  resize-world V-min V-max V-min V-max
 
-  create-turtles population [
-    set age 0
+  set available-energy 0
+  set population       starting-pop
+  set allele-count     starting-allele-count
+
+  create-turtles starting-pop [
+    set e-discounting      1
     set accumulated-energy 0
-    set phenotype n-values L [random-gene]
-    ;set shape "dot"
-    ;set color white
-    ;set size 1
+    set phenotype          n-values allele-count [random-gene]
+
+    set shape "circle"
+    setxy (item 0 phenotype) (item 1 phenotype)
+    set color (list ((item 2 phenotype) + 100) ((item 2 phenotype) + 100) ((item 3 phenotype) + 100))
   ]
+  ask turtles [ linkup ]
 
   count-species
-  ;layout-circle sort turtles 15
-  reset-ticks
 end
 
 ;; ----- Aging -----------------------------------------------------------------
 
-to eat
+to replenish
+  set available-energy available-energy + E-increase
+end
+
+to eat-or-die
   ask (turtles) [
-    let energy-consumed    min (list E-intake available-energy)
-    set available-energy   available-energy - energy-consumed
-    set accumulated-energy accumulated-energy + (energy-consumed * (E-discount ^ age)) - E-consumption
-    set age age + 1
-    ;set color 9.9 - (age / 3.0)
-    ;set size 1 + (accumulated-energy / 10.0)
+    let energy-consumed 0
+    if-else (available-energy > E-intake) [
+      set energy-consumed  E-intake * e-discounting
+      set available-energy available-energy - E-intake
+    ] [
+      set energy-consumed  available-energy * e-discounting
+      set available-energy 0
+    ]
+
+    set e-discounting      e-discounting * E-discount
+    set accumulated-energy accumulated-energy + energy-consumed - E-consumption
 
     if (accumulated-energy <= 0) [
       die
@@ -56,15 +105,10 @@ to eat
   ]
 end
 
-to replenish
-  set available-energy available-energy + E-increase
-end
-
 ;; ----- Reproduction ----------------------------------------------------------
 
-to-report euclidean-distance [a b]
-  let delta [[ia ib] -> ((ia - ib) ^ 2)]
-  report sqrt sum (map delta a b)
+to-report delta-sqr [a b]
+  report (a - b) * (a - b)
 end
 
 to-report combine [ga gb]
@@ -79,110 +123,48 @@ to-report combine [ga gb]
 end
 
 to reproduce
-  let prev-L L
+  let new-allele-count 0
 
   ask turtles with [(random-float 1.0) < P-encounter] [
-    let other-phenotype phenotype
-    let mates other turtles with [(euclidean-distance phenotype other-phenotype) < M-limit]
-    if count mates > 0 [
-      ask one-of mates [
-        let dist euclidean-distance phenotype other-phenotype
+    if any? my-links [
+      ask one-of my-links [
+        let a [phenotype] of end1
+        let b [phenotype] of end2
+        let dist            sqrt (d-sqr)
         let offspring-count M-const + (M-limit - dist) * M-slope
-        hatch offspring-count [
-          set age 0
-          set accumulated-energy 0
-          set phenotype (map combine other-phenotype phenotype)
-          let max-p max phenotype
-          let min-p min phenotype
-          if (max-p > V-max) or (min-p < V-min) [
-            die
-          ]
-          if random-float 1.0 < P-change [
-            set L L + 1
+
+        ask end1 [
+          hatch offspring-count [
+            set phenotype          (map combine a b)
+            set e-discounting      1
+            set accumulated-energy 0
+
+            ;; Make sure offspring is viable
+            foreach phenotype [ g ->
+              if (g < V-min or g > V-max) [ die ]
+            ]
+
+            ;; Speciation event: introduce new gene to everyone
+            if random-float 1.0 < P-change [
+              set new-allele-count new-allele-count + 1
+            ]
+
+            setxy (item 0 phenotype) (item 1 phenotype)
+            set color (list ((item 2 phenotype) + 100) ((item 2 phenotype) + 100) ((item 3 phenotype) + 100))
+
+            linkup
           ]
         ]
       ]
     ]
   ]
 
-  repeat L - prev-L [
-    add-allele
-  ]
-end
-
-;; ----- Disjoint-Set for species counting -------------------------------------
-;; TODO: Consider using directed links to parents
-
-to ds-clear
-  ask turtles [
-    set parent who
-    set rank 1
-  ]
-  set species-count (count turtles)
-end
-
-to-report ds-root [i]
-  while [i != ([parent] of (turtle i))] [
-    ask (turtle i) [ set parent ([parent] of (turtle parent)) ] ;; Path halving
-    set i [parent] of (turtle i)
-  ]
-  report i
-end
-
-to ds-merge [a b]
-  set a (ds-root a)
-  set b (ds-root b)
-
-  if a != b [
-    let ra ([rank] of (turtle a))
-    let rb ([rank] of (turtle b))
-
-    if ra < rb [
-      ask turtle a [ set parent b ]
+  if (new-allele-count > 0) [
+    ask links [ die ]
+    repeat new-allele-count [
+      add-allele
     ]
-    if ra > rb [
-      ask turtle b [ set parent a ]
-    ]
-    if ra = rb [
-      ask turtle a [ set rank (rank + 1) ]
-      ask turtle b [ set parent a ]
-    ]
-
-    set species-count (species-count - 1)
-  ]
-end
-
-to ds-count-species
-  ds-clear
-  ask turtles [
-    let other-who who
-    let other-phenotype phenotype
-    ask other turtles with [(euclidean-distance phenotype other-phenotype) < M-limit] [
-      ds-merge who other-who
-    ]
-  ]
-end
-
-;; ----- Depth-First Traversal for species-counting ----------------------------
-
-to depth-first-traverse
-  let other-phenotype phenotype
-  set visited true
-  ask other turtles with [(not visited) and (euclidean-distance phenotype other-phenotype) < M-limit] [
-    depth-first-traverse
-  ]
-end
-
-to dft-count-species
-  ask turtles [
-    set visited false
-  ]
-  set species-count 0
-  while [ any? turtles with [ visited = false ] ] [
-    set species-count species-count + 1
-    ask one-of turtles with [ visited = false ] [
-      depth-first-traverse
-    ]
+    ask turtles [ linkup ]
   ]
 end
 
@@ -198,15 +180,16 @@ end
 
 to add-random-allele
   ask turtles [
-    set phenotype (sentence phenotype (list random-gene))
+    set phenotype (lput random-gene phenotype)
   ]
 end
 
 to add-stretched-allele
   ask turtles [
-    let gene last phenotype
+    let gene           last phenotype
     let stretched-gene V-min + ( (gene * V-stretch) mod (V-max - V-min + 1) )
-    set phenotype (sentence phenotype (list stretched-gene))
+
+    set phenotype (lput stretched-gene phenotype)
   ]
 end
 
@@ -216,30 +199,41 @@ to add-allele
   ] [
     add-random-allele
   ]
+  set allele-count allele-count + 1
+end
+
+to-report euclidean-distance-sqr [a b]
+  report sum (map delta-sqr a b)
+end
+
+to linkup
+  create-links-with other turtles [
+    let a [phenotype] of end1
+    let b [phenotype] of end2
+    set d-sqr euclidean-distance-sqr a b
+    if (d-sqr > M-limit-sqr) [ die ]
+  ]
 end
 
 to go
   replenish
-  eat
+  eat-or-die
   reproduce
   if not any? turtles [
     stop
   ]
-  if ticks mod measure-every-n-ticks = 0 [
-    count-species
-  ]
-  ;layout-circle sort turtles 15
+  count-species
   tick
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
+891
 10
-10
-130
-131
+1465
+585
 -1
 -1
-3.4
+5.604
 1
 10
 1
@@ -249,12 +243,12 @@ GRAPHICS-WINDOW
 0
 0
 1
--16
-16
--16
-16
 0
+100
 0
+100
+1
+1
 1
 ticks
 10.0
@@ -396,7 +390,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -11053225 true "" "plot L"
+"default" 1.0 0 -11053225 true "" "plot allele-count"
 
 SWITCH
 65
@@ -514,7 +508,7 @@ INPUTBOX
 410
 464
 P-change
-8.0E-4
+0.0
 1
 0
 Number
@@ -734,7 +728,7 @@ MONITOR
 463
 359
 Alleles
-L
+allele-count
 17
 1
 11
@@ -745,7 +739,7 @@ INPUTBOX
 601
 238
 measure-every-n-ticks
-20.0
+1.0
 1
 0
 Number
@@ -760,6 +754,34 @@ use-ds
 0
 1
 -1000
+
+BUTTON
+792
+206
+859
+239
+Reset
+reset
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+MONITOR
+463
+74
+546
+119
+Viable pairs
+count links
+17
+1
+11
 
 @#$#@#$#@
 @#$#@#$#@
@@ -1073,29 +1095,12 @@ NetLogo 6.4.0
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="no-additional-alleles-sweep-crossing" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="no-additional-alleles-sweep-crossing" repetitions="10" runMetricsEveryStep="true">
+    <preExperiment>reset</preExperiment>
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="6000"/>
-    <metric>count turtles</metric>
     <metric>species-count</metric>
-    <metric>L</metric>
-    <runMetricsCondition>ticks mod measure-every-n-ticks = 0</runMetricsCondition>
-    <enumeratedValueSet variable="M-limit">
-      <value value="15"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="M-slope">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="M-const">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-encounter">
-      <value value="0.1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-change">
-      <value value="0"/>
-    </enumeratedValueSet>
     <enumeratedValueSet variable="P-crossing">
       <value value="0"/>
       <value value="0.1"/>
@@ -1103,137 +1108,25 @@ NetLogo 6.4.0
       <value value="0.3"/>
       <value value="0.4"/>
       <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-mutation">
-      <value value="0.1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-min">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-max">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-stretch">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-discount">
-      <value value="0.9"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-intake">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-increase">
-      <value value="1000"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-consumption">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="starting-pop">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="starting-allele-count">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="use-stretch-method">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="measure-every-n-ticks">
-      <value value="20"/>
+      <value value="0.6"/>
+      <value value="0.7"/>
+      <value value="0.8"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="no-additional-alleles-sweep-encounter" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="no-additional-alleles-sweep-encounter" repetitions="10" runMetricsEveryStep="true">
+    <preExperiment>reset</preExperiment>
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="6000"/>
-    <metric>count turtles</metric>
     <metric>species-count</metric>
-    <metric>L</metric>
-    <runMetricsCondition>ticks mod measure-every-n-ticks = 0</runMetricsCondition>
-    <enumeratedValueSet variable="M-limit">
-      <value value="15"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="M-slope">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="M-const">
-      <value value="1"/>
-    </enumeratedValueSet>
     <steppedValueSet variable="P-encounter" first="0.05" step="0.005" last="0.095"/>
-    <enumeratedValueSet variable="P-change">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-crossing">
-      <value value="0.2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-mutation">
-      <value value="0.1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-min">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-max">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-stretch">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-discount">
-      <value value="0.9"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-intake">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-increase">
-      <value value="1000"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-consumption">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="starting-pop">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="starting-allele-count">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="use-stretch-method">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="measure-every-n-ticks">
-      <value value="20"/>
-    </enumeratedValueSet>
   </experiment>
-  <experiment name="no-additional-alleles-sweep-mutation" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="no-additional-alleles-sweep-mutation" repetitions="10" runMetricsEveryStep="true">
+    <preExperiment>reset</preExperiment>
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="6000"/>
-    <metric>count turtles</metric>
     <metric>species-count</metric>
-    <metric>L</metric>
-    <runMetricsCondition>ticks mod measure-every-n-ticks = 0</runMetricsCondition>
-    <enumeratedValueSet variable="M-limit">
-      <value value="15"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="M-slope">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="M-const">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-encounter">
-      <value value="0.1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-change">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-crossing">
-      <value value="0.2"/>
-    </enumeratedValueSet>
     <enumeratedValueSet variable="P-mutation">
       <value value="0"/>
       <value value="0.1"/>
@@ -1242,298 +1135,38 @@ NetLogo 6.4.0
       <value value="0.4"/>
       <value value="0.5"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="V-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-min">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-max">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-stretch">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-discount">
-      <value value="0.9"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-intake">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-increase">
-      <value value="1000"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-consumption">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="starting-pop">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="starting-allele-count">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="use-stretch-method">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="measure-every-n-ticks">
-      <value value="20"/>
-    </enumeratedValueSet>
   </experiment>
-  <experiment name="random-new-allele-sweep-change" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="random-new-allele-sweep-change" repetitions="10" runMetricsEveryStep="true">
+    <preExperiment>reset</preExperiment>
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="6000"/>
-    <metric>count turtles</metric>
     <metric>species-count</metric>
-    <metric>L</metric>
-    <runMetricsCondition>ticks mod measure-every-n-ticks = 0</runMetricsCondition>
-    <enumeratedValueSet variable="M-limit">
-      <value value="15"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="M-slope">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="M-const">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-encounter">
-      <value value="0.1"/>
-    </enumeratedValueSet>
     <steppedValueSet variable="P-change" first="5.0E-4" step="5.0E-5" last="0.001"/>
-    <enumeratedValueSet variable="P-crossing">
-      <value value="0.2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-mutation">
-      <value value="0.1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-min">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-max">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-stretch">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-discount">
-      <value value="0.9"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-intake">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-increase">
-      <value value="1000"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-consumption">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="starting-pop">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="starting-allele-count">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="use-stretch-method">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="measure-every-n-ticks">
-      <value value="20"/>
-    </enumeratedValueSet>
   </experiment>
-  <experiment name="stretch-new-allele-sweep-stretch" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="stretch-new-allele-sweep-stretch" repetitions="10" runMetricsEveryStep="true">
+    <preExperiment>reset
+set use-stretch-method true</preExperiment>
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="6000"/>
-    <metric>count turtles</metric>
     <metric>species-count</metric>
-    <metric>L</metric>
-    <runMetricsCondition>ticks mod measure-every-n-ticks = 0</runMetricsCondition>
-    <enumeratedValueSet variable="M-limit">
-      <value value="15"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="M-slope">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="M-const">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-encounter">
-      <value value="0.1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-change">
-      <value value="0.001"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-crossing">
-      <value value="0.2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-mutation">
-      <value value="0.1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-min">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-max">
-      <value value="100"/>
-    </enumeratedValueSet>
     <steppedValueSet variable="V-stretch" first="1" step="1" last="20"/>
-    <enumeratedValueSet variable="E-discount">
-      <value value="0.9"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-intake">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-increase">
-      <value value="1000"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-consumption">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="starting-pop">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="starting-allele-count">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="use-stretch-method">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="measure-every-n-ticks">
-      <value value="20"/>
-    </enumeratedValueSet>
   </experiment>
-  <experiment name="random-new-allele-sweep-mlimit" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="random-new-allele-sweep-mlimit" repetitions="10" runMetricsEveryStep="true">
+    <preExperiment>reset</preExperiment>
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="6000"/>
-    <metric>count turtles</metric>
     <metric>species-count</metric>
-    <metric>L</metric>
-    <runMetricsCondition>ticks mod measure-every-n-ticks = 0</runMetricsCondition>
     <steppedValueSet variable="M-limit" first="5" step="1" last="20"/>
-    <enumeratedValueSet variable="M-slope">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="M-const">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-encounter">
-      <value value="0.1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-change">
-      <value value="0.001"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-crossing">
-      <value value="0.2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-mutation">
-      <value value="0.1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-min">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-max">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-stretch">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-discount">
-      <value value="0.9"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-intake">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-increase">
-      <value value="1000"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-consumption">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="starting-pop">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="starting-allele-count">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="use-stretch-method">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="measure-every-n-ticks">
-      <value value="20"/>
-    </enumeratedValueSet>
   </experiment>
-  <experiment name="stretch-new-allele-sweep-mlimit" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="default-settings" repetitions="10" runMetricsEveryStep="true">
+    <preExperiment>reset</preExperiment>
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="6000"/>
-    <metric>count turtles</metric>
     <metric>species-count</metric>
-    <metric>L</metric>
-    <runMetricsCondition>ticks mod measure-every-n-ticks = 0</runMetricsCondition>
-    <steppedValueSet variable="M-limit" first="5" step="1" last="20"/>
-    <enumeratedValueSet variable="M-slope">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="M-const">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-encounter">
-      <value value="0.1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-change">
-      <value value="0.001"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-crossing">
-      <value value="0.2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="P-mutation">
-      <value value="0.1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-mutation">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-min">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-max">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="V-stretch">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-discount">
-      <value value="0.9"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-intake">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-increase">
-      <value value="1000"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="E-consumption">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="starting-pop">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="starting-allele-count">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="use-stretch-method">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="measure-every-n-ticks">
-      <value value="20"/>
-    </enumeratedValueSet>
   </experiment>
 </experiments>
 @#$#@#$#@

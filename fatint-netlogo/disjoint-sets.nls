@@ -1,0 +1,47 @@
+to ds-clear
+  ask turtles [
+    set parent who
+    set rank 1
+  ]
+  set species-count (count turtles)
+end
+
+to-report ds-root [i]
+  while [i != ([parent] of (turtle i))] [
+    ask (turtle i) [ set parent ([parent] of (turtle parent)) ] ;; Path halving
+    set i [parent] of (turtle i)
+  ]
+  report i
+end
+
+to ds-merge [a b]
+  set a (ds-root a)
+  set b (ds-root b)
+
+  if a != b [
+    let ra ([rank] of (turtle a))
+    let rb ([rank] of (turtle b))
+
+    if ra < rb [
+      ask turtle a [ set parent b ]
+    ]
+    if ra > rb [
+      ask turtle b [ set parent a ]
+    ]
+    if ra = rb [
+      ask turtle a [ set rank (rank + 1) ]
+      ask turtle b [ set parent a ]
+    ]
+
+    set species-count (species-count - 1)
+  ]
+end
+
+to ds-count-species
+  ds-clear
+  ask links [
+    let a [who] of end1
+	let b [who] of end2
+    ds-merge a b
+  ]
+end
