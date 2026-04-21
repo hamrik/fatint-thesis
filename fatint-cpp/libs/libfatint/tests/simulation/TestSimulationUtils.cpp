@@ -40,7 +40,7 @@ TEST_CASE("RunParameters operator+= accumulates all fields")
   b.genetic_probabilities.p_crossing = 0.2;
   b.genetic_probabilities.p_mutation = 0.1;
   b.allele_parameters.starting_allele_count = 5;
-  b.allele_parameters.v_mutation = 0.5;
+  b.allele_parameters.v_mutation = 2;
   b.allele_parameters.v_stretch = 0.25;
   b.energy_parameters.e_increase = 5.0;
   b.energy_parameters.e_consumption = 0.5;
@@ -63,7 +63,7 @@ TEST_CASE("RunParameters operator+= accumulates all fields")
   CHECK(a.genetic_probabilities.p_crossing == doctest::Approx(0.5));
   CHECK(a.genetic_probabilities.p_mutation == doctest::Approx(0.5));
   CHECK(a.allele_parameters.starting_allele_count == 15);
-  CHECK(a.allele_parameters.v_mutation == doctest::Approx(1.5));
+  CHECK(a.allele_parameters.v_mutation == 3);
   CHECK(a.allele_parameters.v_stretch == doctest::Approx(1.75));
   CHECK(a.energy_parameters.e_increase == doctest::Approx(15.0));
   CHECK(a.energy_parameters.e_consumption == doctest::Approx(1.5));

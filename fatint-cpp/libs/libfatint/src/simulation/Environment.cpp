@@ -5,7 +5,7 @@
 namespace fatint::simulation {
 
 auto
-Environment::take(int max) -> int
+Environment::take(double max) -> double
 {
   max = std::min(energy, max);
   energy -= max;
@@ -13,13 +13,13 @@ Environment::take(int max) -> int
 }
 
 void
-Environment::replenish(int amount)
+Environment::replenish(double amount)
 {
   energy += amount;
 }
 
 auto
-Environment::current_energy() const -> int
+Environment::current_energy() const -> double
 {
   return energy;
 }

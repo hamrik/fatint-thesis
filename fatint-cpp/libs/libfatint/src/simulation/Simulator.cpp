@@ -5,8 +5,6 @@
 #include "simulation/Environment.hpp"
 #include "simulation/types.hpp"
 
-#include <iostream>
-
 namespace fatint::simulation {
 
 auto
@@ -41,8 +39,6 @@ Simulator::Simulator(genetics::ISimilarity& similarity,
 auto
 Simulator::run(math::Random& random, const RunParameters& params) -> RunStates
 {
-  std::cerr << "Starting simulation with parameters: " << params << std::endl;
-
   std::vector<State> states;
   states.reserve(params.steps);
 
@@ -69,8 +65,6 @@ Simulator::run(math::Random& random, const RunParameters& params) -> RunStates
     environment.replenish(params.energy_parameters.e_increase);
 
     keep_running = tick(random, params, environment, population);
-    if(!keep_running )std::cerr << "Population depleted after " << i << " steps" << std::endl;
-
     size_t new_alleles = reproduce(random, params, population);
     allele_count += new_alleles;
     while (new_alleles--) {

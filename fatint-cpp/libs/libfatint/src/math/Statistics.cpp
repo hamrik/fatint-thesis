@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <stdexcept>
 
 #include "simulation/types.hpp"
 #include "simulation/utils.hpp"
@@ -27,15 +28,10 @@ StatisticsEvaluator::measure(std::vector<double> values) -> Measurement
     inner_product += value * value;
   }
 
-  double average = sum / values.size();
-  double variance_inner_product = 0;
-
-  for (double value : values) {
-    variance_inner_product += (value - average) * (value - average);
-  }
+  double average = sum / static_cast<double>(values.size());
 
   double sample_variance =
-    variance_inner_product / static_cast<double>(values.size() - 1.0);
+    inner_product / static_cast<double>(values.size()) - 1.0;
 
   return { .min = min,
            .max = max,
@@ -51,9 +47,13 @@ StatisticsEvaluator::measure(const ExperimentParameters& params,
 {
   ExperimentResults statistics;
 
-  assert(results.size() == params.runs);
+  if(results.size() != params.runs) {
+    throw std::runtime_error{"Result count and run count does not match"};
+  }
   for (const auto& result : results) {
-    assert(result.size() == params.run_parameters.steps);
+    if(result.size() != params.run_parameters.steps) {
+      throw std::runtime_error{"Row count and step count does not match"};
+    }
   }
 
   for (size_t step = 0; step < params.run_parameters.steps; step++) {
@@ -64,16 +64,19 @@ StatisticsEvaluator::measure(const ExperimentParameters& params,
     allele_count.reserve(params.runs);
     species_count.reserve(params.runs);
     for (size_t run = 0; run < params.runs; run++) {
-      entity_count.push_back(results[run][step].entity_count);
-      allele_count.push_back(results[run][step].allele_count);
-      species_count.push_back(results[run][step].species_count);
+      entity_count.push_back(
+        static_cast<double>(results[run][step].entity_count));
+      allele_count.push_back(
+        static_cast<double>(results[run][step].allele_count));
+      species_count.push_back(
+        static_cast<double>(results[run][step].species_count));
     }
-    statistics.push_back({ measure(entity_count),
-                           entity_count,
-                           measure(allele_count),
-                           allele_count,
-                           measure(species_count),
-                           species_count });
+    statistics.push_back({ .entity_count = measure(entity_count),
+                           .entity_count_values = entity_count,
+                           .allele_count = measure(allele_count),
+                           .allele_count_values = allele_count,
+                           .species_count = measure(species_count),
+                           .species_count_values = species_count });
   }
 
   return statistics;

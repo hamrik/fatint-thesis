@@ -5,6 +5,11 @@
 
 namespace fatint::io {
 
+const double SVG_WIDTH = 1200;
+const double SVG_HEIGHT = 600;
+const double SVG_PADDING = 50;
+const double SVG_LEGEND_WIDTH = 400;
+
 /**
  * Generates an XY plot of the average species count for each experiment at
  * every step. Each experiment is graphed with a different color.
@@ -18,14 +23,14 @@ SVGWriter::write(const simulation::ExperimentSweepParameters& params,
                  const simulation::ExperimentSweepResults& results,
                  std::ostream& dest)
 {
-  double width_with_padding = 1200;
-  double height_with_padding = 600;
-  double padding = 50;
-  double legend_width = 400;
+  double width_with_padding = SVG_WIDTH;
+  double height_with_padding = SVG_HEIGHT;
+  double padding = SVG_PADDING;
+  double legend_width = SVG_LEGEND_WIDTH;
   double width = width_with_padding - padding * 2 - legend_width;
   double height = height_with_padding - padding * 2;
 
-  int max_step = params.starting_parameters.run_parameters.steps;
+  size_t max_step = params.starting_parameters.run_parameters.steps;
   double max_value = 0;
   double mv_count = 0;
   for (const auto& experiment : results) {
@@ -37,9 +42,9 @@ SVGWriter::write(const simulation::ExperimentSweepParameters& params,
   max_value /= mv_count;
   max_value *= 2;
 
-  double step_width = width / params.starting_parameters.run_parameters.steps;
+  double step_width = width / static_cast<double>(params.starting_parameters.run_parameters.steps);
   double height_factor = height / max_value;
-  double legend_height = height / params.experiments;
+  double legend_height = height / static_cast<double>(params.experiments);
 
   simulation::ExperimentParameters experiment_params{
     params.starting_parameters
@@ -80,19 +85,23 @@ SVGWriter::write(const simulation::ExperimentSweepParameters& params,
 
   // Plot data points
   for (size_t e = 0; e < params.experiments; e++) {
-    simulation::ExperimentResults experiment_results = results[e];
-    double hue = e * 360.0 / params.experiments;
+    const auto& experiment_results = results[e];
+    auto de = static_cast<double>(e);
+    const double hue_max = 360.0;
+    const double bullet_y_offset = 5.0;
+    double hue = de * hue_max / static_cast<double>(params.experiments);
     // Plot legend
     dest << "<circle cx=\"" << width + padding + padding / 2 << "\" cy=\""
-         << padding + legend_height * e - 5 << "\" r=\"3\" fill=\"hsl(" << hue
+         << padding + legend_height * de - bullet_y_offset << "\" r=\"3\" fill=\"hsl(" << hue
          << ", 75%, 50%)\" />\n";
     dest << "<text x=\"" << width + padding * 2 << "\" y=\""
-         << padding + legend_height * e << "\">"
+         << padding + legend_height * de << "\">"
          << experiment_params.run_parameters << "</text>\n";
     for (size_t s = 0; s < max_step; s++) {
-      simulation::Statistics step_statistics = experiment_results[s];
+      auto ds = static_cast<double>(s);
+      const auto& step_statistics = experiment_results[s];
       double average_species_count = step_statistics.species_count.avg;
-      double x = padding + s * step_width;
+      double x = padding + ds * step_width;
       double y = height + padding - average_species_count * height_factor;
       dest << "<circle cx=\"" << x << "\" cy=\"" << y
            << "\" r=\"1\" fill=\"hsl(" << hue << ", 75%, 50%)\" />\n";

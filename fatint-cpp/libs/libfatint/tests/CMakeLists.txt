@@ -9,8 +9,11 @@ set(TESTS
   simulation/TestSimulator.cpp
   math/TestRandom.cpp
   math/TestStatistics.cpp
+  measurement/TestDepthFirstSearchSpeciesCounter.cpp
   measurement/TestDisjointSetsSpeciesCounter.cpp
   measurement/TestReservoirSampling.cpp
+  performance/TestSimulatorPerformance.cpp
+  performance/TestSpeciesCounterPerformance.cpp
 )
 
 enable_testing()
@@ -21,7 +24,7 @@ foreach(TEST_FILE ${TESTS})
   add_executable(${TEST} ${TEST_FILE})
   target_link_libraries(${TEST} libfatint)
 
-  target_compile_options(${TEST} PRIVATE -fsanitize=address -fno-omit-frame-pointer)
+  target_compile_options(${TEST} PRIVATE -fsanitize=address -fno-omit-frame-pointer -Wconversion -Wall -Werror)
   target_link_options(${TEST} PRIVATE -fsanitize=address -fno-omit-frame-pointer)
 
   add_test(NAME ${TEST} COMMAND ${TEST})

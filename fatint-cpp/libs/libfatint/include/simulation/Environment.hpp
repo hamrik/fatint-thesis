@@ -5,12 +5,12 @@ namespace fatint::simulation {
 class Environment
 {
 public:
-  int take(int max);
-  void replenish(int amount);
-  int current_energy() const;
+  auto take(double max) -> double;
+  void replenish(double amount);
+  auto current_energy() const -> double;
 
 private:
-  int energy = 0;
+  double energy = 0.0;
 };
 
 } // namespace fatint::simulation

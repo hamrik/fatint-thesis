@@ -3,6 +3,7 @@
 #include "io/CSVWriter.hpp"
 #include "io/SVGWriter.hpp"
 #include "math/Statistics.hpp"
+#include "measurement/DepthFirstSearchSpeciesCounter.hpp"
 #include "measurement/DisjointSetsSpeciesCounter.hpp"
 #include "simulation/Experiment.hpp"
 
@@ -49,7 +50,7 @@ define_args(cxxopts::Options& options, int argc, char** argv) -> cxxopts::ParseR
 
   opt("v_min", "Minimum allele", def<int>("0"));
   opt("v_max", "Maximum allele", def<int>("100"));
-  opt("v_mutation", "Maximum allele mutation", def<double>("2"));
+  opt("v_mutation", "Maximum allele mutation", def<int>("2"));
   opt("v_stretch",
       "Stretch factor when introducing new gene\n(0 = generate "
       "random gene)",
@@ -102,7 +103,7 @@ define_args(cxxopts::Options& options, int argc, char** argv) -> cxxopts::ParseR
       def<int>("0"));
   opt("sweep_v_mutation",
       "The amount v_mutation is increased by between experiments",
-      def<double>("0"));
+      def<int>("0"));
   opt("sweep_v_stretch",
       "The amount v_stretch is increased by between experiments",
       def<double>("0.0"));
@@ -168,7 +169,7 @@ parse_args(cxxopts::ParseResult& result) -> fatint::simulation::ExperimentSweepP
     initial_run_parameters.limits.v_min = result["v_min"].as<int>();
     initial_run_parameters.limits.v_max = result["v_max"].as<int>();
     initial_run_parameters.allele_parameters.v_mutation =
-      result["v_mutation"].as<double>();
+      result["v_mutation"].as<int>();
     initial_run_parameters.allele_parameters.v_stretch =
       result["v_stretch"].as<double>();
 
@@ -204,7 +205,7 @@ parse_args(cxxopts::ParseResult& result) -> fatint::simulation::ExperimentSweepP
     delta.limits.v_min = result["sweep_v_min"].as<int>();
     delta.limits.v_max = result["sweep_v_max"].as<int>();
     delta.allele_parameters.v_mutation =
-      result["sweep_v_mutation"].as<double>();
+      result["sweep_v_mutation"].as<int>();
     delta.allele_parameters.v_stretch = result["sweep_v_stretch"].as<double>();
 
     delta.reproduction_parameters.m_const =
@@ -270,7 +271,7 @@ main(int argc, char** argv) -> int
   fatint::genetics::RandomAlleleAdder random_adder;
   bool use_vstretch = experiment_sweep_parameters.starting_parameters.run_parameters.allele_parameters.v_stretch > 0;
 
-  fatint::measurement::DisjointSetsSpeciesCounter species_counter;
+  fatint::measurement::DepthFirstSearchSpeciesCounter species_counter;
 
   fatint::simulation::ExperimentSweep experiment_sweep(
     experiment_sweep_parameters,

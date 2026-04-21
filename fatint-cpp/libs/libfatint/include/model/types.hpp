@@ -108,7 +108,7 @@ struct AlleleParameters
   /// Starting allele count.
   size_t starting_allele_count;
   /// Maximum change of a gene during mutation.
-  double v_mutation;
+  int v_mutation;
   /// Stretch factor of a gene mutation.
   double v_stretch;
 
@@ -118,11 +118,11 @@ struct AlleleParameters
 struct EnergyParameters
 {
   /// The amount of energy replenished by the environment after each step.
-  int e_increase;
+  double e_increase;
   /// The amount of energy lost by an entity per step.
-  int e_consumption;
+  double e_consumption;
   /// The maximum amount of energy consumed by a single entity per step.
-  int e_intake;
+  double e_intake;
   /// Affects how much of the energy intake is wasted.
   double e_discount;
 

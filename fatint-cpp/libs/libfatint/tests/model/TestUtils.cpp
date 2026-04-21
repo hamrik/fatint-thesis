@@ -73,17 +73,17 @@ TEST_CASE("AlleleParameters operator+= accumulates values")
 {
   fatint::model::AlleleParameters a;
   a.starting_allele_count = 10;
-  a.v_mutation = 1.0;
+  a.v_mutation = 1;
   a.v_stretch = 1.5;
   fatint::model::AlleleParameters b;
   b.starting_allele_count = 5;
-  b.v_mutation = 0.5;
+  b.v_mutation = 1;
   b.v_stretch = 0.25;
 
   a += b;
 
   CHECK(a.starting_allele_count == 15);
-  CHECK(a.v_mutation == doctest::Approx(1.5));
+  CHECK(a.v_mutation == doctest::Approx(2));
   CHECK(a.v_stretch == doctest::Approx(1.75));
 }
 

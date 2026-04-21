@@ -44,7 +44,7 @@ struct ExperimentParameters
   /// The seed is incremented between runs.
   RunParameters run_parameters;
   /// Number of runs with the same parameters.
-  int runs;
+  size_t runs;
 };
 
 /// Parameters of multiple experiments.

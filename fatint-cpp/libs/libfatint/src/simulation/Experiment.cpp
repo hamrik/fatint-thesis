@@ -82,7 +82,7 @@ ExperimentSweep::run() -> ExperimentSweepStates
 
   ExperimentSweepStates results;
   ExperimentParameters exp_params(parameters.starting_parameters);
-  for (int i = 0; i < parameters.experiments; i++) {
+  for (size_t i = 0; i < parameters.experiments; i++) {
     Experiment exp(exp_params,
                    similarity,
                    selection,
