@@ -9,6 +9,8 @@ globals [
   species-count
   allele-count
 
+  ;; Euclidean distance threshold between genotypes of two compatible agents.U pdated by `setup`.
+  ;; Squared value is stored to spare a `sqrt` operation when checking.
   M-limit-sqr
 ]
 turtles-own [
@@ -23,9 +25,6 @@ turtles-own [
   ;; Disjoint-Sets counting helper
   parent
   rank
-]
-links-own [
-  d-sqr
 ]
 
 to reset
@@ -47,7 +46,7 @@ to reset
   set use-stretch-method false
   set starting-allele-count 5
   set starting-pop 100
-  set use-ds true
+  set use-ds false
   set measure-every-n-ticks 1
 end
 
@@ -74,9 +73,9 @@ to setup
     setxy (item 0 phenotype) (item 1 phenotype)
     set color (list ((item 2 phenotype) + 100) ((item 2 phenotype) + 100) ((item 3 phenotype) + 100))
   ]
-  ask turtles [ linkup ]
+  ;ask turtles [ linkup ]
 
-  count-species
+  ;count-species
 end
 
 ;; ----- Aging -----------------------------------------------------------------
@@ -128,9 +127,9 @@ to reproduce
   ask turtles with [(random-float 1.0) < P-encounter] [
     if any? my-links [
       ask one-of my-links [
-        let a [phenotype] of end1
-        let b [phenotype] of end2
-        let dist            sqrt (d-sqr)
+        let a               [phenotype] of end1
+        let b               [phenotype] of end2
+        let dist            sqrt (euclidean-distance-sqr a b)
         let offspring-count M-const + (M-limit - dist) * M-slope
 
         ask end1 [
@@ -206,13 +205,14 @@ to-report euclidean-distance-sqr [a b]
   report sum (map delta-sqr a b)
 end
 
+to-report compatible-with [p]
+  let d euclidean-distance-sqr phenotype p
+  report d <= M-limit-sqr
+end
+
 to linkup
-  create-links-with other turtles [
-    let a [phenotype] of end1
-    let b [phenotype] of end2
-    set d-sqr euclidean-distance-sqr a b
-    if (d-sqr > M-limit-sqr) [ die ]
-  ]
+  let p phenotype
+  create-links-with other turtles with [compatible-with p]
 end
 
 to go
@@ -227,13 +227,13 @@ to go
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-891
+889
 10
-1465
-585
+1495
+617
 -1
 -1
-5.604
+5.921
 1
 10
 1
@@ -525,9 +525,9 @@ M-limit
 Number
 
 INPUTBOX
-735
+750
 10
-819
+834
 70
 M-slope
 0.0
@@ -571,7 +571,7 @@ TEXTBOX
 14
 746
 48
-- d )
+- d ) *
 12
 0.0
 1
@@ -624,7 +624,7 @@ TEXTBOX
 528
 628
 546
-- (
+* (
 12
 0.0
 1
@@ -751,16 +751,16 @@ SWITCH
 238
 use-ds
 use-ds
-0
+1
 1
 -1000
 
 BUTTON
-792
-206
-859
-239
-Reset
+10
+584
+410
+617
+Reset parameters
 reset
 NIL
 1
@@ -1167,6 +1167,10 @@ set use-stretch-method true</preExperiment>
     <go>go</go>
     <timeLimit steps="6000"/>
     <metric>species-count</metric>
+    <enumeratedValueSet variable="use-ds">
+      <value value="false"/>
+      <value value="true"/>
+    </enumeratedValueSet>
   </experiment>
 </experiments>
 @#$#@#$#@
