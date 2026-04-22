@@ -37,5 +37,6 @@
 #include "chapters/introduction/main.typ"
 #include "chapters/user_manual/main.typ"
 #include "chapters/developer_documentation/main.typ"
+#include "chapters/results/main.typ"
 
 #bibliography("thesis.bib")
