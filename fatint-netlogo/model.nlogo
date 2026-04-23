@@ -1,3 +1,5 @@
+extensions [ profiler ]
+
 __includes [
   "disjoint-sets.nls"
   "depth-first-search.nls"
@@ -54,7 +56,7 @@ to-report random-gene
   report V-min + random (V-max - V-min)
 end
 
-to setup
+to repopulate
   clear-all
   reset-ticks
   set M-limit-sqr M-limit * M-limit
@@ -73,9 +75,12 @@ to setup
     setxy (item 0 phenotype) (item 1 phenotype)
     set color (list ((item 2 phenotype) + 100) ((item 2 phenotype) + 100) ((item 3 phenotype) + 100))
   ]
-  ;ask turtles [ linkup ]
+end
 
-  ;count-species
+to setup
+  repopulate
+  ask turtles [ linkup ]
+  count-species
 end
 
 ;; ----- Aging -----------------------------------------------------------------
@@ -223,6 +228,33 @@ to go
     stop
   ]
   count-species
+  tick
+end
+
+;; ----- Profiling -------------------------------------------------------------
+
+to profile-sc-step
+  ask turtles [ linkup ]
+  count-species
+end
+
+to profile-s-step
+  repeat 100 [ go ]
+end
+
+to profile-species-counter
+  profiler:reset
+  profiler:start
+  profile-sc-step
+  profiler:stop
+  tick
+end
+
+to profile-simulator
+  profiler:reset
+  profiler:start
+  profile-s-step
+  profiler:stop
   tick
 end
 @#$#@#$#@
@@ -1095,7 +1127,7 @@ NetLogo 6.4.0
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="no-additional-alleles-sweep-crossing" repetitions="10" runMetricsEveryStep="true">
+  <experiment name="sweep-p-crossing" repetitions="10" runMetricsEveryStep="true">
     <preExperiment>reset</preExperiment>
     <setup>setup</setup>
     <go>go</go>
@@ -1113,7 +1145,7 @@ NetLogo 6.4.0
       <value value="0.8"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="no-additional-alleles-sweep-encounter" repetitions="10" runMetricsEveryStep="true">
+  <experiment name="sweep-p-encounter" repetitions="10" runMetricsEveryStep="true">
     <preExperiment>reset</preExperiment>
     <setup>setup</setup>
     <go>go</go>
@@ -1121,7 +1153,7 @@ NetLogo 6.4.0
     <metric>species-count</metric>
     <steppedValueSet variable="P-encounter" first="0.05" step="0.005" last="0.095"/>
   </experiment>
-  <experiment name="no-additional-alleles-sweep-mutation" repetitions="10" runMetricsEveryStep="true">
+  <experiment name="sweep-p-mutation" repetitions="10" runMetricsEveryStep="true">
     <preExperiment>reset</preExperiment>
     <setup>setup</setup>
     <go>go</go>
@@ -1136,7 +1168,7 @@ NetLogo 6.4.0
       <value value="0.5"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="random-new-allele-sweep-change" repetitions="10" runMetricsEveryStep="true">
+  <experiment name="sweep-p-change" repetitions="10" runMetricsEveryStep="true">
     <preExperiment>reset</preExperiment>
     <setup>setup</setup>
     <go>go</go>
@@ -1144,7 +1176,7 @@ NetLogo 6.4.0
     <metric>species-count</metric>
     <steppedValueSet variable="P-change" first="5.0E-4" step="5.0E-5" last="0.001"/>
   </experiment>
-  <experiment name="stretch-new-allele-sweep-stretch" repetitions="10" runMetricsEveryStep="true">
+  <experiment name="sweep-v-stretch" repetitions="10" runMetricsEveryStep="true">
     <preExperiment>reset
 set use-stretch-method true</preExperiment>
     <setup>setup</setup>
@@ -1153,7 +1185,7 @@ set use-stretch-method true</preExperiment>
     <metric>species-count</metric>
     <steppedValueSet variable="V-stretch" first="1" step="1" last="20"/>
   </experiment>
-  <experiment name="random-new-allele-sweep-mlimit" repetitions="10" runMetricsEveryStep="true">
+  <experiment name="sweep-m-limit" repetitions="10" runMetricsEveryStep="true">
     <preExperiment>reset</preExperiment>
     <setup>setup</setup>
     <go>go</go>
@@ -1167,9 +1199,162 @@ set use-stretch-method true</preExperiment>
     <go>go</go>
     <timeLimit steps="6000"/>
     <metric>species-count</metric>
-    <enumeratedValueSet variable="use-ds">
-      <value value="false"/>
-      <value value="true"/>
+    <enumeratedValueSet variable="starting-pop">
+      <value value="100"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="benchmark-species-counter-dfs-many-species" repetitions="3" runMetricsEveryStep="true">
+    <preExperiment>reset
+profiler:reset
+set use-ds false
+set M-limit 1</preExperiment>
+    <setup>repopulate
+ask turtles [
+  set phenotype n-values allele-count [ who ]
+]</setup>
+    <go>profile-species-counter
+stop</go>
+    <metric>profiler:inclusive-time "profile-sc-step"</metric>
+    <enumeratedValueSet variable="starting-pop">
+      <value value="1"/>
+      <value value="2"/>
+      <value value="4"/>
+      <value value="8"/>
+      <value value="16"/>
+      <value value="32"/>
+      <value value="64"/>
+      <value value="128"/>
+      <value value="256"/>
+      <value value="512"/>
+      <value value="1024"/>
+      <value value="2048"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="benchmark-simulator-no-churn" repetitions="3" runMetricsEveryStep="true">
+    <preExperiment>reset
+profiler:reset
+set P-encounter 0
+set E-consumption 0</preExperiment>
+    <setup>setup</setup>
+    <go>profile-simulator
+stop</go>
+    <metric>profiler:inclusive-time "profile-s-step"</metric>
+    <enumeratedValueSet variable="starting-pop">
+      <value value="1"/>
+      <value value="2"/>
+      <value value="4"/>
+      <value value="8"/>
+      <value value="16"/>
+      <value value="32"/>
+      <value value="64"/>
+      <value value="128"/>
+      <value value="256"/>
+      <value value="512"/>
+      <value value="1024"/>
+      <value value="2048"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="benchmark-species-counter-ds-many-species" repetitions="3" runMetricsEveryStep="true">
+    <preExperiment>reset
+profiler:reset
+set use-ds true
+set M-limit 1</preExperiment>
+    <setup>repopulate
+ask turtles [
+  set phenotype n-values allele-count [ who ]
+]</setup>
+    <go>profile-species-counter
+stop</go>
+    <metric>profiler:inclusive-time "profile-sc-step"</metric>
+    <enumeratedValueSet variable="starting-pop">
+      <value value="1"/>
+      <value value="2"/>
+      <value value="4"/>
+      <value value="8"/>
+      <value value="16"/>
+      <value value="32"/>
+      <value value="64"/>
+      <value value="128"/>
+      <value value="256"/>
+      <value value="512"/>
+      <value value="1024"/>
+      <value value="2048"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="benchmark-simulator-churn" repetitions="3" runMetricsEveryStep="true">
+    <preExperiment>reset
+profiler:reset</preExperiment>
+    <setup>setup</setup>
+    <go>profile-simulator
+stop</go>
+    <metric>profiler:inclusive-time "profile-s-step"</metric>
+    <enumeratedValueSet variable="E-increase">
+      <value value="1"/>
+      <value value="2"/>
+      <value value="4"/>
+      <value value="8"/>
+      <value value="16"/>
+      <value value="32"/>
+      <value value="64"/>
+      <value value="128"/>
+      <value value="256"/>
+      <value value="512"/>
+      <value value="1024"/>
+      <value value="2048"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="benchmark-species-counter-dfs-one-species" repetitions="3" runMetricsEveryStep="true">
+    <preExperiment>reset
+profiler:reset
+set use-ds false
+set M-limit 1</preExperiment>
+    <setup>repopulate
+ask turtles [
+  set phenotype n-values allele-count [ 0 ]
+]</setup>
+    <go>profile-species-counter
+stop</go>
+    <metric>profiler:inclusive-time "profile-sc-step"</metric>
+    <enumeratedValueSet variable="starting-pop">
+      <value value="1"/>
+      <value value="2"/>
+      <value value="4"/>
+      <value value="8"/>
+      <value value="16"/>
+      <value value="32"/>
+      <value value="64"/>
+      <value value="128"/>
+      <value value="256"/>
+      <value value="512"/>
+      <value value="1024"/>
+      <value value="2048"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="benchmark-species-counter-ds-one-species" repetitions="3" runMetricsEveryStep="true">
+    <preExperiment>reset
+profiler:reset
+set use-ds true
+set M-limit 1</preExperiment>
+    <setup>repopulate
+ask turtles [
+  set phenotype n-values allele-count [ 0 ]
+]</setup>
+    <go>profile-species-counter
+stop</go>
+    <metric>profiler:inclusive-time "profile-sc-step"</metric>
+    <enumeratedValueSet variable="starting-pop">
+      <value value="1"/>
+      <value value="2"/>
+      <value value="4"/>
+      <value value="8"/>
+      <value value="16"/>
+      <value value="32"/>
+      <value value="64"/>
+      <value value="128"/>
+      <value value="256"/>
+      <value value="512"/>
+      <value value="1024"/>
+      <value value="2048"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
