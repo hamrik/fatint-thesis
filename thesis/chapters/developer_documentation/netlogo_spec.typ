@@ -30,12 +30,21 @@ NetLogo$ ./NetLogo_Console --headless --model model.nlogo --experiment experimen
 A @fatint cikkben szereplő kísérletek az alábbi nevekkel érhetők el ebben a modellben:
 
 - `default-settings`
-- `no-additional-alleles-sweep-encounter`
-- `no-additional-alleles-sweep-mutation`
-- `no-additional-alleles-sweep-crossing`
-- `random-new-allele-sweep-change`
-- `random-new-allele-sweep-mlimit`
-- `stretch-new-allele-sweep-stretch`
+- `sweep-p-encounter`
+- `sweep-p-mutation`
+- `sweep-p-crossing`
+- `sweep-p-change`
+- `sweep-m-limit`
+- `sweep-v-stretch`
+
+A fenti kísérleten túl a modell tartalmaz három teljesítmény felmérést:
+
+- `benchmark-species-counter-dfs-one-species`
+- `benchmark-species-counter-dfs-many-species`
+- `benchmark-species-counter-ds-one-species`
+- `benchmark-species-counter-ds-many-species`
+- `benchmark-simulator-no-churn`
+- `benchmark-simulator-churn`
 
 ==== Populáció öregedése
 

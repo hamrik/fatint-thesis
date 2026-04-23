@@ -9,8 +9,8 @@
     grid(
       columns: (1fr),
       gutter: 12pt,
-      netlogo_species_plot("/data/NetLogo-default_params.csv", none),
-      avg_species_plot("/data/default_params.csv", none),
+      netlogo_species_plot("/data/default-NetLogo.csv", none),
+      libfatint_species_plot("/data/default-libfatint.csv", none),
       image("/assets/paper_excerpts/default_params.png")
     )
   },
@@ -27,8 +27,8 @@
     grid(
       columns: (1fr),
       gutter: 12pt,
-      netlogo_species_plot("/data/NetLogo-p_encounter.csv", [$P_"encounter"$]),
-      avg_species_plot("/data/p_encounter_0.05-0.10.csv", "p_encounter", cap: 5, legend: false),
+      netlogo_species_plot("/data/p_encounter-NetLogo.csv", [$P_"encounter"$]),
+      libfatint_species_plot("/data/p_encounter-libfatint.csv", "p_encounter", cap: 5, legend: false),
       image("/assets/paper_excerpts/P_encounter__0.05__0.095.png")
     )
   },
@@ -45,8 +45,8 @@
     grid(
       columns: (1fr),
       gutter: 12pt,
-      netlogo_species_plot("/data/NetLogo-p_mutation.csv", [$P_"mutation"$]),
-      avg_species_plot("/data/p_mutation_0.00-0.50.csv", "p_mutation", legend: false),
+      netlogo_species_plot("/data/p_mutation-NetLogo.csv", [$P_"mutation"$]),
+      libfatint_species_plot("/data/p_mutation-libfatint.csv", "p_mutation", legend: false),
       image("/assets/paper_excerpts/P_mutation__0__0.5.png")
     )
   },
@@ -63,8 +63,8 @@
     grid(
       columns: (1fr),
       gutter: 12pt,
-      netlogo_species_plot("/data/NetLogo-p_crossing.csv", [$P_"crossing"$]),
-      avg_species_plot("/data/p_crossing_0.00-0.80.csv", "p_crossing", legend: false),
+      netlogo_species_plot("/data/p_crossing-NetLogo.csv", [$P_"crossing"$]),
+      libfatint_species_plot("/data/p_crossing-libfatint.csv", "p_crossing", legend: false),
       image("/assets/paper_excerpts/P_crossing__0__0.5.png")
     )
   },
@@ -81,8 +81,8 @@
     grid(
       columns: (1fr),
       gutter: 12pt,
-      netlogo_species_plot("/data/NetLogo-p_change.csv", [$P_"change"$], cap: 20),
-      avg_species_plot("/data/p_change_0.0005-0.001.csv", "p_change", cap: 20, legend: false),
+      netlogo_species_plot("/data/p_change-NetLogo.csv", [$P_"change"$], cap: 20),
+      libfatint_species_plot("/data/p_change-libfatint.csv", "p_change", cap: 20, legend: false),
       image("/assets/paper_excerpts/P_change__0.0005__0.001.png")
     )
   },
@@ -100,8 +100,8 @@
       rows: (190pt, 180pt, 212pt),
       columns: (1fr),
       gutter: 12pt,
-      netlogo_species_plot("/data/NetLogo-m_limit.csv", [$M_"limit"$], cap: 30),
-      avg_species_plot("/data/p_change_0.0005_m_limit_0-20.csv", "m_limit", cap: 30, legend: false),
+      netlogo_species_plot("/data/m_limit-NetLogo.csv", [$M_"limit"$], cap: 30),
+      libfatint_species_plot("/data/p_change-libfatint.csv", "m_limit", cap: 30, legend: false),
       image("/assets/paper_excerpts/M_limit__0__20.png")
     )
   },
@@ -119,8 +119,8 @@
       rows: (190pt, 180pt, 212pt),
       columns: (1fr),
       gutter: 12pt,
-      netlogo_species_plot("/data/NetLogo-v_stretch.csv", [$V_"stretch"$], cap: 6),
-      avg_species_plot("/data/p_change_0.0005_v_stretch_1-20.csv", "v_stretch", cap: 6, legend: false),
+      netlogo_species_plot("/data/v_stretch-NetLogo.csv", [$V_"stretch"$], cap: 6),
+      libfatint_species_plot("/data/p_change-libfatint.csv", "v_stretch", cap: 6, legend: false),
       image("/assets/paper_excerpts/V_stretch__1__20.png")
     )
   },
