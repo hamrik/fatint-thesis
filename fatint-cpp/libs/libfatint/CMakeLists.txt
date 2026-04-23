@@ -23,9 +23,9 @@ add_library(libfatint
     src/io/CSVWriter.cpp
     src/io/SVGWriter.cpp
 )
-target_include_directories(libfatint PUBLIC
-    include
-    external
+target_include_directories(libfatint
+    PUBLIC include
+    SYSTEM PRIVATE external
 )
 
 find_package(TBB)

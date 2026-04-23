@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <execution>
-#include <iostream>
 
 #include "genetics/genetics.hpp"
 #include "simulation/Simulator.hpp"
@@ -74,12 +73,6 @@ ExperimentSweep::ExperimentSweep(ExperimentSweepParameters parameters,
 auto
 ExperimentSweep::run() -> ExperimentSweepStates
 {
-  std::cerr << "Running " << parameters.experiments << " experiments, "
-            << parameters.starting_parameters.runs << " runs per experiment, "
-            << parameters.starting_parameters.run_parameters.steps
-            << " steps per run" << "\n";
-  std::cerr.flush();
-
   ExperimentSweepStates results;
   ExperimentParameters exp_params(parameters.starting_parameters);
   for (size_t i = 0; i < parameters.experiments; i++) {
