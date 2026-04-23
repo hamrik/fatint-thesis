@@ -13,19 +13,28 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get upgrade -y
-          sudo apt-get install -y wget xz-utils
+          sudo apt-get install -y wget xz-utils build-essential cmake
           mkdir -p /opt/typst
           cd /opt/typst
           wget https://github.com/typst/typst/releases/download/v0.14.2/typst-x86_64-unknown-linux-musl.tar.xz
           tar -xf ./*.tar.xz
-      - name: Compile thesis
-        id: compile
+          mkdir /opt/NetLogo
+          cd /opt/NetLogo
+          wget https://downloads.netlogo.org/6.4.0/NetLogo-6.4.0-64.tgz
+          tar -xzf ./*.tgz
+      - name: Compile libfatint
+        id: compile-libfatint
         run: |
-          cd thesis
-          /opt/typst/typst-x86_64-unknown-linux-musl/typst compile main.typ
+          cmake -S fatint-cpp -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --parallel --config Release
+      - name: Run simulation and compile thesis
+        id: compile-thesis
+        run: |
+          export PATH=$PATH:$PWD/build/:$PWD/build/libs/libfatint/tests:/opt/NetLogo/NetLogo-6.4.0-64
+          ./build-thesis.sh
       - name: Export PDF
         id: export
         uses: actions/upload-artifact@v4
         with:
           name: thesis
-          path: thesis/main.pdf
+          path: KL43GM.pdf
