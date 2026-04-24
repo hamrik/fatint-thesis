@@ -875,7 +875,8 @@ NetLogo 6.4.0
     <steppedValueSet variable="P-change" first="5.0E-4" step="5.0E-5" last="0.001"/>
   </experiment>
   <experiment name="sweep-m-limit" repetitions="10" runMetricsEveryStep="true">
-    <preExperiment>reset</preExperiment>
+    <preExperiment>reset
+set P-change 0.0005</preExperiment>
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="6000"/>
@@ -884,7 +885,8 @@ NetLogo 6.4.0
   </experiment>
   <experiment name="sweep-v-stretch" repetitions="10" runMetricsEveryStep="true">
     <preExperiment>reset
-set use-stretch-method true</preExperiment>
+set use-stretch-method true
+set P-change 0.0005</preExperiment>
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="6000"/>
