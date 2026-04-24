@@ -28,7 +28,7 @@ run_fatint() {
 	fatint \
 		-e 6 \
 		--p_crossing 0.0 \
-		--sweep_p_mutation 0.1 \
+		--sweep_p_crossing 0.1 \
 		--output thesis/data/p_crossing-libfatint.csv
 
 	echo '  - Sweeping P_mutation'
@@ -228,4 +228,3 @@ benchmark_netlogo
 
 echo 'Compiling thesis'
 typst compile thesis/main.typ KL43GM.pdf
-

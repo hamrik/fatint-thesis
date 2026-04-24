@@ -101,7 +101,7 @@
       columns: (1fr),
       gutter: 12pt,
       netlogo_species_plot("/data/m_limit-NetLogo.csv", [$M_"limit"$], cap: 30),
-      libfatint_species_plot("/data/p_change-libfatint.csv", "m_limit", cap: 30, legend: false),
+      libfatint_species_plot("/data/m_limit-libfatint.csv", "m_limit", cap: 30, legend: false),
       image("/assets/paper_excerpts/M_limit__0__20.png")
     )
   },
@@ -120,7 +120,7 @@
       columns: (1fr),
       gutter: 12pt,
       netlogo_species_plot("/data/v_stretch-NetLogo.csv", [$V_"stretch"$], cap: 6),
-      libfatint_species_plot("/data/p_change-libfatint.csv", "v_stretch", cap: 6, legend: false),
+      libfatint_species_plot("/data/v_stretch-libfatint.csv", "v_stretch", cap: 6, legend: false),
       image("/assets/paper_excerpts/V_stretch__1__20.png")
     )
   },
