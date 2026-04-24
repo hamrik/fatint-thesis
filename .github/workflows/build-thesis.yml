@@ -30,7 +30,7 @@ jobs:
       - name: Run simulation and compile thesis
         id: compile-thesis
         run: |
-          export PATH=$PATH:$PWD/build/:$PWD/build/libs/libfatint/tests:/opt/NetLogo/NetLogo-6.4.0-64
+          export PATH=$PATH:$PWD/build/:$PWD/build/libs/libfatint/tests:/opt/NetLogo/NetLogo-6.4.0-64:/opt/typst/typst-x86_64-unknown-linux-musl
           ./build-thesis.sh
       - name: Export PDF
         id: export
