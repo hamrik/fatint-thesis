@@ -1,6 +1,6 @@
 #include "genetics/GeneticReproduction.hpp"
 #include "genetics/GeneticsImpl.hpp"
-#include "measurement/DisjointSetsSpeciesCounter.hpp"
+#include "measurement/DepthFirstSearchSpeciesCounter.hpp"
 #include "simulation/Simulator.hpp"
 #include "simulation/types.hpp"
 
@@ -22,7 +22,7 @@ TEST_CASE("Simulator - entities eventually die of old age")
     fatint::genetics::GeneticReproduction reproduction(mutation, crossover);
     fatint::genetics::ValidatorImpl validator;
     fatint::genetics::RandomAlleleAdder allele_adder;
-    fatint::measurement::DisjointSetsSpeciesCounter species_counter;
+    fatint::measurement::DepthFirstSearchSpeciesCounter species_counter;
 
     fatint::simulation::Simulator simulator(similarity, selection, reproduction, validator, allele_adder,
                                             species_counter);
@@ -51,7 +51,7 @@ TEST_CASE("Simulator - entities reproduce")
     fatint::genetics::GeneticReproduction reproduction(mutation, crossover);
     fatint::genetics::ValidatorImpl validator;
     fatint::genetics::RandomAlleleAdder allele_adder;
-    fatint::measurement::DisjointSetsSpeciesCounter species_counter;
+    fatint::measurement::DepthFirstSearchSpeciesCounter species_counter;
 
     fatint::simulation::Simulator simulator(similarity, selection, reproduction, validator, allele_adder,
                                             species_counter);
@@ -81,7 +81,7 @@ TEST_CASE("Simulator - simulation is deterministic")
     fatint::genetics::GeneticReproduction reproduction(mutation, crossover);
     fatint::genetics::ValidatorImpl validator;
     fatint::genetics::RandomAlleleAdder allele_adder;
-    fatint::measurement::DisjointSetsSpeciesCounter species_counter;
+    fatint::measurement::DepthFirstSearchSpeciesCounter  species_counter;
 
     fatint::simulation::Simulator simulator(similarity, selection, reproduction, validator, allele_adder,
                                             species_counter);
@@ -117,7 +117,7 @@ TEST_CASE("Simulator - allele count increases")
     fatint::genetics::GeneticReproduction reproduction(mutation, crossover);
     fatint::genetics::ValidatorImpl validator;
     fatint::genetics::RandomAlleleAdder allele_adder;
-    fatint::measurement::DisjointSetsSpeciesCounter species_counter;
+    fatint::measurement::DepthFirstSearchSpeciesCounter species_counter;
 
     fatint::simulation::Simulator simulator(similarity, selection, reproduction, validator, allele_adder,
                                             species_counter);
@@ -125,4 +125,55 @@ TEST_CASE("Simulator - allele count increases")
     fatint::simulation::RunStates output = simulator.run(random, params);
 
     CHECK(output[49].allele_count > 1);
+}
+
+TEST_CASE("Simulator - default params collapse to one surviving species")
+{
+    fatint::math::Random random(0);
+
+    fatint::simulation::RunParameters params;
+    params.steps = 2000;
+
+    fatint::genetics::SimilarityImpl similarity;
+    fatint::genetics::SelectionImpl selection;
+    fatint::genetics::MutationImpl mutation;
+    fatint::genetics::CrossoverImpl crossover;
+    fatint::genetics::GeneticReproduction reproduction(mutation, crossover);
+    fatint::genetics::ValidatorImpl validator;
+    fatint::genetics::RandomAlleleAdder allele_adder;
+    fatint::measurement::DepthFirstSearchSpeciesCounter species_counter;
+
+    fatint::simulation::Simulator simulator(similarity, selection, reproduction, validator, allele_adder,
+                                            species_counter);
+
+    fatint::simulation::RunStates output = simulator.run(random, params);
+
+    CHECK(output[999].entity_count > 0);
+    CHECK(output[999].species_count == 1);
+}
+
+TEST_CASE("Simulator - P_change=0.001 encourages species proliferation")
+{
+    fatint::math::Random random(0);
+
+    fatint::simulation::RunParameters params;
+    params.steps = 2000;
+    params.reproduction_probabilities.p_change = 0.001;
+
+    fatint::genetics::SimilarityImpl similarity;
+    fatint::genetics::SelectionImpl selection;
+    fatint::genetics::MutationImpl mutation;
+    fatint::genetics::CrossoverImpl crossover;
+    fatint::genetics::GeneticReproduction reproduction(mutation, crossover);
+    fatint::genetics::ValidatorImpl validator;
+    fatint::genetics::RandomAlleleAdder allele_adder;
+    fatint::measurement::DepthFirstSearchSpeciesCounter species_counter;
+
+    fatint::simulation::Simulator simulator(similarity, selection, reproduction, validator, allele_adder,
+                                            species_counter);
+
+    fatint::simulation::RunStates output = simulator.run(random, params);
+
+    CHECK(output[999].entity_count > 0);
+    CHECK(output[999].species_count > 1);
 }

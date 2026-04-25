@@ -92,18 +92,13 @@ auto measure(const ExperimentParameters &params, const ExperimentStates &results
 auto measure(const ExperimentSweepParameters &params, const ExperimentSweepStates &results) -> ExperimentSweepResults
 {
     ExperimentSweepResults sweep_results;
+    size_t runs = params.starting_parameters.runs;
+    size_t steps = params.starting_parameters.run_parameters.steps;
 
-    RunParameters current_params = params.starting_parameters.run_parameters;
     for (const auto &result : results)
     {
-        ExperimentParameters current_experiment_params;
-        current_experiment_params.run_parameters = current_params;
-        current_experiment_params.runs = params.starting_parameters.runs;
-
-        ExperimentResults statistics = measure(current_experiment_params, result);
+        ExperimentResults statistics = measure(runs, steps, result);
         sweep_results.push_back(statistics);
-
-        current_params += params.delta;
     }
 
     return sweep_results;
@@ -112,21 +107,16 @@ auto measure(const ExperimentSweepParameters &params, const ExperimentSweepState
 auto measure(const ExperimentSweepParameters &params, const ExperimentStates &results) -> ExperimentSweepResults
 {
     ExperimentSweepResults sweep_results;
+    size_t experiments = params.experiments;
     size_t runs = params.starting_parameters.runs;
+    size_t steps = params.starting_parameters.run_parameters.steps;
 
-    RunParameters current_params = params.starting_parameters.run_parameters;
-    for (size_t i = 0; i < params.experiments; i++)
+    for (size_t i = 0; i < experiments; i++)
     {
-        ExperimentParameters current_experiment_params;
-        current_experiment_params.run_parameters = current_params;
-        current_experiment_params.runs = params.starting_parameters.runs;
-
         ExperimentStates result(results.begin() + static_cast<long>(i * runs),
                                 results.begin() + static_cast<long>((i + 1) * runs));
-        ExperimentResults statistics = measure(current_experiment_params, results);
+        ExperimentResults statistics = measure(runs, steps, result);
         sweep_results.push_back(statistics);
-
-        current_params += params.delta;
     }
 
     return sweep_results;
