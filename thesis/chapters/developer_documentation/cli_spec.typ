@@ -1,19 +1,20 @@
 #import "/lib/elteikthesis.typ": todo
 #import "/lib/plot.typ": *
 
+#import "@preview/pintorita-neo:0.1.0" as pintorita
+#show raw.where(lang: "pintora"): it => pintorita.render(it.text)
+
 == C++ implementáció <cli-spec>
 
 Egy parancssori eszköz és könyvtár a FATINT modell alapú szimulációk futtatására. Bővebben a felhasználói dokumentációban: @cli-user-manual.
 
-=== Architektúra
+=== Architektúra 
 
 A C++ implementáció erősen épít a _"Stratégia"_ fejlesztési mintára, mert a szimuláció minden eleme, a genetikus algorimusoktól a fajszámolásig egy-egy különálló, cserélhető algoritmus, melyeket az `Simulator` osztály hangol össze.
 
 #todo("Describe pluggable nature, strategy pattern and the available modules")
 
-#import "@preview/pintorita:0.1.4"
-#show raw.where(lang: "pintorita"): it => pintorita.render(it.text)
-```pintorita
+```pintora
 classDiagram
   class Simulator {
     - ISimilarity similarity
@@ -107,7 +108,42 @@ classDiagram
   ISpeciesCounter <|.. DisjointSetsSpeciesCounter
 ```
 
+A szimuláció fontosabb komponensei interfészként vannak definiálva:
+
+/ ISimilarity: távolságmetrika, mellyel meghatározható, hogy mely egyedek kompatibilisek egymással. Pl. a genotípusaik euklédeszi távolsága.
+/ ISelection: Keres egy kompatibilis párt egy adott egyedhez.
+/ IReproduction: Kombinálja két szülő egyed tulajdonságait egy gyermek egyedben. Pl. `GeneticReproduction`.
+/ IValidator: Ellenőrzi, hogy egy egyed megfelel-e a szimulációs paraméterekben megszabott határoknak, például hogy a génjei a megszabott $[V_"min", V_"max"]$ allélhalmazba esnek-e.
+/ IAlleleAdder: Meghatározza egy egyed genotípusa alapján a következő aktiválandó gént. Pl. `RandomAlleleAdder` vagy `StretchMethodAlleleAdder`.
+/ ISpeciesCounter: Megszámolja a párzási preferenciák mentén elkülöníthető fajok számát. Pl. `DepthFirstSearchSpeciesCounter` vagy `DisjointSetsSpeciesCounter`. Az implementáció nem lehet hatással a végeredményre.
+/ IMutation: A `GeneticReproduction` mutációs operátora. Az gyermekegyed génjeit módosítja.
+/ ICrossover: A `GeneticReproduction` keresztezés operátora. A két szülő egyed génjeit kombinája egy gyermekegyedben.
+
 #todo("The class diagram is incomplete, finish it")
+
+Az egyes elemek egy adatcsővezetéket (_"data pipeline"_) alkotnak.
+
+Az `ExperimentSweep` példány `Experiment` osztályok példányosításával létrehozza a kezdeti paraméter objektumokat (`RunParameters`), melyeket egy-egy `Simulator` példány dolgoz fel. Ezek a példányok a állapotuk alakulálását egy-egy `RunStates` objektumban rögzíti, melyeket az `Experiment` osztály az `ExperimentStates` objektumba gyűjt, melyeket az `ExperimentSweep` osztály pedig egy végső `ExperimentSweepStates` objektumba. Ez az objektum és egy kísérletsor teljes végeredménye, melyből egy `StatisticsEvaluator` nevű osztály képes `ExperimentSweepResults` típusú, statisztákat tartalmazó objektummá alakítani. Ezutóbbi objtumokat pedig egy `CSVWriter` vagy `SVGWriter` kiírja fájlba vagy a standard kimenetre.
+
+```pintora
+sequenceDiagram
+  participant Main
+  participant ExperimentSweep
+  participant [<collections> Experiment]
+  participant [<collections> Simulator]
+  participant StatisticsEvaluator
+  participant IOutputWriter
+
+  Main ->> ExperimentSweep : ExperimentSweepParameters
+  ExperimentSweep ->> Experiment : ExperimentParameters
+  Experiment ->> Simulator : RunParameters
+  Simulator ->> Experiment : RunStates
+  Experiment ->> ExperimentSweep : ExperimentStates
+  ExperimentSweep ->> Main : ExperimentSweepStates
+  Main ->> StatisticsEvaluator : ExperimentSweepStates
+  StatisticsEvaluator ->> Main : ExperimentSweepResults
+  Main ->> IOutputWriter : ExperimentSweepResults
+```
 
 === Forráskód fordítása <build-from-source>
 
