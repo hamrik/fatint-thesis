@@ -18,12 +18,12 @@ operator+=(RunParameters& a, const RunParameters& b) -> RunParameters&
 }
 
 auto
-expandExperimentParameters(const ExperimentParameters& params)
+ExperimentParameters::expand() const
   -> std::vector<RunParameters>
 {
   std::vector<RunParameters> result;
-  RunParameters run_params{ params.run_parameters };
-  for (size_t i = 0; i < params.runs; i++) {
+  RunParameters run_params{ run_parameters };
+  for (size_t i = 0; i < runs; i++) {
     result.push_back(RunParameters{ run_params });
     run_params.seed++;
   }
@@ -31,28 +31,15 @@ expandExperimentParameters(const ExperimentParameters& params)
 }
 
 auto
-expandExperimentSweepParameters(const ExperimentSweepParameters& params)
-  -> std::vector<ExperimentParameters>
-{
-  std::vector<ExperimentParameters> result;
-  ExperimentParameters exp_params{ params.starting_parameters };
-  for (size_t e = 0; e < params.experiments; e++) {
-    result.push_back(ExperimentParameters{ exp_params });
-    exp_params.run_parameters += params.delta;
-  }
-  return result;
-}
-
-auto
-fullyExpandExperimentSweepParameters(const ExperimentSweepParameters& params)
+ExperimentSweepParameters::expand() const
   -> std::vector<RunParameters>
 {
   std::vector<RunParameters> result;
-  ExperimentParameters exp_params{ params.starting_parameters };
-  for (size_t e = 0; e < params.experiments; e++) {
-    auto run_params = expandExperimentParameters(exp_params);
+  ExperimentParameters exp_params{ starting_parameters };
+  for (size_t e = 0; e < experiments; e++) {
+    auto run_params = exp_params.expand();
     result.insert(result.end(), run_params.begin(), run_params.end());
-    exp_params.run_parameters += params.delta;
+    exp_params.run_parameters += delta;
   }
   return result;
 }

@@ -25,7 +25,7 @@ public:
                                        const model::Limits& limits,
                                        const ISimilarity& similarity,
                                        size_t index,
-                                       const model::Population& entities) = 0;
+                                       const model::Population& entities) const = 0;
 };
 
 class IMutation
@@ -35,7 +35,7 @@ public:
   virtual void mutate(math::Random& random,
                       double p_mutation,
                       int v_mutation,
-                      model::Genotype& genotype) = 0;
+                      model::Genotype& genotype) const = 0;
 };
 
 class ICrossover
@@ -46,7 +46,7 @@ public:
                          double p_crossing,
                          const model::Genotype& a,
                          const model::Genotype& b,
-                         model::Genotype& out) = 0;
+                         model::Genotype& out) const = 0;
 };
 
 class IReproduction
@@ -58,7 +58,7 @@ public:
     const model::GeneticProbabilities& probabilities,
     const model::AlleleParameters& allele_parameters,
     const model::Genotype& a,
-    const model::Genotype& b) = 0;
+    const model::Genotype& b) const = 0;
 };
 
 class IValidator
@@ -76,7 +76,7 @@ public:
   virtual void add_allele(math::Random& random,
                           const model::Limits& limits,
                           const model::AlleleParameters& parameters,
-                          model::Genotype& genotype) = 0;
+                          model::Genotype& genotype) const = 0;
 };
 
 } // namespace fatint::genetics

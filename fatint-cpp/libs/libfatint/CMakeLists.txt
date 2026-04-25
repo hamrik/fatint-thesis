@@ -14,7 +14,6 @@ add_library(libfatint
     src/math/Random.cpp
     src/math/Statistics.cpp
     src/simulation/Environment.cpp
-    src/simulation/Experiment.cpp
     src/simulation/Simulator.cpp
     src/simulation/types.cpp
     src/simulation/utils.cpp

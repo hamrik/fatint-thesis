@@ -5,13 +5,16 @@
 #include "math/Statistics.hpp"
 #include "measurement/DepthFirstSearchSpeciesCounter.hpp"
 #include "measurement/DisjointSetsSpeciesCounter.hpp"
-#include "simulation/Experiment.hpp"
-
+#include "measurement/types.hpp"
+#include "simulation/utils.hpp"
 #include "simulation/types.hpp"
+#include "simulation/Simulator.hpp"
 
 #include <fstream>
 #include <iostream>
 #include <ostream>
+#include <algorithm>
+#include <execution>
 
 #include <cxxopts.hpp>
 
@@ -131,6 +134,7 @@ define_args(cxxopts::Options& options, int argc, char** argv) -> cxxopts::ParseR
       "The amount e_discount is increased by between experiments",
       def<double>("0"));
 
+  opt("disjoint_sets", "Use Disjoint-Sets algorithm instead of Depth-First Search to count species");
   opt("o,output", "Output file", def<std::string>(""));
   opt("f,format", "Output format", def<std::string>("csv"));
 
@@ -146,8 +150,8 @@ parse_args(cxxopts::ParseResult& result) -> fatint::simulation::ExperimentSweepP
   try {
     fatint::simulation::ExperimentSweepParameters experiment_sweep_parameters;
     fatint::simulation::ExperimentParameters experiment_parameters;
-    fatint::simulation::RunParameters initial_run_parameters = { 0 };
-    fatint::simulation::RunParameters delta = { 0 };
+    fatint::simulation::RunParameters initial_run_parameters;
+    fatint::simulation::RunParameters delta;
     unsigned int experiment_count = result["experiments"].as<unsigned int>();
 
     initial_run_parameters.steps = result["steps"].as<unsigned int>();
@@ -270,32 +274,47 @@ main(int argc, char** argv) -> int
   fatint::genetics::VStretchAlleleAdder vstretch_adder;
   fatint::genetics::RandomAlleleAdder random_adder;
   bool use_vstretch = experiment_sweep_parameters.starting_parameters.run_parameters.allele_parameters.v_stretch > 0;
+  bool use_ds = opts["disjoint_sets"].as<bool>();
 
-  fatint::measurement::DepthFirstSearchSpeciesCounter species_counter;
+  fatint::measurement::DepthFirstSearchSpeciesCounter dfs_counter;
+  fatint::measurement::DisjointSetsSpeciesCounter ds_counter;
 
-  fatint::simulation::ExperimentSweep experiment_sweep(
-    experiment_sweep_parameters,
+  fatint::simulation::Simulator simulator(
     similarity,
     selection,
     reproduction,
     validator,
     use_vstretch
-                ? (fatint::genetics::IAlleleAdder&)vstretch_adder
-                : (fatint::genetics::IAlleleAdder&)random_adder,
-    species_counter);
-  fatint::simulation::ExperimentSweepStates states = experiment_sweep.run();
+      ? (fatint::genetics::IAlleleAdder&)vstretch_adder
+      : (fatint::genetics::IAlleleAdder&)random_adder,
+    use_ds
+      ? (fatint::measurement::ISpeciesCounter&)ds_counter
+      : (fatint::measurement::ISpeciesCounter&)dfs_counter
+  );
 
-  fatint::math::StatisticsEvaluator evaluator;
+  auto run_params = experiment_sweep_parameters.expand();
+  std::vector<fatint::simulation::RunStates> run_results;
+  run_results.reserve(run_params.size());
+  std::transform(
+    std::execution::par,
+    run_params.begin(),
+    run_params.end(),
+    run_results.begin(),
+    [&simulator](const fatint::simulation::RunParameters& params) -> fatint::simulation::RunStates {
+      fatint::math::Random random;
+      random.seed(params.seed);
+      return simulator.run(random, params);
+    }
+  );
+
   fatint::simulation::ExperimentSweepResults results =
-    evaluator.measure(experiment_sweep_parameters, states);
+    fatint::math::measure(experiment_sweep_parameters, run_results);
 
-  std::streambuf* buf;
+  std::streambuf* buf = std::cout.rdbuf();
   std::ofstream of;
-  if (output_file != "") {
+  if (output_file != "" && output_file != "-") {
     of.open(output_file);
     buf = of.rdbuf();
-  } else {
-    buf = std::cout.rdbuf();
   }
   std::ostream out(buf);
 

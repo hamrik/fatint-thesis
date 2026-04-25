@@ -13,11 +13,11 @@ public:
                           const model::GeneticProbabilities& probabilities,
                           const model::AlleleParameters& allele_parameters,
                           const model::Genotype& a,
-                          const model::Genotype& b) override;
+                          const model::Genotype& b) const override;
 
 private:
-  IMutation& mutation;
-  ICrossover& crossover;
+  const IMutation& mutation;
+  const ICrossover& crossover;
 };
 
 } // namespace fatint::genetics

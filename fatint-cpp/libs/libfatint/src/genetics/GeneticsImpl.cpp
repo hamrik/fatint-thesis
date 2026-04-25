@@ -26,7 +26,7 @@ SelectionImpl::select(math::Random& random,
                       const model::Limits& limits,
                       const ISimilarity& similarity,
                       size_t index,
-                      const model::Population& entities) -> std::optional<size_t>
+                      const model::Population& entities) const -> std::optional<size_t>
 {
   measurement::ReservoirSampling<size_t> sampler;
 
@@ -49,7 +49,7 @@ void
 MutationImpl::mutate(math::Random& random,
                      double p_mutation,
                      int v_mutation,
-                     model::Genotype& genotype)
+                     model::Genotype& genotype) const
 {
   for (auto& gene : genotype) {
     if (random.chance(p_mutation)) {
@@ -63,7 +63,7 @@ CrossoverImpl::crossover(math::Random& random,
                          double p_crossing,
                          const model::Genotype& a,
                          const model::Genotype& b,
-                         model::Genotype& out)
+                         model::Genotype& out) const
 {
   assert(a.size() == b.size());
   assert(out.size() == a.size());
@@ -92,7 +92,7 @@ void
 RandomAlleleAdder::add_allele(math::Random& random,
                               const model::Limits& limits,
                               const model::AlleleParameters& parameters,
-                              model::Genotype& genotype)
+                              model::Genotype& genotype) const
 {
   genotype.push_back(random.random(limits.v_min, limits.v_max));
 }
@@ -101,7 +101,7 @@ void
 VStretchAlleleAdder::add_allele(math::Random& random,
                                 const model::Limits& limits,
                                 const model::AlleleParameters& parameters,
-                                model::Genotype& genotype)
+                                model::Genotype& genotype) const
 {
   genotype.push_back(model::stretch_allele(
     genotype.back(), limits.v_min, limits.v_max, parameters.v_stretch));

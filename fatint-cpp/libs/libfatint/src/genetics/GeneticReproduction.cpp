@@ -14,7 +14,7 @@ GeneticReproduction::reproduce(math::Random& random,
                                const model::GeneticProbabilities& probabilities,
                                const model::AlleleParameters& allele_parameters,
                                const model::Genotype& a,
-                               const model::Genotype& b) -> model::Entity
+                               const model::Genotype& b) const -> model::Entity
 {
   model::Genotype child;
   child.resize(a.size());

@@ -45,6 +45,8 @@ struct ExperimentParameters
   RunParameters run_parameters;
   /// Number of runs with the same parameters.
   size_t runs;
+
+  [[nodiscard]] auto expand() const -> std::vector<RunParameters>;
 };
 
 /// Parameters of multiple experiments.
@@ -59,6 +61,8 @@ struct ExperimentSweepParameters
   RunParameters delta;
   /// The number of experiments to run.
   size_t experiments;
+
+  [[nodiscard]] auto expand() const -> std::vector<RunParameters>;
 };
 
 /// The current state of a single run.

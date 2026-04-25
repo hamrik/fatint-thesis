@@ -19,27 +19,27 @@ public:
             genetics::IAlleleAdder& allele_adder,
             measurement::ISpeciesCounter& species_counter);
 
-  RunStates run(math::Random& random, const RunParameters& params);
+  RunStates run(math::Random& random, const RunParameters& params) const;
 
 private:
   bool tick(math::Random& random,
             const RunParameters& params,
             Environment& environment,
-            model::Population& population);
+            model::Population& population) const;
   size_t reproduce(math::Random& random,
                    const RunParameters& params,
-                   model::Population& population);
+                   model::Population& population) const;
   void add_allele(math::Random& random,
                   const RunParameters& params,
-                  model::Population& population);
-  size_t count_species(const model::Limits& limits, const model::Population& population);
+                  model::Population& population) const;
+  size_t count_species(const model::Limits& limits, const model::Population& population) const;
 
-  genetics::ISimilarity& similarity;
-  genetics::ISelection& selection;
-  genetics::IReproduction& reproduction;
-  genetics::IValidator& validator;
-  genetics::IAlleleAdder& allele_adder;
-  measurement::ISpeciesCounter& species_counter;
+  const genetics::ISimilarity& similarity;
+  const genetics::ISelection& selection;
+  const genetics::IReproduction& reproduction;
+  const genetics::IValidator& validator;
+  const genetics::IAlleleAdder& allele_adder;
+  const measurement::ISpeciesCounter& species_counter;
 };
 
 } // namespace fatint::simulation

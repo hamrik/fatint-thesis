@@ -37,7 +37,7 @@ Simulator::Simulator(genetics::ISimilarity& similarity,
 }
 
 auto
-Simulator::run(math::Random& random, const RunParameters& params) -> RunStates
+Simulator::run(math::Random& random, const RunParameters& params) const -> RunStates
 {
   std::vector<State> states;
   states.reserve(params.steps);
@@ -85,7 +85,7 @@ auto
 Simulator::tick(math::Random& random,
                 const RunParameters& params,
                 Environment& environment,
-                model::Population& population) -> bool
+                model::Population& population) const -> bool
 {
   for (size_t i : random.random_indices(population.size())) {
     // Iterate over population in random order to prevent older entities from
@@ -107,7 +107,7 @@ Simulator::tick(math::Random& random,
 auto
 Simulator::reproduce(math::Random& random,
                      const RunParameters& params,
-                     model::Population& population) -> size_t
+                     model::Population& population) const -> size_t
 {
   size_t new_allele_count = 0;
   for (size_t i = 0; i < population.size(); i++) {
@@ -137,7 +137,7 @@ Simulator::reproduce(math::Random& random,
 void
 Simulator::add_allele(math::Random& random,
                       const RunParameters& params,
-                      model::Population& population)
+                      model::Population& population) const
 {
   for (auto& entity : population) {
     allele_adder.add_allele(
@@ -146,7 +146,7 @@ Simulator::add_allele(math::Random& random,
 }
 
 auto
-Simulator::count_species(const model::Limits& limits, const model::Population& population) -> size_t
+Simulator::count_species(const model::Limits& limits, const model::Population& population) const -> size_t
 {
   return species_counter.count_species(limits, similarity, population);
 }
