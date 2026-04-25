@@ -218,8 +218,7 @@ auto main(int argc, char **argv) -> int
                                                    : (fatint::measurement::ISpeciesCounter &)dfs_counter);
 
     auto run_params = experiment_sweep_parameters.expand();
-    std::vector<fatint::simulation::RunStates> run_results;
-    run_results.reserve(run_params.size());
+    std::vector<fatint::simulation::RunStates> run_results(run_params.size());
     std::transform(std::execution::par, run_params.begin(), run_params.end(), run_results.begin(),
                    [&simulator](const fatint::simulation::RunParameters &params) -> fatint::simulation::RunStates {
                        fatint::math::Random random;
