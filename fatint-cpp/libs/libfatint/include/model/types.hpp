@@ -26,7 +26,8 @@
 #include <ostream>
 #include <vector>
 
-namespace fatint::model {
+namespace fatint::model
+{
 
 const size_t DEFAULT_STARTING_POPULATION_SIZE = 100;
 const size_t DEFAULT_STARTING_ALLELE_COUNT = 5;
@@ -51,103 +52,89 @@ using Genotype = std::vector<int>;
 
 struct Entity
 {
-  int age{};
-  double energy{};
-  Genotype genotype;
+    int age{};
+    double energy{};
+    Genotype genotype;
 };
 
 using Population = std::vector<Entity>;
 
 struct Limits
 {
-  /// Minimum value of a gene.
-  int v_min;
-  /// Maximum value of a gene.
-  int v_max;
-  /// Maximum number of offspring during reproduction.
-  double m_limit;
+    /// Minimum value of a gene.
+    int v_min;
+    /// Maximum value of a gene.
+    int v_max;
+    /// Maximum number of offspring during reproduction.
+    double m_limit;
 
-  Limits();
+    Limits();
 };
 
 struct ReproductionProbabilities
 {
-  /// Probability that an entity will attempt to reproduce each step.
-  double p_encounter;
-  /// Probability that a new allele will be added to every entity during
-  /// reproduction. This simulates environment activated latent phenotypes.
-  double p_change;
+    /// Probability that an entity will attempt to reproduce each step.
+    double p_encounter;
+    /// Probability that a new allele will be added to every entity during
+    /// reproduction. This simulates environment activated latent phenotypes.
+    double p_change;
 
-  ReproductionProbabilities();
+    ReproductionProbabilities();
 };
 
 struct ReproductionParameters
 {
-  /// Starting population size.
-  size_t starting_population;
-  /// Minimum number of offspring during reproduction.
-  double m_const;
-  /// Slope of the offspring function.
-  double m_slope;
+    /// Starting population size.
+    size_t starting_population;
+    /// Minimum number of offspring during reproduction.
+    double m_const;
+    /// Slope of the offspring function.
+    double m_slope;
 
-  ReproductionParameters();
+    ReproductionParameters();
 };
 
 struct GeneticProbabilities
 {
-  /// Probability of gene crossover during reproduction.
-  double p_crossing;
-  /// Probability that an allele will mutate during reproduction.
-  double p_mutation;
+    /// Probability of gene crossover during reproduction.
+    double p_crossing;
+    /// Probability that an allele will mutate during reproduction.
+    double p_mutation;
 
-  GeneticProbabilities();
+    GeneticProbabilities();
 };
 
 struct AlleleParameters
 {
-  /// Starting allele count.
-  size_t starting_allele_count;
-  /// Maximum change of a gene during mutation.
-  int v_mutation;
-  /// Stretch factor of a gene mutation.
-  double v_stretch;
+    /// Starting allele count.
+    size_t starting_allele_count;
+    /// Maximum change of a gene during mutation.
+    int v_mutation;
+    /// Stretch factor of a gene mutation.
+    double v_stretch;
 
-  AlleleParameters();
+    AlleleParameters();
 };
 
 struct EnergyParameters
 {
-  /// The amount of energy replenished by the environment after each step.
-  double e_increase;
-  /// The amount of energy lost by an entity per step.
-  double e_consumption;
-  /// The maximum amount of energy consumed by a single entity per step.
-  double e_intake;
-  /// Affects how much of the energy intake is wasted.
-  double e_discount;
+    /// The amount of energy replenished by the environment after each step.
+    double e_increase;
+    /// The amount of energy lost by an entity per step.
+    double e_consumption;
+    /// The maximum amount of energy consumed by a single entity per step.
+    double e_intake;
+    /// Affects how much of the energy intake is wasted.
+    double e_discount;
 
-  EnergyParameters();
+    EnergyParameters();
 };
 
-}
+} // namespace fatint::model
 
-auto
-operator<<(std::ostream& os, const fatint::model::Limits& params)
-  -> std::ostream&;
-auto
-operator<<(std::ostream& os,
-           const fatint::model::ReproductionProbabilities& params)
-  -> std::ostream&;
-auto
-operator<<(std::ostream& os,
-           const fatint::model::ReproductionParameters& params)
-  -> std::ostream&;
-auto
-operator<<(std::ostream& os, const fatint::model::GeneticProbabilities& params)
-  -> std::ostream&;
-auto
-operator<<(std::ostream& os, const fatint::model::AlleleParameters& params)
-  -> std::ostream&;
-auto
-operator<<(std::ostream& os, const fatint::model::EnergyParameters& params)
-  -> std::ostream&;
+auto operator<<(std::ostream &os, const fatint::model::Limits &params) -> std::ostream &;
+auto operator<<(std::ostream &os, const fatint::model::ReproductionProbabilities &params) -> std::ostream &;
+auto operator<<(std::ostream &os, const fatint::model::ReproductionParameters &params) -> std::ostream &;
+auto operator<<(std::ostream &os, const fatint::model::GeneticProbabilities &params) -> std::ostream &;
+auto operator<<(std::ostream &os, const fatint::model::AlleleParameters &params) -> std::ostream &;
+auto operator<<(std::ostream &os, const fatint::model::EnergyParameters &params) -> std::ostream &;

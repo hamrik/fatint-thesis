@@ -4,14 +4,14 @@
 #include "measurement/types.hpp"
 #include "model/types.hpp"
 
-namespace fatint::measurement {
+namespace fatint::measurement
+{
 
 class DepthFirstSearchSpeciesCounter : public ISpeciesCounter
 {
-public:
-  [[nodiscard]] auto count_species(const model::Limits& limits,
-                                   const genetics::ISimilarity& similarity,
-                                   const model::Population& population) const -> size_t override;
+  public:
+    [[nodiscard]] auto count_species(const model::Limits &limits, const genetics::ISimilarity &similarity,
+                                     const model::Population &population) const -> size_t override;
 };
 
 } // namespace fatint::measurement

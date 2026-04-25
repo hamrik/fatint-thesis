@@ -2,26 +2,24 @@
 
 #include <algorithm>
 
-namespace fatint::simulation {
-
-auto
-Environment::take(double max) -> double
+namespace fatint::simulation
 {
-  max = std::min(energy, max);
-  energy -= max;
-  return max;
+
+auto Environment::take(double max) -> double
+{
+    max = std::min(energy, max);
+    energy -= max;
+    return max;
 }
 
-void
-Environment::replenish(double amount)
+void Environment::replenish(double amount)
 {
-  energy += amount;
+    energy += amount;
 }
 
-auto
-Environment::current_energy() const -> double
+auto Environment::current_energy() const -> double
 {
-  return energy;
+    return energy;
 }
 
 } // namespace fatint::simulation

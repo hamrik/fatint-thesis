@@ -1,14 +1,15 @@
 #pragma once
 
-namespace fatint::math {
+namespace fatint::math
+{
 
 struct Measurement
 {
-  double min;
-  double max;
-  double avg;
-  double std;
-  double err;
+    double min;
+    double max;
+    double avg;
+    double std;
+    double err;
 };
 
 } // namespace fatint::math

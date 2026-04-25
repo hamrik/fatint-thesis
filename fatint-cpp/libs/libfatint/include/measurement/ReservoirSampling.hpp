@@ -3,24 +3,24 @@
 #include "math/Random.hpp"
 #include <optional>
 
-namespace fatint::measurement {
-
-template<typename T>
-class ReservoirSampling
+namespace fatint::measurement
 {
-public:
-  ReservoirSampling();
-  ~ReservoirSampling();
 
-  void add(math::Random& random, T t);
+template <typename T> class ReservoirSampling
+{
+  public:
+    ReservoirSampling();
+    ~ReservoirSampling();
 
-  std::optional<T> get();
+    void add(math::Random &random, T t);
 
-  void reset();
+    std::optional<T> get();
 
-private:
-  std::optional<T> current;
-  size_t n = 0;
+    void reset();
+
+  private:
+    std::optional<T> current;
+    size_t n = 0;
 };
 
 } // namespace fatint::measurement
