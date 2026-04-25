@@ -8,7 +8,7 @@
 
 Egy parancssori eszköz és könyvtár a FATINT modell alapú szimulációk futtatására. Bővebben a felhasználói dokumentációban: @cli-user-manual.
 
-=== Architektúra 
+=== Architektúra
 
 A C++ implementáció erősen épít a _"Stratégia"_ fejlesztési mintára, mert a szimuláció minden eleme, a genetikus algorimusoktól a fajszámolásig egy-egy különálló, cserélhető algoritmus, melyeket az `Simulator` osztály hangol össze.
 
@@ -23,16 +23,19 @@ classDiagram
     - IValidator validator
     - IAlleleAdder allele_adder
     - ISpeciesCounter species_counter
+    + RunStates run()
   }
 
   class ISimilarity {
-
+    + float diatance(a, b)
   }
   class ISelection {
-
+    + usize select(entities, limits, similarity)
   }
-  class IReproduction {
+  ISimilarity -- ISelection
 
+  class IReproduction {
+    + Entity reproduce(a, b, limits)
   }
   class IValidator {
 
@@ -44,12 +47,12 @@ classDiagram
 
   }
 
-  Simulator *-- ISimilarity
-  Simulator *-- ISelection
-  Simulator *-- IReproduction
-  Simulator *-- IValidator
-  Simulator *-- IAlleleAdder
-  Simulator *-- ISpeciesCounter
+  Simulator o-- ISimilarity
+  Simulator o-- ISelection
+  Simulator o-- IReproduction
+  Simulator o-- IValidator
+  Simulator o-- IAlleleAdder
+  Simulator o-- ISpeciesCounter
 
   class GeneticReproduction {
     - IMutation mutation
