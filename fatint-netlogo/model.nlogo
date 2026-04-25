@@ -239,7 +239,7 @@ to profile-sc-step
 end
 
 to profile-s-step
-  repeat 100 [ go ]
+  repeat 1000 [ go ]
 end
 
 to profile-species-counter
