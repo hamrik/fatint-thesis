@@ -19,20 +19,23 @@ public:
             genetics::IAlleleAdder& allele_adder,
             measurement::ISpeciesCounter& species_counter);
 
-  RunStates run(math::Random& random, const RunParameters& params) const;
+  auto run(math::Random& random, const RunParameters& params) const
+    -> RunStates;
 
 private:
-  bool tick(math::Random& random,
+  auto tick(math::Random& random,
             const RunParameters& params,
             Environment& environment,
-            model::Population& population) const;
-  size_t reproduce(math::Random& random,
-                   const RunParameters& params,
-                   model::Population& population) const;
+            model::Population& population) const -> bool;
+  auto reproduce(math::Random& random,
+                 const RunParameters& params,
+                 model::Population& population) const -> size_t;
   void add_allele(math::Random& random,
                   const RunParameters& params,
                   model::Population& population) const;
-  size_t count_species(const model::Limits& limits, const model::Population& population) const;
+  [[nodiscard]] auto count_species(const model::Limits& limits,
+                                   const model::Population& population) const
+    -> size_t;
 
   const genetics::ISimilarity& similarity;
   const genetics::ISelection& selection;

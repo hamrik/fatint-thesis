@@ -7,9 +7,7 @@ ReservoirSampling<T>::ReservoirSampling()
 }
 
 template<typename T>
-ReservoirSampling<T>::~ReservoirSampling()
-{
-}
+ReservoirSampling<T>::~ReservoirSampling() = default;
 
 template<typename T>
 void

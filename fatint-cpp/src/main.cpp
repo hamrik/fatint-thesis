@@ -235,7 +235,7 @@ parse_args(cxxopts::ParseResult& result) -> fatint::simulation::ExperimentSweepP
 
     return experiment_sweep_parameters;
   } catch (const cxxopts::exceptions::exception& e) {
-    std::cerr << "Error parsing options: " << e.what() << std::endl;
+    std::cerr << "Error parsing options: " << e.what() << '\n';
     exit(1);
   }
 }
@@ -249,12 +249,12 @@ main(int argc, char** argv) -> int
   try {
     opts = define_args(options, argc, argv);
     if (opts.count("help")) {
-      std::cerr << options.help() << std::endl;
+      std::cerr << options.help() << '\n';
       exit(0);
     }
   } catch (const cxxopts::exceptions::exception& e) {
-    std::cerr << "Error parsing arguments: " << e.what() << std::endl;
-    std::cerr << options.help() << std::endl;
+    std::cerr << "Error parsing arguments: " << e.what() << '\n';
+    std::cerr << options.help() << '\n';
     exit(1);
   }
 

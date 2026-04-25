@@ -14,11 +14,11 @@ public:
   ~Random();
 
   void seed(size_t seed);
-  bool chance(double p);
-  int random(int min, int max);
-  double random(double min, double max);
+  auto chance(double p) -> bool;
+  auto random(int min, int max) -> int;
+  auto random(double min, double max) -> double;
   void shuffle(std::vector<size_t>& v);
-  std::vector<size_t> random_indices(size_t count);
+  auto random_indices(size_t count) -> std::vector<size_t>;
 
 private:
   struct impl;

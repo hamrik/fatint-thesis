@@ -9,9 +9,10 @@ namespace fatint::measurement {
 class DisjointSetsSpeciesCounter : public ISpeciesCounter
 {
 public:
-  size_t count_species(const model::Limits& limits,
-                       const genetics::ISimilarity& similarity,
-                       const model::Population& population) const override;
+  [[nodiscard]] auto count_species(const model::Limits& limits,
+                                   const genetics::ISimilarity& similarity,
+                                   const model::Population& population) const
+    -> size_t override;
 };
 
 } // namespace fatint::measurement

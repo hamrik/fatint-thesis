@@ -100,7 +100,7 @@ Simulator::tick(math::Random& random,
                                   params.energy_parameters.e_consumption);
   }
   std::erase_if(population,
-                [](const model::Entity& en) { return en.energy <= 0; });
+                [](const model::Entity& en) -> bool { return en.energy <= 0; });
   return population.size() > 0;
 }
 

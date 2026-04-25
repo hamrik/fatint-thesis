@@ -7,7 +7,7 @@ class Environment
 public:
   auto take(double max) -> double;
   void replenish(double amount);
-  auto current_energy() const -> double;
+  [[nodiscard]] auto current_energy() const -> double;
 
 private:
   double energy = 0.0;

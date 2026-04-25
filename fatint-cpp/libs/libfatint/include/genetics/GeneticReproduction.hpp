@@ -9,11 +9,11 @@ class GeneticReproduction : public IReproduction
 public:
   GeneticReproduction(IMutation& mutation, ICrossover& crossover);
 
-  model::Entity reproduce(math::Random& random,
-                          const model::GeneticProbabilities& probabilities,
-                          const model::AlleleParameters& allele_parameters,
-                          const model::Genotype& a,
-                          const model::Genotype& b) const override;
+  auto reproduce(math::Random& random,
+                 const model::GeneticProbabilities& probabilities,
+                 const model::AlleleParameters& allele_parameters,
+                 const model::Genotype& a,
+                 const model::Genotype& b) const -> model::Entity override;
 
 private:
   const IMutation& mutation;

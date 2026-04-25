@@ -58,8 +58,8 @@ SVGWriter::write(const simulation::ExperimentSweepParameters& params,
        << height_with_padding << "\">\n";
 
   // Plot backdrop and axes
-  dest << "<rect x=\"0\" y=\"0\" width=\"" << width_with_padding
-       << "\" height=\"" << height_with_padding << "\" fill=\"white\" />\n";
+  dest << R"(<rect x="0" y="0" width=")" << width_with_padding << "\" height=\""
+       << height_with_padding << "\" fill=\"white\" />\n";
   dest << "<line x1=\"" << padding << "\" y1=\"" << padding << "\" x2=\""
        << padding << "\" y2=\"" << height + padding
        << "\" stroke=\"black\" />\n";
@@ -68,19 +68,19 @@ SVGWriter::write(const simulation::ExperimentSweepParameters& params,
        << "\" stroke=\"black\" />\n";
 
   // Write axis labels
-  dest << "<text text-anchor=\"middle\" transform=\"rotate(-90 " << padding / 2
+  dest << R"(<text text-anchor="middle" transform="rotate(-90 )" << padding / 2
        << " " << height_with_padding / 2 << ")\" x=\"" << padding / 2
-       << "\" y=\"" << height_with_padding / 2 << "\">Average species count</text>\n";
-  dest << "<text text-anchor=\"middle\" x=\"" << width / 2 + padding
-       << "\" y=\"" << height + padding + padding / 2
-       << "\">Step</text>\n";
+       << "\" y=\"" << height_with_padding / 2
+       << "\">Average species count</text>\n";
+  dest << R"(<text text-anchor="middle" x=")" << width / 2 + padding
+       << "\" y=\"" << height + padding + padding / 2 << "\">Step</text>\n";
 
   // Write axis extrema
   dest << "<text x=\"" << padding / 2 << "\" y=\""
        << height + padding + padding / 2 << "\">0</text>\n";
-  dest << "<text text-anchor=\"end\" x=\"" << padding << "\" y=\""
+  dest << R"(<text text-anchor="end" x=")" << padding << "\" y=\""
        << padding / 2 << "\">" << max_value << "</text>\n";
-  dest << "<text text-anchor=\"end\" x=\"" << width + padding << "\" y=\""
+  dest << R"(<text text-anchor="end" x=")" << width + padding << "\" y=\""
        << height + padding + padding / 2 << "\">" << max_step << "</text>\n";
 
   // Plot data points
@@ -92,8 +92,8 @@ SVGWriter::write(const simulation::ExperimentSweepParameters& params,
     double hue = de * hue_max / static_cast<double>(params.experiments);
     // Plot legend
     dest << "<circle cx=\"" << width + padding + padding / 2 << "\" cy=\""
-         << padding + legend_height * de - bullet_y_offset << "\" r=\"3\" fill=\"hsl(" << hue
-         << ", 75%, 50%)\" />\n";
+         << padding + legend_height * de - bullet_y_offset
+         << R"(" r="3" fill="hsl()" << hue << ", 75%, 50%)\" />\n";
     dest << "<text x=\"" << width + padding * 2 << "\" y=\""
          << padding + legend_height * de << "\">"
          << experiment_params.run_parameters << "</text>\n";
@@ -103,8 +103,8 @@ SVGWriter::write(const simulation::ExperimentSweepParameters& params,
       double average_species_count = step_statistics.species_count.avg;
       double x = padding + ds * step_width;
       double y = height + padding - average_species_count * height_factor;
-      dest << "<circle cx=\"" << x << "\" cy=\"" << y
-           << "\" r=\"1\" fill=\"hsl(" << hue << ", 75%, 50%)\" />\n";
+      dest << "<circle cx=\"" << x << "\" cy=\"" << y << R"(" r="1" fill="hsl()"
+           << hue << ", 75%, 50%)\" />\n";
     }
     experiment_params.run_parameters += params.delta;
   }

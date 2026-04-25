@@ -1,6 +1,7 @@
 #include "math/Random.hpp"
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <algorithm>
 #include <doctest.hpp>
 
 TEST_CASE("Random seeding produces deterministic results")
@@ -101,6 +102,6 @@ TEST_CASE("Random shuffles correctly")
 
   std::vector<size_t> v = rng.random_indices(5);
   CHECK(v != std::vector<size_t>({ 0, 1, 2, 3, 4 }));
-  std::sort(v.begin(), v.end());
+  std::ranges::sort(v);
   CHECK(v == std::vector<size_t>({ 0, 1, 2, 3, 4 }));
 }

@@ -4,7 +4,7 @@
 
 namespace fatint::simulation {
 
-RunParameters&
-operator+=(RunParameters& a, const RunParameters& b);
+auto
+operator+=(RunParameters& a, const RunParameters& b) -> RunParameters&;
 
 } // namespace fatint::simulation

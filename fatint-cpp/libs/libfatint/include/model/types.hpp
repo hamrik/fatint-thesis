@@ -51,8 +51,8 @@ using Genotype = std::vector<int>;
 
 struct Entity
 {
-  int age;
-  double energy;
+  int age{};
+  double energy{};
   Genotype genotype;
 };
 

@@ -24,7 +24,7 @@ ExperimentParameters::expand() const
   std::vector<RunParameters> result;
   RunParameters run_params{ run_parameters };
   for (size_t i = 0; i < runs; i++) {
-    result.push_back(RunParameters{ run_params });
+    result.emplace_back(run_params);
     run_params.seed++;
   }
   return result;

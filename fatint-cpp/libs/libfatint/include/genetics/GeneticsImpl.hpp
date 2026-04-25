@@ -10,20 +10,21 @@ namespace fatint::genetics {
 class SimilarityImpl : public ISimilarity
 {
 public:
-  bool compatible(const model::Limits& limits,
-                  const model::Genotype& a,
-                  const model::Genotype& b) const override;
-
+  [[nodiscard]] auto compatible(const model::Limits& limits,
+                                const model::Genotype& a,
+                                const model::Genotype& b) const
+    -> bool override;
 };
 
 class SelectionImpl : public ISelection
 {
 public:
-  std::optional<size_t> select(math::Random& random,
-                               const model::Limits& limits,
-                               const ISimilarity& similarity,
-                               size_t index,
-                               const model::Population& entities) const override;
+  auto select(math::Random& random,
+              const model::Limits& limits,
+              const ISimilarity& similarity,
+              size_t index,
+              const model::Population& entities) const
+    -> std::optional<size_t> override;
 };
 
 class MutationImpl : public IMutation
@@ -48,8 +49,9 @@ public:
 class ValidatorImpl : public IValidator
 {
 public:
-  bool validate(const model::Limits& limits,
-                const model::Genotype& genotype) const override;
+  [[nodiscard]] auto validate(const model::Limits& limits,
+                              const model::Genotype& genotype) const
+    -> bool override;
 };
 
 class RandomAlleleAdder : public IAlleleAdder

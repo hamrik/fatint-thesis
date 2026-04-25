@@ -9,9 +9,10 @@ class ISpeciesCounter
 {
 public:
   virtual ~ISpeciesCounter() = default;
-  virtual size_t count_species(const model::Limits& limits,
-                               const genetics::ISimilarity& similarity,
-                               const model::Population& population) const = 0;
+  [[nodiscard]] virtual auto count_species(
+    const model::Limits& limits,
+    const genetics::ISimilarity& similarity,
+    const model::Population& population) const -> size_t = 0;
 };
 
 } // namespace fatint::measurement

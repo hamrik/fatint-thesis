@@ -18,9 +18,9 @@ namespace fatint::simulation {
 struct RunParameters
 {
   /// Maximum number of steps per run.
-  size_t steps;
+  size_t steps{};
   /// Random seed of the run.
-  size_t seed;
+  size_t seed{};
 
   /// Value bounds,
   model::Limits limits;
@@ -44,7 +44,7 @@ struct ExperimentParameters
   /// The seed is incremented between runs.
   RunParameters run_parameters;
   /// Number of runs with the same parameters.
-  size_t runs;
+  size_t runs{};
 
   [[nodiscard]] auto expand() const -> std::vector<RunParameters>;
 };
@@ -60,7 +60,7 @@ struct ExperimentSweepParameters
   /// The parameters are incremented by this value for each experiment.
   RunParameters delta;
   /// The number of experiments to run.
-  size_t experiments;
+  size_t experiments{};
 
   [[nodiscard]] auto expand() const -> std::vector<RunParameters>;
 };
@@ -111,5 +111,6 @@ using ExperimentSweepResults = std::vector<ExperimentResults>;
 
 }
 
-std::ostream&
-operator<<(std::ostream& os, const fatint::simulation::RunParameters& params);
+auto
+operator<<(std::ostream& os, const fatint::simulation::RunParameters& params)
+  -> std::ostream&;

@@ -11,9 +11,10 @@ class ISimilarity
 {
 public:
   virtual ~ISimilarity() = default;
-  virtual bool compatible(const model::Limits& limits,
-                          const model::Genotype& a,
-                          const model::Genotype& b) const = 0;
+  [[nodiscard]] virtual auto compatible(const model::Limits& limits,
+                                        const model::Genotype& a,
+                                        const model::Genotype& b) const
+    -> bool = 0;
 };
 
 class ISelection
@@ -21,11 +22,12 @@ class ISelection
 public:
   virtual ~ISelection() = default;
 
-  virtual std::optional<size_t> select(math::Random& random,
-                                       const model::Limits& limits,
-                                       const ISimilarity& similarity,
-                                       size_t index,
-                                       const model::Population& entities) const = 0;
+  virtual auto select(math::Random& random,
+                      const model::Limits& limits,
+                      const ISimilarity& similarity,
+                      size_t index,
+                      const model::Population& entities) const
+    -> std::optional<size_t> = 0;
 };
 
 class IMutation
@@ -53,20 +55,20 @@ class IReproduction
 {
 public:
   virtual ~IReproduction() = default;
-  virtual model::Entity reproduce(
-    math::Random& random,
-    const model::GeneticProbabilities& probabilities,
-    const model::AlleleParameters& allele_parameters,
-    const model::Genotype& a,
-    const model::Genotype& b) const = 0;
+  virtual auto reproduce(math::Random& random,
+                         const model::GeneticProbabilities& probabilities,
+                         const model::AlleleParameters& allele_parameters,
+                         const model::Genotype& a,
+                         const model::Genotype& b) const -> model::Entity = 0;
 };
 
 class IValidator
 {
 public:
   virtual ~IValidator() = default;
-  virtual bool validate(const model::Limits& limits,
-                        const model::Genotype& genotype) const = 0;
+  [[nodiscard]] virtual auto validate(const model::Limits& limits,
+                                      const model::Genotype& genotype) const
+    -> bool = 0;
 };
 
 class IAlleleAdder
