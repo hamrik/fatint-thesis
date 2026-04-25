@@ -28,4 +28,4 @@ jobs:
         id: test
         run: |
           cd fatint-cpp/build/libs/libfatint/tests
-          ctest
+          ctest --output-on-failure
