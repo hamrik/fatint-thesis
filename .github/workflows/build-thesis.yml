@@ -27,11 +27,16 @@ jobs:
         run: |
           cmake -S fatint-cpp -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --parallel --config Release
-      - name: Run simulation and compile thesis
-        id: compile-thesis
+      - name: Run simularions
+        id: run-simulaions
         run: |
           export PATH=$PATH:$PWD/build/:$PWD/build/libs/libfatint/tests:/opt/NetLogo/NetLogo-6.4.0-64:/opt/typst/typst-x86_64-unknown-linux-musl
-          ./build-thesis.sh
+          ./run-simulations.sh
+      - name: Compile thesis
+        id: compile-thesis
+        run: |
+          export PATH=$PATH:/opt/typst/typst-x86_64-unknown-linux-musl
+          typst compile thesis/main.typ KL43GM.pdf
       - name: Export PDF
         id: export
         uses: actions/upload-artifact@v4

@@ -2,7 +2,7 @@
 
 = Bevezető
 
-Ezen projekt célja #cite(<fatint>, form: "prose") cikkében leírt FATINT elnevezésű nyitott evolúciós modell újbóli implementációja, és a cikkben közölt eredmények reprodukálása, a NetLogo modellszimulációs szoftver használatával, valamint egy C++ könyvtár implementálásával.
+Ezen projekt célja @fatint cikkében leírt FATINT elnevezésű nyitott evolúciós modell újbóli implementációja, és a cikkben közölt eredmények reprodukálása, a NetLogo modellszimulációs szoftver használatával, valamint egy C++ könyvtár implementálásával.
 
 #todo("Proper introduction")
 

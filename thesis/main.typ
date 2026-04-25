@@ -26,17 +26,15 @@
 )
 
 #todo("Assert that the NetLogo implementation requires NetLogo 6 and was not tested with NetLogo 7")
-#todo("Tidy up NetLogo implementation and run experiments. Also measure performance of both implementations, with varying inputs")
 #todo("Add test plan for NetLogo")
 #todo("Add rationale behind the C++ reimplementation, compare accuracy and performance VS NetLogo")
-#todo("Add system architecture diagram for C++ implementation")
+#todo("Document C++ architecture, explain parts of diagram and discuss data flow")
 #todo("Add doc comments and generate doxygen docs for C++ implementation")
 #todo("Make disclaimer about the thesis template file being converted from the official LaTeX template using AI")
-#todo("Embed results, draw conclusions")
 
 #include "chapters/introduction/main.typ"
 #include "chapters/user_manual/main.typ"
 #include "chapters/developer_documentation/main.typ"
-#include "chapters/results/main.typ"
+// #include "chapters/results/main.typ"
 
 #bibliography("thesis.bib")

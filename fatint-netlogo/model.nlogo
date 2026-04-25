@@ -906,10 +906,6 @@ ask turtles [
 stop</go>
     <metric>profiler:inclusive-time "profile-sc-step"</metric>
     <enumeratedValueSet variable="starting-pop">
-      <value value="1"/>
-      <value value="2"/>
-      <value value="4"/>
-      <value value="8"/>
       <value value="16"/>
       <value value="32"/>
       <value value="64"/>
@@ -933,10 +929,6 @@ ask turtles [
 stop</go>
     <metric>profiler:inclusive-time "profile-sc-step"</metric>
     <enumeratedValueSet variable="starting-pop">
-      <value value="1"/>
-      <value value="2"/>
-      <value value="4"/>
-      <value value="8"/>
       <value value="16"/>
       <value value="32"/>
       <value value="64"/>
@@ -960,10 +952,6 @@ ask turtles [
 stop</go>
     <metric>profiler:inclusive-time "profile-sc-step"</metric>
     <enumeratedValueSet variable="starting-pop">
-      <value value="1"/>
-      <value value="2"/>
-      <value value="4"/>
-      <value value="8"/>
       <value value="16"/>
       <value value="32"/>
       <value value="64"/>
@@ -987,10 +975,6 @@ ask turtles [
 stop</go>
     <metric>profiler:inclusive-time "profile-sc-step"</metric>
     <enumeratedValueSet variable="starting-pop">
-      <value value="1"/>
-      <value value="2"/>
-      <value value="4"/>
-      <value value="8"/>
       <value value="16"/>
       <value value="32"/>
       <value value="64"/>
@@ -1011,10 +995,6 @@ set E-consumption 0</preExperiment>
 stop</go>
     <metric>profiler:inclusive-time "profile-s-step"</metric>
     <enumeratedValueSet variable="starting-pop">
-      <value value="1"/>
-      <value value="2"/>
-      <value value="4"/>
-      <value value="8"/>
       <value value="16"/>
       <value value="32"/>
       <value value="64"/>
@@ -1032,11 +1012,7 @@ profiler:reset</preExperiment>
     <go>profile-simulator
 stop</go>
     <metric>profiler:inclusive-time "profile-s-step"</metric>
-    <enumeratedValueSet variable="E-increase">
-      <value value="1"/>
-      <value value="2"/>
-      <value value="4"/>
-      <value value="8"/>
+    <enumeratedValueSet variable="starting-pop">
       <value value="16"/>
       <value value="32"/>
       <value value="64"/>

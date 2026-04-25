@@ -139,6 +139,8 @@
     v(0.3em)
   }
 
+  set cite(form: "prose")
+
   // Figure and table captions
   show figure.caption: it => {
     align(center)[

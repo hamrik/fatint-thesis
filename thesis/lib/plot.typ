@@ -141,9 +141,9 @@
     width: 10cm,
     height: 5cm,
     xlabel: "Populáció mérete",
-    // xscale: "log",
+    xscale: "log",
     ylabel: "Fajszámlálás időigénye (ms)",
-    // yscale: "log",
+    yscale: "log",
     legend: (position: (100% + 1em, 0%)),
     cycle: MARKS,
     ..srcs.map(plot_chunk)
@@ -170,46 +170,34 @@
   )
 }
 
-#let netlogo_simulator_perf_plot(srcs) = {
+#let perf_plot(xlabel, srcs) = {
   let plot_chunk = (src) => {
     let data = lq.load-txt(
       read(src.path),
-      skip-rows: 7,
-      converters: it => if it == "\"N/A\"" {
-        none
-      } else {
-        float(it.slice(1, -1))
-      }
-    );
-    lq.plot(label: src.label, data.at(0), data.at(2))
+      skip-rows: src.skip,
+      converters: v => {
+            if v.at(0) == "\"" {
+              if v == "\"N/A\"" {
+                none
+              } else {
+                float(v.slice(1,-1))
+              }
+            } else {
+              float(v)
+            }
+          }
+    )
+    lq.plot(label: src.label, data.at(src.x), data.at(src.y))
   }
 
   lq.diagram(
-    title: "libfatint",
     width: 10cm,
     height: 5cm,
-    xlabel: [$E_"increase"$],
-    //xscale: "log",
-    ylabel: "500 körös szimuláció időigénye (ms)",
-    //yscale: "log",
-    ..srcs.map(plot_chunk)
-  )
-}
-
-#let libfatint_simulator_perf_plot(srcs) = {
-  let plot_chunk = (src) => {
-    let data = lq.load-txt(read(src.path));
-    lq.plot(label: src.label, data.at(0), data.at(1))
-  }
-
-  lq.diagram(
-    title: "libfatint",
-    width: 10cm,
-    height: 5cm,
-    xlabel: [$E_"increase"$],
-    //xscale: "log",
-    ylabel: "1000 körös szimuláció időigénye (ms)",
-    //yscale: "log",
+    xlabel: xlabel,
+    xscale: "log",
+    ylabel: "Szimuláció időigénye (ms)",
+    yscale: "log",
+    legend: (position: (100% + 1em, 0%)),
     ..srcs.map(plot_chunk)
   )
 }

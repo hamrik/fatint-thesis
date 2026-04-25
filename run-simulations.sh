@@ -1,8 +1,7 @@
 #!/bin/sh
 
 # This script will generate all data tables
-# used in the thesis document, then compile
-# said document.
+# used in the thesis document.
 #
 # Make sure you have NetLogo 6.4.0, fatint
 # and the libfatint tests on your PATH.
@@ -94,13 +93,13 @@ benchmark_fatint() {
 	echo '  - Simulator, without agent churn'
 	TestSimulatorPerformance \
 		-q \
-		-tc='*No churn*' \
+		-tc='*- No churn*' \
 		> thesis/data/benchmark-simulator-nochurn-libfatint.csv
 
 	echo '  - Simulator, normal operation'
 	TestSimulatorPerformance \
 		-q \
-		-tc='*Churn*' \
+		-tc='*- Churn*' \
 		> thesis/data/benchmark-simulator-churn-libfatint.csv
 
 }
@@ -177,7 +176,8 @@ benchmark_netlogo() {
 		--model fatint-netlogo/model.nlogo \
 		--experiment 'benchmark-species-counter-dfs-one-species' \
 		--table thesis/data/benchmark-species-counter-dfs-one-species-NetLogo.raw.csv \
-		--stats thesis/data/benchmark-species-counter-dfs-one-species-NetLogo.csv
+		--stats thesis/data/benchmark-species-counter-dfs-one-species-NetLogo.csv \
+		--threads 1
 
 	echo '  - DFS, many species'
 	NetLogo_Console \
@@ -185,7 +185,8 @@ benchmark_netlogo() {
 		--model fatint-netlogo/model.nlogo \
 		--experiment 'benchmark-species-counter-dfs-many-species' \
 		--table thesis/data/benchmark-species-counter-dfs-many-species-NetLogo.raw.csv \
-		--stats thesis/data/benchmark-species-counter-dfs-many-species-NetLogo.csv
+		--stats thesis/data/benchmark-species-counter-dfs-many-species-NetLogo.csv \
+        --threads 1
 
 	echo '  - Disjoint-Sets, one species'
 	NetLogo_Console \
@@ -193,7 +194,8 @@ benchmark_netlogo() {
 		--model fatint-netlogo/model.nlogo \
 		--experiment 'benchmark-species-counter-ds-one-species' \
 		--table thesis/data/benchmark-species-counter-ds-one-species-NetLogo.raw.csv \
-		--stats thesis/data/benchmark-species-counter-ds-one-species-NetLogo.csv
+		--stats thesis/data/benchmark-species-counter-ds-one-species-NetLogo.csv \
+        --threads 1
 
 	echo '  - Disjoint-Sets, many species'
 	NetLogo_Console \
@@ -201,7 +203,8 @@ benchmark_netlogo() {
 		--model fatint-netlogo/model.nlogo \
 		--experiment 'benchmark-species-counter-ds-many-species' \
 		--table thesis/data/benchmark-species-counter-ds-many-species-NetLogo.raw.csv \
-		--stats thesis/data/benchmark-species-counter-ds-many-species-NetLogo.csv
+		--stats thesis/data/benchmark-species-counter-ds-many-species-NetLogo.csv \
+		--threads 1
 
 	echo '  - Simulator, without agent churn'
 	NetLogo_Console \
@@ -209,7 +212,8 @@ benchmark_netlogo() {
 		--model fatint-netlogo/model.nlogo \
 		--experiment 'benchmark-simulator-no-churn' \
 		--table thesis/data/benchmark-simulator-nochurn-NetLogo.raw.csv \
-		--stats thesis/data/benchmark-simulator-nochurn-NetLogo.csv
+		--stats thesis/data/benchmark-simulator-nochurn-NetLogo.csv \
+		--threads 1
 
 	echo '  - Simulator, normal operation'
 	NetLogo_Console \
@@ -217,7 +221,8 @@ benchmark_netlogo() {
 		--model fatint-netlogo/model.nlogo \
 		--experiment 'benchmark-simulator-churn' \
 		--table thesis/data/benchmark-simulator-churn-NetLogo.raw.csv \
-		--stats thesis/data/benchmark-simulator-churn-NetLogo.csv
+		--stats thesis/data/benchmark-simulator-churn-NetLogo.csv \
+		--threads 1
 
 }
 
@@ -225,6 +230,3 @@ run_fatint
 run_netlogo
 benchmark_fatint
 benchmark_netlogo
-
-echo 'Compiling thesis'
-typst compile thesis/main.typ KL43GM.pdf

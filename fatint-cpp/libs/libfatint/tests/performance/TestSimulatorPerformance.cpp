@@ -9,8 +9,11 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest.hpp>
 
-const size_t SIZES = 12;
+const size_t STARTING_SIZE = 16;
+const size_t SIZES = 8;
 const size_t RUNS = 3;
+
+const auto NS_IN_MS = 1e6;
 
 class DummySpeciesCounter : public fatint::measurement::ISpeciesCounter
 {
@@ -59,7 +62,7 @@ auto measure_no_churn(size_t sz) -> double
 
   auto dur =
     std::chrono::duration_cast<std::chrono::nanoseconds>(after - before);
-  return static_cast<double>(dur.count()) / 1e6;
+  return static_cast<double>(dur.count()) / NS_IN_MS;
 }
 
 auto measure_churn(size_t sz) -> double
@@ -93,12 +96,12 @@ auto measure_churn(size_t sz) -> double
 
   auto dur =
     std::chrono::duration_cast<std::chrono::nanoseconds>(after - before);
-  return static_cast<double>(dur.count()) / 1e6;
+  return static_cast<double>(dur.count()) / NS_IN_MS;
 }
 
 TEST_CASE("SimulatorPerformance - No churn")
 {
-  for(size_t sz = 1, i = 0; i < SIZES; sz *= 2, i++) {
+  for(size_t sz = STARTING_SIZE, i = 0; i < SIZES; sz *= 2, i++) {
     double total = 0.0;
     for(size_t r = 0; r < RUNS; r++) {
       total += measure_no_churn(sz);
@@ -109,7 +112,7 @@ TEST_CASE("SimulatorPerformance - No churn")
 
 TEST_CASE("SimulatorPerformance - Churn")
 {
-  for(size_t sz = 1, i = 0; i < SIZES; sz *= 2, i++) {
+  for(size_t sz = STARTING_SIZE, i = 0; i < SIZES; sz *= 2, i++) {
     double total = 0.0;
     for(size_t r = 0; r < RUNS; r++) {
       total += measure_churn(sz);
