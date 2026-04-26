@@ -14,7 +14,7 @@
   author: "Hamrik Szabin",
   degree: "Programtervező informatikus BSc",
 
-  supervisor: "Gulyás László",
+  supervisor: "Dr. Gulyás László",
   affiliation: "Mesterséges Intelligencia Tanszék",
 
   city: "Budapest",
@@ -27,7 +27,6 @@
 
 #todo("Add test plan for NetLogo")
 #todo("Add doc comments and generate doxygen docs for C++ implementation")
-#todo("Make disclaimer about the thesis template file being converted from the official LaTeX template using AI")
 
 #include "chapters/introduction/main.typ"
 #include "chapters/user_manual/main.typ"

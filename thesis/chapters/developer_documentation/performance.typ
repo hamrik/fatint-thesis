@@ -1,7 +1,7 @@
 #import "/lib/plot.typ": *
 #import "@preview/lilaq:0.6.0" as lq
 
-== Teljesítmény
+== Teljesítmény <performance>
 
 Megfigyelhető, hogy a fajszámláló algoritmusoknál fontosabb szempont a különböző fajok száma, mint az egyedek száma. A _"Single"_ esetekben minden egyed egy fajba tartozott, míg a _"Many"_ esetekben minden faj külön fajba. Alacsony fajszám mellett a mélységi bejárás teljesít jobban, míg sok faj esetén a diszjunkt-halmaz algoritmus.
 

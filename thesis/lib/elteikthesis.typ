@@ -1,5 +1,7 @@
 // ELTE FI Thesis Template for Typst
-// Converted from elteikthesis.cls v2.4 using Claude Sonnet
+// Initially converted from the LaTeX template at
+// https://github.com/mcserep/elteikthesis
+// using Claude Sonnet 4.6
 
 #let thesis(
   title: "Thesis Title",
@@ -109,7 +111,7 @@
   )
 
   // Heading settings
-  set heading(numbering: "1.1")
+  set heading(numbering: "1.1", supplement: "")
 
   show heading.where(level: 1): it => {
     pagebreak(weak: true)
@@ -149,7 +151,7 @@
   }
 
   // Formula numbering
-  set math.equation(numbering: "(1)")
+  set math.equation(numbering: n => [(#n)], supplement: "")
 
   // Code blocks styling
   show raw.where(block: true): it => {
@@ -266,17 +268,14 @@
 
 // Theorem-like environments
 #let definition(body, title: none) = {
-  let label = if (context text.lang) == "hu" { "Definíció" } else { "Definition" }
   block(
     fill: rgb("#f0f0f0"),
     width: 100%,
     inset: 10pt,
     radius: 3pt,
     [
-      #text(weight: "bold")[
-        #label
-        #if title != none [ (#title)]
-        :
+      #if title != none [
+        #text(weight: "bold")[ #title: ]
       ]
       #body
     ]
