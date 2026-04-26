@@ -14,7 +14,7 @@ template <typename T> class ReservoirSampling
 
     void add(math::Random &random, T t);
 
-    std::optional<T> get();
+    auto get() -> std::optional<T>;
 
     void reset();
 

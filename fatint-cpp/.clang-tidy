@@ -3,3 +3,5 @@ Checks: '-*,cppcoreguidelines-*,bugprone-*,clang-analyzer-*,modernize-*,performa
 HeaderFilterRegex: '.*'
 WarningsAsErrors: true
 FormatStyle: file
+CheckOptions:
+  cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: true
