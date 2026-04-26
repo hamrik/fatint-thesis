@@ -226,7 +226,14 @@ benchmark_netlogo() {
 
 }
 
-run_fatint
-run_netlogo
-benchmark_fatint
-benchmark_netlogo
+if [ $# -eq 0 -o "$1" = 'fatint' ]
+then
+    run_fatint
+    benchmark_fatint
+fi
+
+if [ $# -eq 0 -o "$1" = 'netlogo' ]
+then
+    run_netlogo
+    benchmark_netlogo
+fi
