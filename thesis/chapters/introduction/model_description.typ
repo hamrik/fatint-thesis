@@ -162,3 +162,30 @@ _"Stretch method"_ (_nyújtási eljárás_) módszerével állapítunk meg, akko
 alábbi egyenletet kell használni:
 $ "new gene" = V_"min" dot ( "last gene" dot V_"stretch" ) mod ( V_"max" - V_"min" + 1 ) $ <stretch-formula>
 ahol $"last gene"$ az adott entitás genotípusának utolsó eleme.
+
+=== Alapértelmezett értékek <model-defaults>
+
+#figure(
+  caption: "A modell paramétereinek alapértelmezett értékei",
+  [
+    #show table.cell.where(y: 0): strong
+    #show table.cell.where(x: 0): it => align(left)[#it]
+    #table(
+      columns: 2,
+      table.header[Paraméter][Alapértelmezett érték],
+      [$P_"encounter"$], [$0.1$],
+      [$P_"change"$], [$0$],
+      [$P_"crossing"$], [$0.2$],
+      [$P_"mutation"$], [$0.2$],
+      [$[V_"min", V_"max"]$], [$[0, 100]$],
+      [$V_"mutation"$], [$2$],
+      [$V_"stretch"$], [$0$],
+      [$M_"const"$], [$1$],
+      [$M_"limit"$], [$15$],
+      [$M_"slope"$], [$0$],
+      [$E_"increase"$], [$1000$],
+      [$E_"consumption"$], [$5$],
+      [$E_"intake"$], [$10$],
+    )
+  ]
+)

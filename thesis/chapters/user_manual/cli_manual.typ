@@ -2,40 +2,60 @@
 
 == C++ implementáció <cli-user-manual>
 
-Ugyan a NetLogo egy könnyen kezelhető, látványos módja a modellek viselkedésének elemzéséhez, sajnos meglehetősen lassú.
-Például a `stretch-new-allele-sweep-stretch` kísérletsor futtatása egy i7 1360p processzoron 7 perc 4 másodpercet vesz igénybe.
+Ugyan a NetLogo egy könnyen kezelhető, látványos módja a modellek viselkedésének
+elemzéséhez, sajnos meglehetősen lassú, lásd @performance fejezet.
 
-A C++ implementáció egy felület nélküli, parancssorban futtatható változata a FATINT modellnek,
-továbbá egy könyvtár, mely beépíthatő egyéb programokba.
-
-A fenti kísérletsor futtatása a C++ implementációnak 10 másodpercbe telik.
+A C++ implementáció egy felület nélküli, parancssorból futtatható
+implementációja a FATINT modellnek, továbbá egy könyvtár, mely beépíthatő egyéb
+programokba.
 
 === Rendszerkövetelmények
 
 - 2 évnél nem régebbi Linux disztró #todo("Windows and MacOS are also viable but needs testing")
 - C++ futásidejű könyvtárak (pl `libc++` vagy `libstdc++`)
-- 560KB tárhely a programnak
+- 1MB tárhely a programnak
 - Nagyjából 100MB tárhely a generálandó adatoknak
-- Legalább 32MB memória #todo("Verify")
+- Legalább 128MB memória
+- _Opcionális:_ Intel Thread Building Blocks - lehetővé teszi a többszálú
+  futtatást. Erősen javallott, mert nélküle a több kísérletból vagy futamból
+  álló szimulációk jelentősen több időt vehetnek igénybe.
 
 === Telepítés
 
-A legfrissebb verzió a projekt repójából tölthető le: #link("https://github.com/hamrik/fatint-thesis/releases").
-Csak le kell tölteni a zip fájlt és egy tetszőleges helyre kicsomagolni.
+A legfrissebb verzió
+#link("https://github.com/hamrik/fatint-thesis/releases")[a projekt repójából]
+tölthető le. Csak le kell tölteni a legfrissebb zip fájlt és egy tetszőleges
+helyre kicsomagolni. A zip fájlba előre csomagolt program csak Linux vagy WSL
+rendszereken futtatható, és megköveteli a Thread Building Blocks könyvtárat.
+
 #todo("Make a release via CI")
 
-Forráskódból való fordításhoz lásd @build-from-source.
+Forráskódból való fordításhoz lásd a @build-from-source fejezetet.
 
 === Parancssori opciók
 
-A modell leírásban (@model-desc) szereplő paraméterek kapcsoló formájában
-átadhatóak a `fatint` parancssori programnak.
+A modell leírásban (@model-desc) szereplő paraméterek kapcsolók
+formájában átadhatóak a `fatint` parancssori programnak.
 
-Kísérletsor esetén a kísérletek közötti különbségek a `--sweep_<parameter>` kapcsolókkal adhatók meg (@param-sweep).
+Kísérletsor esetén a kísérletek közötti különbségek a `--sweep_<parameter>`
+kapcsolókkal adhatók meg (@param-sweep).
 
-Ezenkívül megadható a véletlenszám generátor kezdőparamétere (`--seed`), a kimeneti fájl útvonala (`--output`) és formátuma (`--format`, @plotting)
+Ezenkívül megadható a véletlenszám generátor kezdőparamétere (`--seed`), a
+kimeneti fájl útvonala (`--output`) és formátuma (`--format`, @plotting)
 
-```
+#show raw.where(lang: "help"): it => [
+  #set text(size: 9pt)
+  #block(
+    fill: rgb("#f2f2f2"),
+    width: 100%,
+    inset: 8pt,
+    radius: 2pt,
+    stroke: 0.5pt + rgb("#cccccc"),
+    it.text
+  )
+]
+```help
+FATINT simulation
 Usage:
   ./fatint [OPTION...]
 
@@ -107,39 +127,49 @@ Usage:
                                 experiments (default: 0)
       --sweep_e_discount arg    The amount e_discount is increased by
                                 between experiments (default: 0)
+      --disjoint_sets           Use Disjoint-Sets algorithm instead of
+                                Depth-First Search to count species
   -o, --output arg              Output file (default: "")
   -f, --format arg              Output format (default: csv)
   -h, --help                    Print help
 ```
-#todo("Translate")
 
 === Egy kísérlet futtatása
 
-Egyetlen kísérlet futtatásához nincs más teendőnk, mint a `fatint` eszközt az álatunk kívánt paraméterekkel futtatni.
-Minden meg nem adott paraméter a fent meghatározott alapértelmezett értéket kapja.
+Egyetlen kísérlet futtatásához nincs más teendőnk, mint a `fatint` eszközt az
+álatunk kívánt paraméterekkel futtatni.
+Minden meg nem adott paraméter a fent meghatározott alapértelmezett értéket
+kapja, lásd @model-desc fejezet.
 
-Például, ha a $P_"change"$ paramétert 0.03-ra szerenénk állítani egy kísérletben, akkor a `--p_change 0.03` kapcsolót kell beállítanunk. Példa:
+Például, ha a $P_"change"$ paramétert 0.03-ra szerenénk állítani egy
+kísérletben, akkor a `--p_change 0.03` kapcsolót kell beállítanunk. Példa:
 
 ```bash
-build$ ./fatint --p_change 0.03
+$ ./fatint --p_change 0.03
 ```
 
-A program az eredményeket CSV formátumban a standard kimenetre fogja írni. Ha fájlba szeretnénk irányítani, azt az `output` kapcsolóval tehetjük meg:
+A program az eredményeket CSV formátumban a standard kimenetre fogja írni. Ha
+fájlba szeretnénk irányítani, azt az `output` kapcsolóval tehetjük meg:
 
 ```bash
-build$ ./fatint --p_change 0.03 --output results.csv
+$ ./fatint --p_change 0.03 --output results.csv
 ```
 
-Egy kísérlet alapértelmezett beállítás mellett 10 szimulációt futtat, és azokat átlagolja. Ez a szám a `--runs` kapcsolóval állítható:
+Egy kísérlet alapértelmezett beállítás mellett 10 szimulációt futtat, és azok
+eredményeit átlagolja. Ez a szám a `--runs` kapcsolóval állítható:
 
 ```bash
-build$ ./fatint --runs 20 --p_change 0.03 --output results.csv
+$ ./fatint --runs 20 --p_change 0.03 --output results.csv
 ```
 
-Egy szimuláció addig tart, amíg az utolsó egyed eltávolításra nem kerül vagy amíg a megtett körök száma el nem ér egy limitet. Ez a limit alapértelmezett beállítások mellett 6000 kör. A generált CSV fájlok mindig a maximális körök számának megfelelő sort fognak tartalmazni, akkor is, ha a szimuláció hamarabb terminál. Ez a limit a `--steps` kapcsolóval állítható:
+Egy szimuláció addig tart, amíg az utolsó egyed eltávolításra nem kerül, vagy
+amíg a megtett körök száma el nem ér egy limitet. Ez a limit alapértelmezett
+beállítások mellett 6000 kör. A generált CSV fájlok mindig a maximális körök
+számának megfelelő sort fognak tartalmazni kísérletenként, akkor is, ha a
+szimuláció hamarabb terminál. Ez a limit a `--steps` kapcsolóval állítható:
 
 ```bash
-build$ ./fatint --runs 20 --steps 1000 --p_change 0.03 --output results.csv
+$ ./fatint --runs 20 --steps 1000 --p_change 0.03 --output results.csv
 ```
 
 === Egy paramétervizsgálat futtatása <param-sweep>
@@ -149,35 +179,45 @@ build$ ./fatint --runs 20 --steps 1000 --p_change 0.03 --output results.csv
 Több kísérlet futtatásához az `--experiments` kapcsoló értékét kell beállítani:
 
 ```bash
-build$ ./fatint --experiments 5 --runs 20 --steps 1000 --p_change 0.03 --output results.csv
+$ ./fatint --experiments 5 --runs 20 --steps 1000 --p_change 0.03 --output results.csv
 ```
 
-A fenti beállításokkal mindegyik szimuláció ugyanúgy fog viselkedni, mert a kezdeti paramétereik egyeznek.
+A fenti beállításokkal mindegyik szimuláció ugyanúgy fog viselkedni, mert a
+kezdeti paramétereik egyeznek.
 
-Ahhoz, hogy egy paraméter több különböző értékével futtassunk kírérletet a `--sweep_*` kapcsolókra van szükség. Minden beállítható paraméterhez tartozik egy, és azt adja meg, hogy az egyes kísérletek között mennyit módosítson a program az adott paraméter kezdőértékén.
+Ahhoz, hogy egy paraméter több különböző értékével futtassunk kírérletet a
+`--sweep_` kapcsolókra van szükség. Minden beállítható paraméterhez tartozik
+egy, és azt adja meg, hogy az egyes kísérletek között mennyit módosítson a
+program az adott paraméter kezdőértékén.
 
-Például, hogy egyszerre szerenénk kísétleteket futtatni $M_"limit" = 10$, $M_"limit" = 20$ és $M_"limit" = 30$ értékkel:
+Például, hogy egyszerre szerenénk kísétleteket futtatni
+$M_"limit" in {10, 20, 30}$ értékkel:
 
 ```bash
-build$ ./fatint --experiments 3 --m_limit 10 --sweep_m_limit 10 --output results.csv
+$ ./fatint --experiments 3 --m_limit 10 --sweep_m_limit 10 --output results.csv
 ```
 
-A kimeneti fájl minden sorában megtalálható az adott körnek a paraméterei, így követhető, hogy melyik érték milyen kimenetelt produkált.
+A kimeneti fájl minden sorában megtalálható az adott körnek a paraméterei, így
+követhető, hogy melyik érték milyen kimenetelt produkált.
 
-Ha egyszerre több `sweep` kapcsolót is használunk, akkor mindegyik paraméter egyszerre lesz módosítva, azaz *nem* a lehetséges paraméterek Descartes-szorzatát állítja elő.
+Ha egyszerre több `sweep` kapcsolót is használunk, akkor mindegyik paraméter
+egyszerre lesz módosítva, azaz *nem* a lehetséges paraméterek
+Descartes-szorzatát állítja elő.
 
 === Grafikon előállítása <plotting>
 
-A C++ implementáció képes a nyers adatok helyett grafikonon ábrázolni azokat vektorgrafika (SVG) formátumban.
-Ehhez a `--format svg` kapcsolót kell használni.
+A C++ implementáció képes a nyers adatok helyett grafikonon ábrázolni azokat
+vektorgrafika (SVG) formátumban. Ehhez a `--format svg` kapcsolót kell
+használni.
 
 ```bash
-build$ fatint --experiments 3 --m_limit 10 --sweep_m_limit 10 --format svg --output results.svg
+$ fatint --experiments 3 --m_limit 10 --sweep_m_limit 10 --format svg --output results.svg
 ```
 
 === A FATINT modell implementáció könyvtárként való használata
 
-A C++ implementáció egyszerre egy eszköz és egy könyvtár, mely beépíthető egyéb programokba.
+A C++ implementáció egyszerre egy eszköz és egy könyvtár, mely beépíthető egyéb
+programokba.
 
 Ehhez a projektünkbe fel kell venni a könyvtárat, majd hivatkozni rá:
 
@@ -191,5 +231,6 @@ target_link_libraries(some_program PRIVATE libfatint)
 
 #todo("Make library compatible with FindPackage()")
 
-A projekt parancssori moduljának `main` függvénye egy jó példát biztosít a könyvtárként való használatra.
-Részletekért lásd a fejlesztői dokumentációt.
+A projekt parancssori moduljának `main` függvénye egy jó példát biztosít a
+könyvtárként való használatra. Részletekért lásd a fejlesztői dokumentációt:
+@cli-spec fejezet.

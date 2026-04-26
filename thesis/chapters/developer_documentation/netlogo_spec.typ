@@ -4,6 +4,9 @@
 
 === Specifikáció
 
+A NetLogo implementáció működését és arculatát nagyban meghatározza a fejlesztő
+környezet, azaz maga a NetLogo.
+
 #todo("Consider using a common specification with C++ impl right after model spec")
 
 #todo("Specify the UI, create GIVEN-WHEN-THEN tables for common workflows")
