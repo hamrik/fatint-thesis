@@ -13,13 +13,18 @@ class SimilarityImpl : public ISimilarity
   public:
     [[nodiscard]] auto compatible(const model::Limits &limits, const model::Genotype &a, const model::Genotype &b) const
         -> bool override;
+    [[nodiscard]] auto offspring_count(const model::Limits &limits, const model::ReproductionParameters &repr,
+                                       const model::Genotype &a, const model::Genotype &b) const -> size_t override;
+
+  private:
+    [[nodiscard]] auto euclidean_distance_sqr(const model::Genotype &a, const model::Genotype &b) const -> size_t;
 };
 
 class SelectionImpl : public ISelection
 {
   public:
-    auto select(math::Random &random, const model::Limits &limits, const ISimilarity &similarity, size_t index,
-                const model::Population &entities) const -> std::optional<size_t> override;
+    [[nodiscard]] auto select(math::Random &random, const model::Limits &limits, const ISimilarity &similarity,
+                              size_t index, const model::Population &entities) const -> std::optional<size_t> override;
 };
 
 class MutationImpl : public IMutation

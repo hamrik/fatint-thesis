@@ -4,6 +4,7 @@
 
 #include "measurement/ReservoirSampling.hpp"
 #include "model/formulas.hpp"
+#include "model/types.hpp"
 
 namespace fatint::genetics
 {
@@ -12,13 +13,26 @@ auto SimilarityImpl::compatible(const model::Limits &limits, const model::Genoty
     -> bool
 {
     assert(a.size() == b.size());
-    double sum = 0;
+    auto limit_sqr = static_cast<size_t>(limits.m_limit * limits.m_limit);
+    return euclidean_distance_sqr(a, b) <= limit_sqr;
+}
+auto SimilarityImpl::offspring_count(const model::Limits &limits, const model::ReproductionParameters &repr,
+                                     const model::Genotype &a, const model::Genotype &b) const -> size_t
+{
+    double eds = static_cast<double>(euclidean_distance_sqr(a, b));
+    double dist = sqrt(eds);
+    int oc = model::offspring_count(dist, repr.m_const, limits.m_limit, repr.m_slope);
+    return static_cast<size_t>(std::max(0, oc));
+}
+auto SimilarityImpl::euclidean_distance_sqr(const model::Genotype &a, const model::Genotype &b) const -> size_t
+{
+    size_t sum = 0;
     for (size_t i = 0; i < a.size(); i++)
     {
-        double delta = a[i] - b[i];
-        sum += delta * delta;
+        int delta = a[i] - b[i];
+        sum += static_cast<size_t>(delta * delta);
     }
-    return sum <= limits.m_limit * limits.m_limit;
+    return sum;
 }
 
 auto SelectionImpl::select(math::Random &random, const model::Limits &limits, const ISimilarity &similarity,

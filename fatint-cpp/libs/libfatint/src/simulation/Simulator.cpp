@@ -37,12 +37,12 @@ auto Simulator::run(math::Random &random, const RunParameters &params) const -> 
     model::Population population;
     population.reserve(params.reproduction_parameters.starting_population);
 
+    size_t allele_count = params.allele_parameters.starting_allele_count;
+
     for (size_t i = 0; i < params.reproduction_parameters.starting_population; i++)
     {
-        population.push_back(random_entity(random, params.limits, params.allele_parameters.starting_allele_count));
+        population.push_back(random_entity(random, params.limits, allele_count));
     }
-
-    size_t allele_count = params.allele_parameters.starting_allele_count;
 
     bool keep_running = true;
 
@@ -78,8 +78,7 @@ auto Simulator::tick(math::Random &random, const RunParameters &params, Environm
 {
     for (size_t i : random.random_indices(population.size()))
     {
-        // Iterate over population in random order to prevent older entities from
-        // having an advantage to the environment.
+        // Iterate over population in random order to prevent older entities from having an advantage to the environment.
         auto &entity = population[i];
         entity.age += 1;
         auto energy_taken = environment.take(params.energy_parameters.e_intake);
@@ -105,16 +104,21 @@ auto Simulator::reproduce(math::Random &random, const RunParameters &params, mod
         {
             continue;
         }
-        auto offspring = reproduction.reproduce(random, params.genetic_probabilities, params.allele_parameters,
-                                                population[i].genotype, population[mate.value()].genotype);
-        if (!validator.validate(params.limits, offspring.genotype))
-        {
-            continue;
-        }
-        population.push_back(offspring);
-        if (random.chance(params.reproduction_probabilities.p_change))
-        {
-            new_allele_count++;
+        auto a = population[i].genotype;
+        auto b = population[mate.value()].genotype;
+        size_t offspring_count = similarity.offspring_count(params.limits, params.reproduction_parameters, a, b);
+        while(offspring_count--) {
+            auto offspring = reproduction.reproduce(random, params.genetic_probabilities, params.allele_parameters,
+                                                    a, b);
+            if (!validator.validate(params.limits, offspring.genotype))
+            {
+                continue;
+            }
+            population.push_back(offspring);
+            if (random.chance(params.reproduction_probabilities.p_change))
+            {
+                new_allele_count++;
+            }
         }
     }
     return new_allele_count;

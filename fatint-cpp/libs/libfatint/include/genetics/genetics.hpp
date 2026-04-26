@@ -14,6 +14,8 @@ class ISimilarity
     virtual ~ISimilarity() = default;
     [[nodiscard]] virtual auto compatible(const model::Limits &limits, const model::Genotype &a,
                                           const model::Genotype &b) const -> bool = 0;
+    [[nodiscard]] virtual auto offspring_count(const model::Limits &limits, const model::ReproductionParameters &repr,
+                                               const model::Genotype &a, const model::Genotype &b) const -> size_t = 0;
 };
 
 class ISelection
