@@ -166,6 +166,10 @@
     )
   }
 
+  // Pintora diagrams
+  import "@preview/pintorita-neo:0.1.0" as pintorita
+  show raw.where(lang: "pintora"): it => pintorita.render(it.text)
+
   // COVER PAGE
   page(
     margin: (left: 25mm, right: 25mm, top: 25mm, bottom: 25mm),

@@ -1,9 +1,6 @@
 #import "/lib/elteikthesis.typ": todo
 #import "/lib/plot.typ": *
 
-#import "@preview/pintorita-neo:0.1.0" as pintorita
-#show raw.where(lang: "pintora"): it => pintorita.render(it.text)
-
 == Fejlesztői dokumentáció (C++) <cli-spec>
 
 Egy parancssori eszköz és könyvtár a FATINT modell alapú szimulációk futtatására. Bővebben a felhasználói dokumentációban: @cli-user-manual.

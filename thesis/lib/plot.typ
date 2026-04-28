@@ -192,7 +192,7 @@
   }
 
   lq.diagram(
-    width: 10cm,
+    width: 7cm,
     height: 5cm,
     xlabel: xlabel,
     xscale: "log",
