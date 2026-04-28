@@ -9,7 +9,10 @@ működési követelményeit, a meghozott döntéseket és tesztelés menetét.
 === Specifikáció
 
 A NetLogo implementáció feladata a FATINT (@model-desc) modell pontos
-szimulációja, és a @fatint cikkben közölt adatok replikációja.
+szimulációja, és a @fatint cikkben közölt adatok replikációja. A NetLogo ehhez
+egyszerű programozási nyelvével, felülettervező eszközeivel, a processzor magok
+hatékony kihasználásával, és a BehaviorSpace nevű kísérletsor szerkesző és
+futtató eszközzel járul hozzá.
 
 ==== Funkcionális követelmények
 
@@ -259,8 +262,6 @@ A Diszjunk-Halmaz algoritmus működése:
     gyökér, az altala feszített fa beolvad a másik gyökér fájába.
   - A halmazok száma eggyel csökkent, tehát a fajok számát eggyel csökkentjük.
 
-==== Teljesítmény
-
 #figure(
   perf_plot(
     [Populáció],
@@ -270,35 +271,35 @@ A Diszjunk-Halmaz algoritmus működése:
         label: [Mélységi bejárás, egy faj],
         skip: 7,
         x: 0,
-        y: 2
+        y: 2,
       ),
       (
         path: "/data/benchmark-species-counter-dfs-many-species-NetLogo.csv",
         label: [Mélységi bejárás, sok faj],
         skip: 7,
         x: 0,
-        y: 2
+        y: 2,
       ),
       (
         path: "/data/benchmark-species-counter-ds-one-species-NetLogo.csv",
         label: [Diszjunkt-Halmaz, egy faj],
         skip: 7,
         x: 0,
-        y: 2
+        y: 2,
       ),
       (
         path: "/data/benchmark-species-counter-ds-many-species-NetLogo.csv",
         label: [Diszjunkt-Halmaz, sok faj],
         skip: 7,
         x: 0,
-        y: 2
-      )
-    )
+        y: 2,
+      ),
+    ),
   ),
   caption: [
     Az élek létrehozásának és a fajszámláló algorimusok futásidejének összege a
-    populáció létszámának függvényében
-  ]
+    populáció létszámának függvényében (logaritmikus skála).
+  ],
 ) <netlogo-species-counter-perf>
 
 A @netlogo-species-counter-perf diagram alapján elmondható, hogy a fajok száma
@@ -306,7 +307,33 @@ sokkal nagyobb hatással van az időigényre, mint a választott algoritmus.
 Sok faj esetén a különbség elhanyagolható. Kevés faj esetén a mélységi bejárás
 kicsit gyorsabb.
 
+==== Teljesítmény
+
+#figure(
+  perf_plot(
+    [$E_"increase"$],
+    (
+      (
+        path: "/data/benchmark-simulator-churn-NetLogo.csv",
+        label: [NetLogo 6.4.0],
+        skip: 7,
+        x: 0,
+        y: 2,
+      ),
+    ),
+  ),
+  caption: [Egy 1000 lépéses szimuláció időigénye a környezet eltartóképességének függvényében],
+) <netlogo-simulation-perf>
+
+A @netlogo-simulation-perf diagram azt a látszatot kelti, mintha az egyedszám
+növekedése egy bizonyos pont után nem befolyásolná a futásidőt. Ezt vizsgálni kell.
+
+#todo[This result seems anomalous, investigate]
+
 === Tesztelés
+
+Az implementáció két módon tesztelhető: a felületen kézzel bevitt adatokra adott
+reakció elemzésével, illetve a kísérletsorok által
 
 ==== Populáció öregedése
 
@@ -391,6 +418,8 @@ A fenti kísérleten túl a modell tartalmaz három teljesítmény felmérést:
 - `benchmark-simulator-no-churn`
 - `benchmark-simulator-churn`
 
+#todo("Eliminate wasteful whitespace")
+
 Alapértelmezett paraméterek mellett a fajok átlagos száma nem eshet 0-ra,
 lásd @netlogo-species-comp-default.
 
@@ -441,7 +470,7 @@ kihal. Továbbra is egyetlen faj dominál. Lásd @netlogo-species-comp-p-mutatio
     Fajok számának átlagos alakulása $P_"mutation"$ különböző értékei mellett.
 
     Felül: NetLogo 6.4.0 implementáció. Alul: @fatint.
-  ]
+  ],
 ) <netlogo-species-comp-p-mutation>
 
 $P_"crossing"$ magas értékeknél hasonlóan viselkedik, mint a $P_"mutation"$

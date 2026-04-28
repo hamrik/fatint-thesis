@@ -196,7 +196,7 @@
     height: 5cm,
     xlabel: xlabel,
     xscale: "log",
-    ylabel: "Szimuláció időigénye (ms)",
+    ylabel: "Időigény (ms)",
     yscale: "log",
     legend: (position: (100% + 1em, 0%)),
     ..srcs.map(plot_chunk)

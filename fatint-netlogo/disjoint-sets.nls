@@ -41,7 +41,7 @@ to ds-count-species
   ds-clear
   ask links [
     let a [who] of end1
-	let b [who] of end2
+    let b [who] of end2
     ds-merge a b
   ]
 end
