@@ -1,19 +1,19 @@
 #import "../../lib/elteikthesis.typ": todo, warning
 
-== Felhasználói dokumentáció (C++) <cli-user-manual>
+== Felhasználói dokumentáció (C++) <cpp-user-manual>
 
 Ugyan a NetLogo egy könnyen kezelhető, látványos módja a modellek viselkedésének
 elemzéséhez, sajnos meglehetősen lassú. //lásd @performance fejezet.
 
 A C++ implementáció (továbbiakban *`fatint` program*) egy felület nélküli,
 parancssorból futtatható implementációja a FATINT modellnek (@model-desc),
-továbbá egy könyvtár (továbbiakban *libfatint*), mely beépíthatő egyéb
+továbbá egy könyvtár (továbbiakban *libfatint*), mely beépíthető egyéb
 programokba.
 
 === Rendszerkövetelmények
 
 - 2 évnél nem régebbi Linux disztribúció, például Ubuntu Linux 24.04 LTS
-- C++ futásidejű könyvtárak (pl `libc++` vagy `libstdc++`), nagy valószínűséggel
+- C++ futásidejű könyvtárak (pl `libc++` vagy `libstdc++`). Nagy valószínűséggel
   az operációs rendszer már tartalmazza.
 - 1MB tárhely a programnak
 - Nagyjából 100MB tárhely a generálandó adatoknak
@@ -261,9 +261,55 @@ target_link_libraries(some_program PRIVATE libfatint)
 #...
 ```
 
-#todo("Make library compatible with FindPackage()")
-#todo("Write Doxygen documentation for all public classes and functions")
+A könytár magja a `Simulator` osztály. Ez az osztály végzi a szimuláció
+futtatását, a konstruktárában megadott implementációs példányok koordinálásával.
 
-A projekt parancssori moduljának `main` függvénye egy jó példát biztosít a
-könyvtárként való használatra. Részletekért lásd a fejlesztői dokumentációt:
-@cli-spec fejezet.
+A konstruktorába a következő függőségeket kell injektálni:
+
+/ `fatint::genetics::ISimilarity`: A távolságmetrika. A könyvár jelenleg egy implmentációt tartalamaz: `SimilarityImpl`
+/ `fatint::genetics::ISelection`: A párválasztó algoritmus. A könyvtár jelenleg egy implementációt tartalmaz: `SelectionImpl`
+/ `fatint::genetics::IReproduction`: Az egyed örökítő algoritmus. A könyvtár jelenleg egy implementációt tartalmaz: `GeneticReproduction`
+/ `fatint::genetics::IValidator`: A gyermekegyed megfelelőségi feltétel. A könyvtár jelenleg egy implementációt tartalmaz: `ValidatorImpl`
+/ `fatint::genetics::IAlleleAdder`: Az egyedek új genotípusát bővítő algoritmus. A könyvtár jelenleg két implementációt kínál: `RandomAlleleAdder` és `VStretchAlleleAdder`
+/ `measurement::ISpeciesCounter`: A faj számláló algoritmus. A könytár jelenleg két implementációt kínál: `DepthFirstSearchSpeciesCounter` és `DisjointSetsSpeciesCounter`
+
+A konstruktor referenciákat vesz át, és nem birtokolja a függőségek
+élettartamát. A könyvtár használójának felelőssége életben tartani a
+dependenciákat. Ennek az az előnye, hogy több, párhuzamosan futó szimulátor is
+használhatja a dependenciákat egyszerre. Egy minimális példát nyújt a
+@libfatint-example
+
+#todo[Consider switching to move semantics]
+
+#figure(
+  align(left)[```cpp
+  fatint::genetics::SimilarityImpl similarity;
+  fatint::genetics::SelectionImpl selection;
+  fatint::genetics::MutationImpl mutation;
+  fatint::genetics::CrossoverImpl crossover;
+  fatint::genetics::GeneticReproduction reproduction(
+      mutation,
+      crossover
+  );
+  fatint::genetics::ValidatorImpl validator;
+  fatint::genetics::RandomAlleleAdder allele_adder;
+  fatint::measurement::DepthFirstSearchSpeciesCounter species_counter;
+
+  fatint::simulation::Simulator simulator(
+      similarity,
+      selection,
+      reproduction,
+      validator,
+      allele_adder,
+      species_counter
+  );
+
+  fatint::simulation::RunParameters params;
+
+  fatint::math::Random rng(params.seed);
+  fatint::simulator::RunStates states = simulator.run(rng, params);
+
+  fatint::math::ExperimentResults = fatint::math::measure(1, params.steps, states);
+  ```],
+  caption: "Minimális példa egy szimuláció futtatására és kiértékéelésére, alapértelmezett paraméterekkel"
+) <libfatint-example>

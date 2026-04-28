@@ -1,9 +1,9 @@
 #import "/lib/elteikthesis.typ": todo
 #import "/lib/plot.typ": *
 
-== Fejlesztői dokumentáció (C++) <cli-spec>
+== Fejlesztői dokumentáció (C++) <cpp-spec>
 
-Egy parancssori eszköz és könyvtár a FATINT modell alapú szimulációk futtatására. Bővebben a felhasználói dokumentációban: @cli-user-manual.
+Egy parancssori eszköz és könyvtár a FATINT modell alapú szimulációk futtatására. Bővebben a felhasználói dokumentációban: @cpp-user-manual.
 
 === Architektúra
 
