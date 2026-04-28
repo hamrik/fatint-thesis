@@ -4,7 +4,7 @@
 #import "@preview/pintorita-neo:0.1.0" as pintorita
 #show raw.where(lang: "pintora"): it => pintorita.render(it.text)
 
-== C++ implementáció <cli-spec>
+== Fejlesztői dokumentáció (C++) <cli-spec>
 
 Egy parancssori eszköz és könyvtár a FATINT modell alapú szimulációk futtatására. Bővebben a felhasználói dokumentációban: @cli-user-manual.
 
@@ -14,6 +14,8 @@ A C++ implementáció erősen épít a _"Stratégia"_ fejlesztési mintára, mer
 
 #todo("Describe pluggable nature, strategy pattern and the available modules")
 
+#figure(
+[
 ```pintora
 classDiagram
   class Simulator {
@@ -110,6 +112,10 @@ classDiagram
   }
   ISpeciesCounter <|.. DisjointSetsSpeciesCounter
 ```
+],
+supplement: "Diagram",
+caption: [A `Simulator` osztály és alkotóelemeinek osztálydiagramja]
+) <libfatint-simulator-class-diagram>
 
 A szimuláció fontosabb komponensei interfészként vannak definiálva:
 
@@ -128,6 +134,8 @@ Az egyes elemek egy adatcsővezetéket (_"data pipeline"_) alkotnak.
 
 Az `ExperimentSweep` példány `Experiment` osztályok példányosításával létrehozza a kezdeti paraméter objektumokat (`RunParameters`), melyeket egy-egy `Simulator` példány dolgoz fel. Ezek a példányok a állapotuk alakulálását egy-egy `RunStates` objektumban rögzíti, melyeket az `Experiment` osztály az `ExperimentStates` objektumba gyűjt, melyeket az `ExperimentSweep` osztály pedig egy végső `ExperimentSweepStates` objektumba. Ez az objektum és egy kísérletsor teljes végeredménye, melyből egy `StatisticsEvaluator` nevű osztály képes `ExperimentSweepResults` típusú, statisztákat tartalmazó objektummá alakítani. Ezutóbbi objtumokat pedig egy `CSVWriter` vagy `SVGWriter` kiírja fájlba vagy a standard kimenetre.
 
+#figure(
+[
 ```pintora
 sequenceDiagram
   participant Main
@@ -147,6 +155,11 @@ sequenceDiagram
   StatisticsEvaluator ->> Main : ExperimentSweepResults
   Main ->> IOutputWriter : ExperimentSweepResults
 ```
+],
+supplement: "Diagram",
+caption: [A `fatint` program és a `libfatint` könyvtár adatfolyama]
+)
+#todo[Some classes were since removed, so this is no longer accurate]
 
 === Forráskód fordítása <build-from-source>
 

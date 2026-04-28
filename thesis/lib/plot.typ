@@ -63,6 +63,7 @@
     )
   }
 
+  show lq.selector(lq.legend): set text(size: 10pt)
   lq.diagram(
     title: "NetLogo 6.4.0",
     width: 10cm,

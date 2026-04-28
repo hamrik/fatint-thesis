@@ -317,6 +317,14 @@
 
 #let note(body, title: none) = remark(body, title: title)
 
+#let warning(body) = [
+  #let rblock = block.with(stroke: orange, radius: 0.5em, fill: orange.lighten(80%))
+  #block(inset: (top: 0.35em), {
+    rblock(width: 100%, inset: 1em, body)
+  })
+  <todo>
+]
+
 #let todo(body) = [
   #let rblock = block.with(stroke: red, radius: 0.5em, fill: red.lighten(80%))
   #let top-left = place.with(top + left, dx: 1em, dy: -0.35em)

@@ -2,10 +2,12 @@
 
 == A modell leírása <model-desc>
 
-*Nyitott evolúciónak* hívjuk azon szimulációs rendszereket, melyek folyamatosan
-új komplexitást alkotnak, nem rekednek meg egy adott állapotban. Fontos
-megjegyezni, hogy ezek nem optimalizációs algoritmusok, nincs "céljuk" vagy
-minimalizálandó "költségfüggvényük".
+#definition[
+  *Nyitott evolúciónak* hívjuk azon szimulációs rendszereket, melyek
+  folyamatosan új komplexitást alkotnak, nem rekednek meg egy adott állapotban.
+  Fontos megjegyezni, hogy ezek nem optimalizációs algoritmusok, nincs "céljuk"
+  vagy minimalizálandó "költségfüggvényük".
+]
 
 A *FATINT* modell (melynek neve a Fat Interactions, magyarul _kövér interakciók_
 rövidítése) egy olyan egyed szimulációs modell, melynek célja a nyitott evolúció
@@ -19,52 +21,69 @@ egy fontos, meghatározó tulajdonsággá, amikor az egymással összecsapó hí
 nyakuk hosszának függvényében tudtak sikeresen párt találni.
 
 A FATINT modellben semleges nemű egyedeket szimulálunk. Ezek az egyedek energiát
-vesznek fel a környezetből, párosodnak, veszítenek energiájukból, és végül
-meghalnak, ha a környezet nem tud minden elő egyedet eltartani, vagy ha az
-egyed kora előrehaladtával már nem képes megfelelően hasznosítani a felvett
-energiát.
+vesznek fel egy közös környezetből, párosodnak, és végül meghalnak, ha a
+környezet nem tud minden elő egyedet eltartani, vagy ha az egyed a kora
+előrehaladtával már nem képes megfelelően hasznosítani a felvett energiát.
 
-Minden egyednek van egy genotípusa (egész számok vektoraként ábrázolva), mely
-meghatározza, hogy mely további egyedekkel tud párosodni (egy meghatározott
-távolságmetrika és küszöbérték szerint). Ezen párosodási "preferenciák" mentén
-az egyedek külön halmazokba sorolhatók, ahol az egyes egyedek a halmazukon kívül
-eső egyedekkel nem tudnak párosodni. Ezeket a halmazokat nevezzük *fajoknak*. A
-modell célja, hogy az idő előrehaladtával újabb és újabb fajokat alkosson, ezzel
-demonstrálva a nyitott evolúciót.
+#definition[
+  / Genotípus: Az egyed génállománya. A FATINT modellben egész számok vektora.
+  / Fenotípus: Az egyed genotípusa által kifejezett tulajdonságok összessége.
+  / Gén: Az egyed genotípusának egy eleme.
+  / Allél: Egy gén egy lehetséges értéke.
+]
 
-Egy faj felfogható azon gráf összefüggő komponensének, melynek csúcsai az
-életben lévő egyedek, az élek pedig a párosodni képes párok.
-#todo("This second definition is a little out of place here")
+Minden egyednek van egy genotípusa, mely meghatározza, hogy mely további
+egyedekkel tud párosodni. Ezen párosodási "preferenciák" mentén az egyedek külön
+halmazokba sorolhatók, ahol az egyes egyedek a halmazukon kívül eső egyedekkel
+nem tudnak párosodni.
+
+#definition[
+  Egy *faj* felfogható azon *$G_P$* irányítatlan "preferenciagráf" összefüggő
+  komponensének, melynek csúcsai az életben lévő egyedek, az élei pedig a
+  párosodni képes párok.
+]
+
+A modell célja, hogy az idő előrehaladtával újabb és újabb fajokat alkosson,
+ezzel demonstrálva a nyitott evolúciót.
+
+A FATINT modell legfontosabb sajátossága, hogy a párosodási preferenciákon túl
+a környezet is hatással van az egyedek fenotípusára. Ugyanis előre meghatározott
+módon a szimuláció során az egyedekben újabb és újabb géneket "aktiválhatunk"
+(valójában hozzáadunk), ezzel befolyásolva azok párosodási preferenciáját, mely
+új fajok létrejöttéhez vezethet.
 
 Új fajok több módon is létrejöhetnek:
-- Egy egyed halálával annak faja két vagy több külön fajjá eshet szét, ha a két
-  alfajok között ez az egy egyed volt a "kapocs".
-- Párosodás során két szülő egyed létrehozhat egy vagy több gyermek egyedet.
-  Ezen egyedek mindkét szülőtől örökölnek géneket, ezen felül pedig
-  mutálódhatnak is. Előfordulhat, hogy az új egyedek már képesek más fajok
-  egyedeivel párosodni, egyesítve két vagy több fajt egy új fajjá. Az is
-  előfordulhat, hogy nem képesek párosodni senkivel, önmagukban alkotva új
-  fajokat.
-- A szimuláció során kiválthatunk olyan eseményeket, melyek minden egyed
-  genotípusát egyszerre bővítik, módosítva az egyedek párosodási preferenciáit.
-  Ez megfeleltethető a környezeti változások által aktivált géneknek. Ezen
-  események új fajok kialakulásához vezethetnek, a korábbiak szétesésével vagy
-  összeolvadásával.
+- Egy egyed halálával annak faja két vagy több új fajjá eshet szét, ha a *G_P*
+  preferenciagráfban az egyednek egy vagy több híd éle volt.
+- Párosodás során két szülő egyed létrehoz egy vagy több gyermek egyedet. Ezen
+  egyedek mindkét szülőtől örökölnek géneket, valamint mutálódhatnak is.
+  Előfordulhat, hogy az új egyedek már képesek más fajok egyedeivel párosodni,
+  egyesítve két vagy több fajt egy új fajjá. Az is előfordulhat, hogy nem
+  képesek párosodni senkivel, önmagukban alkotva új fajokat.
+- Új gének aktivációjakor a párosodási preferenciák megváltozásával a meglévő
+  fajok összeolvadhatnak vagy széteshetnek.
 
 === A szimuláció körei
 
-A szimuláció körökre van osztva. Minden kör az alábbi forgatókönyvet követi:
+A szimuláció körökre van osztva. Az első kör előtt létrehozunk egy $M_"init"$
+egyedből álló populációt, véletlenszerű $N_"init"$ méretű genotípusú, nulla korú
+és energiájú egyedekkel. A környzet energiaszintjét szintén nullára állítjuk.
+Utána minden kör az alábbi forgatókönyvet követi:
 
 + A környezet energiatartalékát növeljük $E_"increase"$ értékével.
-+ Minden egyed megpróbál magához venni némi energiát a környezetből.
++ Minden egyed megpróbál magához venni $E_"intake"$ energiát a környezetből.
   Az igazságosság érdekében erre körönként véletlenszerű sorrendben van
-  lehetőségük.
-+ Minden egyed energiát veszít, lásd @energy-gain-formula egyenlet.
+  lehetőségük. Az egyedek koruk és $E_"discount"$ értékétől függő energiát
+  "elpazarolnak", illetve $E_"consumption"$ egységnyi energiát elhasználnak.
+  Lásd @energy-gain-formula egyenlet.
 + Azon egyedeket, melyek energia szintje már nem pozitív, eltávolítjuk.
-+ Minden további egyed külön-külön $P_"encounter"$ valószínűséggel
-  véletlenszerűen keres egy kompatibilis párt.
-+ Minden kompatibilis pár az @offspring-count-formula egyenletnek megfelelő
-  számú új egyedet hoz létre. Egy új egyed génjeit az alábbi módon határozzuk
++ Az többi egyed külön-külön $P_"encounter"$ valószínűséggel véletlenszerűen
+  keres egy kompatibilis párt. Két egyed kompatibilis, ha genotípusuk távolsága
+  egy adott metrika (pl. Euklédeszi távolság) szerint nem több, mint
+  $M_"limit"$.
++ Minden kompatibilis pár a @offspring-count-formula egyenletnek megfelelő
+  számú új egyedet hoz létre, a genotípusuk távolsága, $M_"limit"$, $M_"const"$
+  és $M_"slope"$ függvényében. Egy új egyed génjeit az alábbi módon határozzuk
   meg:
   - $P_"crossover"$ valószínűséggel az egyik, vagy másik szülő génjét vesszük
     alapul.
@@ -72,37 +91,20 @@ A szimuláció körökre van osztva. Minden kör az alábbi forgatókönyvet kö
     $[-V_"mutation", V_"mutation"]$ közötti értékkel.
   - Ha a gén egy meghatározott $[V_"min", V_"max"]$ allél tartományon kívül
     esik, a gyermeket eltávolítjuk.
-+ Minden egyes új egyed után $P_"change"$ valószínűséggel hozzáadunk egy-egy új
-  gént az összes meglévő és jövőben létrejövő egyed genotípusához. Az új gén
-  kísérlettől függően lehet véletlenszerű vagy függhet a meglévő utolsó géntől,
-  lásd @stretch-formula egyenlet.
++ Minden sikeres új egyed után $P_"change"$ valószínűséggel hozzáadunk egy-egy
+  új gént az összes meglévő és jövőben létrejövő egyed genotípusához. Az új gén
+  kísérlettől függően lehet véletlenszerű vagy függhet $V_"stretch"$ mértékben a
+  meglévő utolsó géntől, lásd @stretch-formula egyenlet.
 
 A szimuláció minden köre után méréseket végezhetünk, például az egyedek számát
 vagy a környezet energiaszintjét. A legfontosabb emergens tulajdonság azonban az
 egyedek párosodási preferenciái által alkotott fajok száma.
 
-=== Változók
+=== A modell paraméterei <model-params>
 
-Az egyedek az alábbi tulajdonságokkal rendelkeznek:
+A modellben számos paramétert beállíthatunk a szimuláció indítása előtt:
 
-/ Kor: A egyed által megélt szimulációs körök száma.
-/ Energia: Egy nemnegatív szám, mely az egyed energiaszintjét reprezentálja. Ha
-  kör végén nulla, az egyed "meghal", és eltávolításra kerül a szimulációból.
-/ Genotípus: A egész számokból álló vektor, melynek segítségével meghatározható,
-  hogy az adott egyed mely további egyedekkel tud párosodni. A vektor elemeit
-  *génekek* hívjuk.
-
-Az egyedek közös környezete az alábbi tulajdonságokkal rendelkezik:
-
-/ Energia: A környezet elérhető energiatartaléka. Ha elfogy, az egyedek nem
-  tudják kipótolni saját energiaszintjüket.
-/ Génszám: Meghatározza, hogy az egyes egyedek genotípusa hány elemből áll.
-
-A fenti tulajdonságok a szimuláció előrehaladtával változnak. Az alábbi
-paraméterek viszont a szimuláció előtt beállításra kerülnek, és a szimuláció
-futása során nem módosulnak.
-
-=== Energiával kapcsolatos paraméterek
+==== Energiával kapcsolatos paraméterek
 
 / $E_"increase"$, avagy környezet energianövekedése: Minden szimulációs kör
   előtt ennyi energiát adunk a környezet tartalékához.
@@ -116,7 +118,7 @@ futása során nem módosulnak.
   kevesebb energiát tud hasznosítani a felvett energiából, lásd
   @energy-gain-formula egyenlet.
 
-=== Szaporodással kapcsolatos paraméterek
+==== Szaporodással kapcsolatos paraméterek
 
 / $V_"min"$ és $V_"max"$, avagy allél intervallum: Az egyes gének minimum és
   maximum megengedett értéke. Ha egy egyed bármely génje ezen kívül esik, az
@@ -133,7 +135,7 @@ futása során nem módosulnak.
 / $P_"encounter"$, avagy a párosodás valószínűsége: annak az esélye hogy az
   adott körben egy egyed párosodhat egy másik kompatibilis egyeddel.
 
-=== Genetikai paraméterek
+==== Genetikai paraméterek
 
 / $P_"crossover"$, avagy keresztezés valószínűsége: meghatározza, hogy az
   újonnan létrejövő egyed egy adott génje melyik szülőtől származzon.
@@ -145,25 +147,20 @@ futása során nem módosulnak.
 / $P_"change"$, avagy génállomány módosulás valószínűsége: meghatározza annak a
   valószínűségét, hogy egy új egyed létrejötte nyomán hozzáadunk-e minden egyes
   egyed genotípusához egy-egy új gént.
+/ $V_"stretch"$, avagy a _"stretch"_ eljárás együtthatója: Lásd @stretch-formula
+  egyenlet.
 
-=== Egyenletek
+==== Egyéb paraméterek
 
-Minden körben az entitások energiaszintje az alábbi egyenlet szerint módosul:
-$ E_"change" = E_"intake" dot (E_"discount") ^ "age" - E_"consumption" $ <energy-gain-formula>
-ahol $"age"$ az egyed "kora", azaz az egyed által megtett körök száma.
+A @fatint cikkben ezek a paraméterek nem a modell jellemzői, de az
+implementációk fontos paraméterei:
 
-Egy kompatibilis pár szaporodás során létrejövő egyedeinek száma:
-$ "offspring count" = M_"const" + (M_"limit" - d) dot M_"slope" $ <offspring-count-formula>
-ahol $d$ az alkalmazott távolságmetrika (pl. Euklédeszi távolság) a két szülő
-egyed genotípusa között.
+/ $M_"init"$, avagy kezdő populáció mérete: Ennyi egyedet hozunk létre a
+  szimuláció első köre előtt.
+/ $N_"init"$, avagy kezdő génszám: Ennyi génből fognak állni az egyedek
+  genotípusai az első körben.
 
-Amennyiben új géneket véletlenszám generálás helyett az úgynevezett
-_"Stretch method"_ (_nyújtási eljárás_) módszerével állapítunk meg, akkor az
-alábbi egyenletet kell használni:
-$ "new gene" = V_"min" dot ( "last gene" dot V_"stretch" ) mod ( V_"max" - V_"min" + 1 ) $ <stretch-formula>
-ahol $"last gene"$ az adott entitás genotípusának utolsó eleme.
-
-=== Alapértelmezett értékek <model-defaults>
+==== Alapértelmezett értékek <model-defaults>
 
 #figure(
   caption: "A modell paramétereinek alapértelmezett értékei",
@@ -189,3 +186,22 @@ ahol $"last gene"$ az adott entitás genotípusának utolsó eleme.
     )
   ]
 )
+
+=== Egyenletek
+
+Minden körben az entitások energiaszintje az alábbi @energy-gain-formula
+egyenlet szerint módosul:
+$ E_"change" = E_"intake" dot (E_"discount") ^ "age" - E_"consumption" $ <energy-gain-formula>
+ahol $"age"$ az egyed "kora", azaz az egyed által megtett körök száma.
+
+Egy kompatibilis pár szaporodás során létrejövő egyedeinek számát a
+@offspring-count-formula egyenlet határozza meg:
+$ "offspring count" = M_"const" + (M_"limit" - d) dot M_"slope" $ <offspring-count-formula>
+ahol $d$ az alkalmazott távolságmetrika (pl. Euklédeszi távolság) a két szülő
+egyed genotípusa között.
+
+Amennyiben új géneket véletlenszám generálás helyett az úgynevezett
+_"Stretch method"_ (_nyújtási eljárás_) módszerével állapítunk meg, akkor az
+alábbi @stretch-formula egyenletet kell használni:
+$ "new gene" = V_"min" dot ( "last gene" dot V_"stretch" ) mod ( V_"max" - V_"min" + 1 ) $ <stretch-formula>
+ahol $"last gene"$ az adott entitás genotípusának utolsó eleme.
