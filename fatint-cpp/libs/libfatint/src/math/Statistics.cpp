@@ -5,7 +5,6 @@
 #include <stdexcept>
 
 #include "simulation/types.hpp"
-#include "simulation/utils.hpp"
 
 namespace fatint::math
 {
@@ -62,21 +61,21 @@ auto measure(size_t runs, size_t steps, const ExperimentStates &results) -> Expe
     for (size_t step = 0; step < steps; step++)
     {
         std::vector<double> entity_count;
-        std::vector<double> allele_count;
+        std::vector<double> gene_count;
         std::vector<double> species_count;
         entity_count.reserve(runs);
-        allele_count.reserve(runs);
+        gene_count.reserve(runs);
         species_count.reserve(runs);
         for (size_t run = 0; run < runs; run++)
         {
             entity_count.push_back(static_cast<double>(results[run][step].entity_count));
-            allele_count.push_back(static_cast<double>(results[run][step].allele_count));
+            gene_count.push_back(static_cast<double>(results[run][step].gene_count));
             species_count.push_back(static_cast<double>(results[run][step].species_count));
         }
         statistics.push_back({.entity_count = measure(entity_count),
                               .entity_count_values = entity_count,
-                              .allele_count = measure(allele_count),
-                              .allele_count_values = allele_count,
+                              .gene_count = measure(gene_count),
+                              .gene_count_values = gene_count,
                               .species_count = measure(species_count),
                               .species_count_values = species_count});
     }

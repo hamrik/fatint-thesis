@@ -29,9 +29,9 @@ inline auto offspring_count(double genetic_distance, double m_const, double m_li
 
 /// Determines the next gene to be added to the entity given its current
 /// genotype
-inline auto stretch_allele(int last_allele, int v_min, int v_max, double v_stretch) -> int
+inline auto stretch_gene(int last_gene, int v_min, int v_max, double v_stretch) -> int
 {
-    int offset = static_cast<int>(floor(last_allele * v_stretch));
+    int offset = static_cast<int>(floor(last_gene * v_stretch));
     int wrapped = offset % (v_max - v_min + 1);
     return v_min + wrapped;
 }

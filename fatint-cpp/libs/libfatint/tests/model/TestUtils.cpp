@@ -8,17 +8,14 @@ TEST_CASE("Limits operator+= accumulates values")
     fatint::model::Limits a;
     a.v_min = 0;
     a.v_max = 10;
-    a.m_limit = 5.0;
     fatint::model::Limits b;
     b.v_min = 1;
     b.v_max = 5;
-    b.m_limit = 2.0;
 
     a += b;
 
     CHECK(a.v_min == 1);
     CHECK(a.v_max == 15);
-    CHECK(a.m_limit == doctest::Approx(7.0));
 }
 
 TEST_CASE("ReproductionProbabilities operator+= accumulates values")
@@ -39,19 +36,22 @@ TEST_CASE("ReproductionProbabilities operator+= accumulates values")
 TEST_CASE("ReproductionParameters operator+= accumulates values")
 {
     fatint::model::ReproductionParameters a;
-    a.starting_population = 100;
+    a.m_init = 100;
     a.m_const = 2.0;
     a.m_slope = 0.5;
+    a.m_limit = 10;
     fatint::model::ReproductionParameters b;
-    b.starting_population = 50;
+    b.m_init = 50;
     b.m_const = 1.0;
     b.m_slope = 0.25;
+    b.m_limit = 2;
 
     a += b;
 
-    CHECK(a.starting_population == 150);
+    CHECK(a.m_init == 150);
     CHECK(a.m_const == doctest::Approx(3.0));
     CHECK(a.m_slope == doctest::Approx(0.75));
+    CHECK(a.m_limit == doctest::Approx(12));
 }
 
 TEST_CASE("GeneticProbabilities operator+= accumulates values")
@@ -69,20 +69,20 @@ TEST_CASE("GeneticProbabilities operator+= accumulates values")
     CHECK(a.p_mutation == doctest::Approx(0.5));
 }
 
-TEST_CASE("AlleleParameters operator+= accumulates values")
+TEST_CASE("GeneParameters operator+= accumulates values")
 {
-    fatint::model::AlleleParameters a;
-    a.starting_allele_count = 10;
+    fatint::model::GeneticParameters a;
+    a.n_init = 10;
     a.v_mutation = 1;
     a.v_stretch = 1.5;
-    fatint::model::AlleleParameters b;
-    b.starting_allele_count = 5;
+    fatint::model::GeneticParameters b;
+    b.n_init = 5;
     b.v_mutation = 1;
     b.v_stretch = 0.25;
 
     a += b;
 
-    CHECK(a.starting_allele_count == 15);
+    CHECK(a.n_init == 15);
     CHECK(a.v_mutation == doctest::Approx(2));
     CHECK(a.v_stretch == doctest::Approx(1.75));
 }
@@ -113,20 +113,16 @@ TEST_CASE("Chained operator+= works correctly")
     fatint::model::Limits a;
     a.v_min = 0;
     a.v_max = 10;
-    a.m_limit = 5.0;
     fatint::model::Limits b;
     b.v_min = 1;
     b.v_max = 5;
-    b.m_limit = 2.0;
     fatint::model::Limits c;
     c.v_min = 2;
     c.v_max = 3;
-    c.m_limit = 1.0;
 
     a += b;
     a += c;
 
     CHECK(a.v_min == 3);
     CHECK(a.v_max == 18);
-    CHECK(a.m_limit == doctest::Approx(8.0));
 }

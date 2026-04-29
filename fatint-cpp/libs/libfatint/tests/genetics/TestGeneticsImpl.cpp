@@ -2,55 +2,52 @@
 #include "math/Random.hpp"
 #include "model/formulas.hpp"
 #include "model/types.hpp"
-#include <climits>
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest.hpp>
 
-TEST_CASE("SimilarityImpl - similar entities are compatible")
+TEST_CASE("EuclideanDistanceSimilarity - similar entities are compatible")
 {
-    fatint::model::Limits limits;
-    limits.m_limit = 1;
+    fatint::genetics::EuclideanDistanceSimilarity similarity({ .m_limit = 1});
 
-    fatint::genetics::SimilarityImpl similarity;
+    fatint::model::Entity a
+    {
+        .age = 0, .energy = 0, .genotype = {0, 0, 0, 0, 0}
+    };
+    fatint::model::Entity b{.age = 0, .energy = 0, .genotype = {0, 0, 0, 0, 1}};
 
-    fatint::model::Genotype a = {0, 0, 0, 0, 0};
-    fatint::model::Genotype b = {0, 0, 0, 0, 1};
-
-    CHECK(similarity.compatible(limits, a, b) == true);
+    CHECK(similarity.compatible(a, b) == true);
 }
 
-TEST_CASE("SimilarityImpl - dissimilar entities are not compatible")
+TEST_CASE("EuclideanDistanceSimilarity - dissimilar entities are not compatible")
 {
-    fatint::model::Limits limits;
-    limits.m_limit = 1;
+    fatint::genetics::EuclideanDistanceSimilarity similarity({ .m_limit = 1});
 
-    fatint::genetics::SimilarityImpl similarity;
+    fatint::model::Entity a
+    {
+        .age = 0, .energy = 0, .genotype = {0, 0, 0, 0, 0}
+    };
+    fatint::model::Entity b{.age = 0, .energy = 0, .genotype = {0, 0, 0, 1, 1}};
 
-    fatint::model::Genotype a = {0, 0, 0, 0, 0};
-    fatint::model::Genotype b = {0, 0, 0, 1, 1};
-
-    CHECK(similarity.compatible(limits, a, b) == false);
+    CHECK(similarity.compatible(a, b) == false);
 }
 
-TEST_CASE("MutationImpl - does not mutate when p_mutation is 0")
+TEST_CASE("BoundedMutation - does not mutate when p_mutation is 0")
 {
-    fatint::math::Random random;
-    random.seed(0);
-
-    fatint::genetics::MutationImpl mutation;
     fatint::model::Genotype genotype;
     for (size_t i = 0; i < 100; i++)
     {
         genotype.push_back(0);
     }
 
-    mutation.mutate(random, 0, INT_MAX, genotype);
+    fatint::genetics::BoundedMutation mutation(0, 10);
+    fatint::math::Random random(0);
+    mutation.mutate(random, genotype);
 
     int zeros = 0;
-    for (auto allele : genotype)
+    for (auto gene : genotype)
     {
-        if (allele == 0)
+        if (gene == 0)
         {
             zeros++;
         }
@@ -59,24 +56,22 @@ TEST_CASE("MutationImpl - does not mutate when p_mutation is 0")
     CHECK(zeros == genotype.size());
 }
 
-TEST_CASE("MutationImpl - mutates all alleles when p_mutation is 1")
+TEST_CASE("BoundedMutation - mutates all genes when p_mutation is 1")
 {
-    fatint::math::Random random;
-    random.seed(0);
-
-    fatint::genetics::MutationImpl mutation;
     fatint::model::Genotype genotype;
     for (size_t i = 0; i < 100; i++)
     {
         genotype.push_back(0);
     }
 
-    mutation.mutate(random, 1, INT_MAX, genotype);
+    fatint::genetics::BoundedMutation mutation(1, 10000);
+    fatint::math::Random random(0);
+    mutation.mutate(random, genotype);
 
     int zeros = 0;
-    for (auto allele : genotype)
+    for (auto gene : genotype)
     {
-        if (allele == 0)
+        if (gene == 0)
         {
             zeros++;
         }
@@ -85,105 +80,90 @@ TEST_CASE("MutationImpl - mutates all alleles when p_mutation is 1")
     CHECK(zeros == 0);
 }
 
-TEST_CASE("CrossoverImpl - selects A for all alleles when p_crossover is 0")
+TEST_CASE("Crossover - selects A for all genes when p_crossover is 0")
 {
-    fatint::math::Random random;
-    random.seed(0);
-
-    fatint::genetics::CrossoverImpl crossover;
+    fatint::genetics::Crossover crossover(0);
     fatint::model::Genotype a = {0, 0, 0, 0, 0};
     fatint::model::Genotype b = {1, 1, 1, 1, 1};
+    fatint::model::Genotype c = {2, 2, 2, 2, 2};
 
-    crossover.crossover(random, 0, a, b, a);
+    fatint::math::Random random(0);
+    crossover.combine(random, a, b, c);
 
     int zeros = 0;
-    for (auto allele : a)
+    int ones = 0;
+    for (auto gene : c)
     {
-        if (allele == 0)
+        if (gene == 0)
         {
             zeros++;
+        }
+        else if (gene == 1)
+        {
+            ones++;
         }
     }
 
     CHECK(zeros == 5);
+    CHECK(ones == 0);
 }
 
-TEST_CASE("CrossoverImpl - selects B for all alleles when p_crossover is 1")
+TEST_CASE("Crossover - selects B for all genes when p_crossover is 1")
 {
-    fatint::math::Random random;
-    random.seed(0);
-
-    fatint::genetics::CrossoverImpl crossover;
+    fatint::genetics::Crossover crossover(1);
     fatint::model::Genotype a = {0, 0, 0, 0, 0};
     fatint::model::Genotype b = {1, 1, 1, 1, 1};
+    fatint::model::Genotype c = {2, 2, 2, 2, 2};
 
-    crossover.crossover(random, 1, a, b, a);
+    fatint::math::Random random(0);
+    crossover.combine(random, a, b, c);
 
     int zeros = 0;
-    for (auto allele : a)
+    int ones = 0;
+    for (auto gene : c)
     {
-        if (allele == 0)
+        if (gene == 0)
         {
             zeros++;
+        }
+        else if (gene == 1)
+        {
+            ones++;
         }
     }
 
     CHECK(zeros == 0);
+    CHECK(ones == 5);
 }
 
-TEST_CASE("ValidatorImpl - correctly identifies outliers")
+TEST_CASE("RandomGeneAdder - correctly adds genes")
 {
-    fatint::genetics::ValidatorImpl validator;
+    fatint::math::Random random(0);
 
-    fatint::model::Limits limits;
-    limits.v_min = 0;
-    limits.v_max = 1;
-
-    fatint::model::Genotype good = {0, 1, 1, 0, 0};
-    fatint::model::Genotype bad = {0, -1, 2, 0, 1};
-
-    CHECK(validator.validate(limits, good) == true);
-    CHECK(validator.validate(limits, bad) == false);
-}
-
-TEST_CASE("RandomAlleleAdder - correctly adds alleles")
-{
-    fatint::math::Random random;
-    random.seed(0);
-
-    fatint::genetics::RandomAlleleAdder random_allele_adder;
-
-    fatint::model::Limits limits;
-    limits.v_min = -5;
-    limits.v_max = 5;
-    fatint::model::AlleleParameters parameters;
+    fatint::genetics::RandomGeneAdder random_gene_adder(-5, 5);
 
     fatint::model::Genotype genotype = {0, 0, 0, 0, 0};
 
-    random_allele_adder.add_allele(random, limits, parameters, genotype);
-
-    CHECK(genotype.size() == 6);
-    CHECK(genotype.back() >= limits.v_min);
-    CHECK(genotype.back() <= limits.v_max);
+    for(int i = 0; i < 100; i++)
+    {
+        random_gene_adder.add_gene(random, genotype);
+        CHECK(genotype.size() == 6 + i);
+        CHECK(genotype.back() >= -5);
+        CHECK(genotype.back() <= 5);
+    }
 }
 
-TEST_CASE("VStretchAlleleAdderImpl - correctly adds alleles using v-stretch "
+TEST_CASE("VStretchGeneAdderImpl - correctly adds genes using v-stretch "
           "formula")
 {
-    fatint::math::Random random;
-    random.seed(0);
-
-    fatint::genetics::VStretchAlleleAdder v_stretch_allele_adder;
-
-    fatint::model::Limits limits;
-    fatint::model::AlleleParameters parameters;
-    parameters.v_stretch = 1;
+    fatint::math::Random random(0);
 
     fatint::model::Genotype genotype = {0, 0, 0, 0, 5};
-    int expected = fatint::model::stretch_allele(5, limits.v_min, limits.v_max, parameters.v_stretch);
 
-    v_stretch_allele_adder.add_allele(random, limits, parameters, genotype);
+    fatint::genetics::VStretchGeneAdder v_stretch_gene_adder(0, 100, 1);
+    v_stretch_gene_adder.add_gene(random, genotype);
 
+    int expected = fatint::model::stretch_gene(5, 0, 100, 1);
     CHECK(genotype.size() == 6);
     CHECK(genotype.back() == expected);
 }

@@ -32,9 +32,11 @@ struct RunParameters
     /// Genetic algorithm probabilities.
     model::GeneticProbabilities genetic_probabilities;
     /// Genetic algorithm parameters.
-    model::AlleleParameters allele_parameters;
+    model::GeneticParameters genetic_parameters;
     /// Energy parameters.
     model::EnergyParameters energy_parameters;
+
+    void validate();
 };
 
 /// Starting parameters of an experiment.
@@ -48,6 +50,8 @@ struct ExperimentParameters
     size_t runs{};
 
     [[nodiscard]] auto expand() const -> std::vector<RunParameters>;
+
+    void validate();
 };
 
 /// Parameters of multiple experiments.
@@ -64,6 +68,8 @@ struct ExperimentSweepParameters
     size_t experiments{};
 
     [[nodiscard]] auto expand() const -> std::vector<RunParameters>;
+
+    void validate();
 };
 
 /// The current state of a single run.
@@ -72,8 +78,8 @@ struct State
 {
     /// Number of entities alive.
     size_t entity_count;
-    /// Number of alleles in any gene.
-    size_t allele_count;
+    /// Number of genes in entities' genotypes.
+    size_t gene_count;
     /// Number of genetically distinct species.
     size_t species_count;
 };
@@ -84,8 +90,8 @@ struct Statistics
 {
     math::Measurement entity_count;
     std::vector<double> entity_count_values;
-    math::Measurement allele_count;
-    std::vector<double> allele_count_values;
+    math::Measurement gene_count;
+    std::vector<double> gene_count_values;
     math::Measurement species_count;
     std::vector<double> species_count_values;
 };
@@ -109,6 +115,8 @@ using ExperimentSweepStates = std::vector<ExperimentStates>;
 /// The final statistics of an experiment sweep.
 ///
 using ExperimentSweepResults = std::vector<ExperimentResults>;
+
+auto operator+=(RunParameters &a, const RunParameters &b) -> RunParameters &;
 
 } // namespace fatint::simulation
 

@@ -1,5 +1,7 @@
 #include "measurement/DisjointSetsSpeciesCounter.hpp"
+#include "genetics/genetics.hpp"
 #include <cassert>
+#include <memory>
 
 namespace fatint::measurement
 {
@@ -76,7 +78,11 @@ class DisjointSets
     }
 };
 
-auto DisjointSetsSpeciesCounter::count_species(const model::Limits &limits, const genetics::ISimilarity &similarity,
+DisjointSetsSpeciesCounter::DisjointSetsSpeciesCounter(std::unique_ptr<genetics::ISimilarity> similarity)
+: similarity(std::move(similarity))
+{}
+
+auto DisjointSetsSpeciesCounter::count_species(
                                                const model::Population &population) const -> size_t
 {
     DisjointSets sets(population.size());
@@ -84,7 +90,7 @@ auto DisjointSetsSpeciesCounter::count_species(const model::Limits &limits, cons
     {
         for (size_t j = i + 1; j < population.size(); j++)
         {
-            if (similarity.compatible(limits, population[i].genotype, population[j].genotype))
+            if (similarity->compatible(population[i], population[j]))
             {
                 sets.link(i, j);
             }

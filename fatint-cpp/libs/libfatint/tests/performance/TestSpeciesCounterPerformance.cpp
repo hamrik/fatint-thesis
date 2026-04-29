@@ -1,6 +1,7 @@
 #include "genetics/GeneticsImpl.hpp"
 #include "measurement/DepthFirstSearchSpeciesCounter.hpp"
 #include "measurement/DisjointSetsSpeciesCounter.hpp"
+#include "model/types.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -16,10 +17,10 @@ const auto NS_IN_MS = 1e6;
 
 TEST_CASE("SpeciesCounterPerformance - DisjointSets one species")
 {
-    fatint::measurement::DisjointSetsSpeciesCounter counter;
-    fatint::model::Limits limits;
-    limits.m_limit = 1;
-    fatint::genetics::SimilarityImpl similarity;
+    fatint::measurement::DisjointSetsSpeciesCounter counter(
+        std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(fatint::model::ReproductionParameters {
+            .m_limit = 1
+        }));
     fatint::model::Population pop;
 
     for (size_t sz = STARTING_SIZE, i = 0; i < SIZES; sz *= 2, i++)
@@ -34,7 +35,7 @@ TEST_CASE("SpeciesCounterPerformance - DisjointSets one species")
         for (int r = 0; r < RUNS; r++)
         {
             auto before = std::chrono::high_resolution_clock::now();
-            size_t count = counter.count_species(limits, similarity, pop);
+            size_t count = counter.count_species(pop);
             auto after = std::chrono::high_resolution_clock::now();
             CHECK(1 == count);
 
@@ -47,10 +48,10 @@ TEST_CASE("SpeciesCounterPerformance - DisjointSets one species")
 
 TEST_CASE("SpeciesCounterPerformance - DisjointSets many species")
 {
-    fatint::measurement::DisjointSetsSpeciesCounter counter;
-    fatint::model::Limits limits;
-    limits.m_limit = 1;
-    fatint::genetics::SimilarityImpl similarity;
+    fatint::measurement::DisjointSetsSpeciesCounter counter(
+        std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(fatint::model::ReproductionParameters{
+            .m_limit = 1
+        }));
     fatint::model::Population pop;
 
     for (size_t sz = STARTING_SIZE, i = 0; i < SIZES; sz *= 2, i++)
@@ -66,7 +67,7 @@ TEST_CASE("SpeciesCounterPerformance - DisjointSets many species")
         for (int r = 0; r < RUNS; r++)
         {
             auto before = std::chrono::high_resolution_clock::now();
-            size_t count = counter.count_species(limits, similarity, pop);
+            size_t count = counter.count_species(pop);
             auto after = std::chrono::high_resolution_clock::now();
             CHECK(sz == count);
 
@@ -79,10 +80,10 @@ TEST_CASE("SpeciesCounterPerformance - DisjointSets many species")
 
 TEST_CASE("SpeciesCounterPerformance - DepthFirstSearch one species")
 {
-    fatint::measurement::DepthFirstSearchSpeciesCounter counter;
-    fatint::model::Limits limits;
-    limits.m_limit = 1;
-    fatint::genetics::SimilarityImpl similarity;
+    fatint::measurement::DepthFirstSearchSpeciesCounter counter(
+        std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(fatint::model::ReproductionParameters{
+            .m_limit = 1
+        }));
     fatint::model::Population pop;
 
     for (size_t sz = STARTING_SIZE, i = 0; i < SIZES; sz *= 2, i++)
@@ -97,7 +98,7 @@ TEST_CASE("SpeciesCounterPerformance - DepthFirstSearch one species")
         for (int r = 0; r < RUNS; r++)
         {
             auto before = std::chrono::high_resolution_clock::now();
-            size_t count = counter.count_species(limits, similarity, pop);
+            size_t count = counter.count_species(pop);
             auto after = std::chrono::high_resolution_clock::now();
             CHECK(1 == count);
 
@@ -110,10 +111,10 @@ TEST_CASE("SpeciesCounterPerformance - DepthFirstSearch one species")
 
 TEST_CASE("SpeciesCounterPerformance - DepthFirstSearch many species")
 {
-    fatint::measurement::DepthFirstSearchSpeciesCounter counter;
-    fatint::model::Limits limits;
-    limits.m_limit = 1;
-    fatint::genetics::SimilarityImpl similarity;
+    fatint::measurement::DepthFirstSearchSpeciesCounter counter(
+        std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(fatint::model::ReproductionParameters{
+            .m_limit = 1
+        }));
     fatint::model::Population pop;
 
     for (size_t sz = STARTING_SIZE, i = 0; i < SIZES; sz *= 2, i++)
@@ -129,7 +130,7 @@ TEST_CASE("SpeciesCounterPerformance - DepthFirstSearch many species")
         for (int r = 0; r < RUNS; r++)
         {
             auto before = std::chrono::high_resolution_clock::now();
-            size_t count = counter.count_species(limits, similarity, pop);
+            size_t count = counter.count_species(pop);
             auto after = std::chrono::high_resolution_clock::now();
             CHECK(sz == count);
 

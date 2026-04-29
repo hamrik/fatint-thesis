@@ -9,7 +9,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_library(libfatint
     src/model/types.cpp
     src/model/utils.cpp
-    src/genetics/GeneticReproduction.cpp
     src/genetics/GeneticsImpl.cpp
     src/math/Random.cpp
     src/math/Statistics.cpp

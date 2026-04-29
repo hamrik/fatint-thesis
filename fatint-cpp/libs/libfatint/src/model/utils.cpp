@@ -7,7 +7,6 @@ auto operator+=(Limits &a, const Limits &b) -> Limits &
 {
     a.v_min += b.v_min;
     a.v_max += b.v_max;
-    a.m_limit += b.m_limit;
     return a;
 }
 
@@ -20,9 +19,10 @@ auto operator+=(ReproductionProbabilities &a, const ReproductionProbabilities &b
 
 auto operator+=(ReproductionParameters &a, const ReproductionParameters &b) -> ReproductionParameters &
 {
-    a.starting_population += b.starting_population;
+    a.m_init += b.m_init;
     a.m_const += b.m_const;
     a.m_slope += b.m_slope;
+    a.m_limit += b.m_limit;
     return a;
 }
 
@@ -33,9 +33,9 @@ auto operator+=(GeneticProbabilities &a, const GeneticProbabilities &b) -> Genet
     return a;
 }
 
-auto operator+=(AlleleParameters &a, const AlleleParameters &b) -> AlleleParameters &
+auto operator+=(GeneticParameters &a, const GeneticParameters &b) -> GeneticParameters &
 {
-    a.starting_allele_count += b.starting_allele_count;
+    a.n_init += b.n_init;
     a.v_mutation += b.v_mutation;
     a.v_stretch += b.v_stretch;
     return a;

@@ -1,7 +1,192 @@
-#include "simulation/utils.hpp"
+#include <cwchar>
+
+#include "simulation/types.hpp"
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest.hpp>
+
+TEST_CASE("Constraint violations are caught")
+{
+    SUBCASE("ExperimentSweepParameters - own variable")
+    {
+        fatint::simulation::ExperimentSweepParameters p{
+            .experiments = 0
+        };
+        CHECK_THROWS(p.validate());
+    }
+    SUBCASE("ExperimentSweepParameters - child varilable")
+    {
+        fatint::simulation::ExperimentSweepParameters p{
+            .starting_parameters = {
+                .run_parameters = {
+                    .reproduction_probabilities = {
+                        .p_encounter = 0.9
+                    }
+                }
+            },
+            .delta = {
+                .reproduction_probabilities = {
+                    .p_encounter = 0.1
+                }
+            },
+            .experiments = 3,
+        };
+        CHECK_THROWS(p.validate());
+    }
+    SUBCASE("ExperimentParams")
+    {
+        fatint::simulation::ExperimentParameters p{
+            .runs = 0
+        };
+        CHECK_THROWS(p.validate());
+    }
+    SUBCASE("RunParameters - steps")
+    {
+        fatint::simulation::RunParameters p{
+            .steps = 0
+        };
+        CHECK_THROWS(p.validate());
+    }
+    SUBCASE("RunParameters - Limits")
+    {
+        fatint::simulation::RunParameters p{
+            .limits = {
+                .v_min = 3,
+                .v_max = 2
+            }
+        };
+        CHECK_THROWS(p.validate());
+    }
+    SUBCASE("RunParameters - ReproductionProbabilities")
+    {
+        fatint::simulation::RunParameters p0{
+            .reproduction_probabilities = {
+                .p_encounter = -0.5,
+            }
+        };
+        CHECK_THROWS(p0.validate());
+
+        fatint::simulation::RunParameters p1{
+            .reproduction_probabilities = {
+                .p_change = 1.2,
+            }
+        };
+        CHECK_THROWS(p1.validate());
+    }
+    SUBCASE("RunParameters - ReproductionParameters")
+    {
+        fatint::simulation::RunParameters p0{
+            .reproduction_parameters = {
+                .m_init = 0
+            }
+        };
+        CHECK_THROWS(p0.validate());
+
+        fatint::simulation::RunParameters p1{
+            .reproduction_parameters = {
+                .m_const = -1
+            }
+        };
+        CHECK_THROWS(p1.validate());
+
+        fatint::simulation::RunParameters p2{
+            .reproduction_parameters = {
+                .m_limit = -1
+            }
+        };
+        CHECK_THROWS(p2.validate());
+    }
+    SUBCASE("RunParameters - GeneticProbabilities")
+    {
+        fatint::simulation::RunParameters p0{
+            .genetic_probabilities = {
+                .p_crossing  = -0.5
+            }
+        };
+        CHECK_THROWS(p0.validate());
+
+        fatint::simulation::RunParameters p1{
+            .genetic_probabilities = {
+                .p_crossing  = 1.2
+            }
+        };
+        CHECK_THROWS(p1.validate());
+
+        fatint::simulation::RunParameters p2{
+            .genetic_probabilities = {
+                .p_mutation = -0.1
+            }
+        };
+        CHECK_THROWS(p2.validate());
+
+        fatint::simulation::RunParameters p3{
+            .genetic_probabilities = {
+                .p_mutation = 1.1
+            }
+        };
+        CHECK_THROWS(p3.validate());
+    }
+    SUBCASE("RunParameters - GeneticParameters")
+    {
+        fatint::simulation::RunParameters p0{
+            .genetic_parameters = {
+                .n_init = 0
+            }
+        };
+        CHECK_THROWS(p0.validate());
+
+        fatint::simulation::RunParameters p1{
+            .genetic_parameters = {
+                .v_mutation = -1
+            }
+        };
+        CHECK_THROWS(p1.validate());
+
+        fatint::simulation::RunParameters p2{
+            .genetic_parameters = {
+                .v_stretch = -1
+            }
+        };
+        CHECK_THROWS(p2.validate());
+    }
+    SUBCASE("RunParameters - EnergyParameters")
+    {
+        fatint::simulation::RunParameters p0{
+            .energy_parameters = {
+                .e_consumption = -1
+            }
+        };
+        CHECK_THROWS(p0.validate());
+
+        fatint::simulation::RunParameters p1{
+            .energy_parameters = {
+                .e_increase = -1
+            }
+        };
+        CHECK_THROWS(p1.validate());
+
+        fatint::simulation::RunParameters p2{
+            .energy_parameters = {
+                .e_intake = -1
+            }
+        };
+        CHECK_THROWS(p2.validate());
+
+        fatint::simulation::RunParameters p3{
+            .energy_parameters = {
+                .e_discount = -1
+            }
+        };
+        CHECK_THROWS(p3.validate());
+
+        fatint::simulation::RunParameters p4{
+            .energy_parameters = {
+                .e_discount = 2
+            }
+        };
+        CHECK_THROWS(p4.validate());
+    }
+}
 
 TEST_CASE("RunParameters operator+= accumulates all fields")
 {
@@ -10,17 +195,17 @@ TEST_CASE("RunParameters operator+= accumulates all fields")
     a.seed = 42;
     a.limits.v_min = 0;
     a.limits.v_max = 10;
-    a.limits.m_limit = 5.0;
     a.reproduction_probabilities.p_encounter = 0.1;
     a.reproduction_probabilities.p_change = 0.2;
-    a.reproduction_parameters.starting_population = 100;
+    a.reproduction_parameters.m_init = 100;
     a.reproduction_parameters.m_const = 2.0;
     a.reproduction_parameters.m_slope = 0.5;
+    a.reproduction_parameters.m_limit = 5.0;
     a.genetic_probabilities.p_crossing = 0.3;
     a.genetic_probabilities.p_mutation = 0.4;
-    a.allele_parameters.starting_allele_count = 10;
-    a.allele_parameters.v_mutation = 1.0;
-    a.allele_parameters.v_stretch = 1.5;
+    a.genetic_parameters.n_init = 10;
+    a.genetic_parameters.v_mutation = 1.0;
+    a.genetic_parameters.v_stretch = 1.5;
     a.energy_parameters.e_increase = 10.0;
     a.energy_parameters.e_consumption = 1.0;
     a.energy_parameters.e_intake = 5.0;
@@ -31,17 +216,17 @@ TEST_CASE("RunParameters operator+= accumulates all fields")
     b.seed = 1;  // Should be ignored
     b.limits.v_min = 1;
     b.limits.v_max = 5;
-    b.limits.m_limit = 2.0;
     b.reproduction_probabilities.p_encounter = 0.05;
     b.reproduction_probabilities.p_change = 0.1;
-    b.reproduction_parameters.starting_population = 50;
+    b.reproduction_parameters.m_init = 50;
     b.reproduction_parameters.m_const = 1.0;
     b.reproduction_parameters.m_slope = 0.25;
+    b.reproduction_parameters.m_limit = 2.0;
     b.genetic_probabilities.p_crossing = 0.2;
     b.genetic_probabilities.p_mutation = 0.1;
-    b.allele_parameters.starting_allele_count = 5;
-    b.allele_parameters.v_mutation = 2;
-    b.allele_parameters.v_stretch = 0.25;
+    b.genetic_parameters.n_init = 5;
+    b.genetic_parameters.v_mutation = 2;
+    b.genetic_parameters.v_stretch = 0.25;
     b.energy_parameters.e_increase = 5.0;
     b.energy_parameters.e_consumption = 0.5;
     b.energy_parameters.e_intake = 2.0;
@@ -53,17 +238,17 @@ TEST_CASE("RunParameters operator+= accumulates all fields")
     CHECK(a.seed == 42);
     CHECK(a.limits.v_min == 1);
     CHECK(a.limits.v_max == 15);
-    CHECK(a.limits.m_limit == doctest::Approx(7.0));
     CHECK(a.reproduction_probabilities.p_encounter == doctest::Approx(0.15));
     CHECK(a.reproduction_probabilities.p_change == doctest::Approx(0.3));
-    CHECK(a.reproduction_parameters.starting_population == 150);
+    CHECK(a.reproduction_parameters.m_init == 150);
     CHECK(a.reproduction_parameters.m_const == doctest::Approx(3.0));
     CHECK(a.reproduction_parameters.m_slope == doctest::Approx(0.75));
+    CHECK(a.reproduction_parameters.m_limit == doctest::Approx(7.0));
     CHECK(a.genetic_probabilities.p_crossing == doctest::Approx(0.5));
     CHECK(a.genetic_probabilities.p_mutation == doctest::Approx(0.5));
-    CHECK(a.allele_parameters.starting_allele_count == 15);
-    CHECK(a.allele_parameters.v_mutation == 3);
-    CHECK(a.allele_parameters.v_stretch == doctest::Approx(1.75));
+    CHECK(a.genetic_parameters.n_init == 15);
+    CHECK(a.genetic_parameters.v_mutation == 3);
+    CHECK(a.genetic_parameters.v_stretch == doctest::Approx(1.75));
     CHECK(a.energy_parameters.e_increase == doctest::Approx(15.0));
     CHECK(a.energy_parameters.e_consumption == doctest::Approx(1.5));
     CHECK(a.energy_parameters.e_intake == doctest::Approx(7.0));
@@ -78,17 +263,17 @@ TEST_CASE("ExperimentParameters::expand() creates correct number of runs")
     params.run_parameters.seed = 42;
     params.run_parameters.limits.v_min = 0;
     params.run_parameters.limits.v_max = 10;
-    params.run_parameters.limits.m_limit = 5.0;
     params.run_parameters.reproduction_probabilities.p_encounter = 0.1;
     params.run_parameters.reproduction_probabilities.p_change = 0.2;
-    params.run_parameters.reproduction_parameters.starting_population = 100;
+    params.run_parameters.reproduction_parameters.m_init = 100;
     params.run_parameters.reproduction_parameters.m_const = 2.0;
     params.run_parameters.reproduction_parameters.m_slope = 0.5;
+    params.run_parameters.reproduction_parameters.m_limit = 5.0;
     params.run_parameters.genetic_probabilities.p_crossing = 0.3;
     params.run_parameters.genetic_probabilities.p_mutation = 0.4;
-    params.run_parameters.allele_parameters.starting_allele_count = 10;
-    params.run_parameters.allele_parameters.v_mutation = 1.0;
-    params.run_parameters.allele_parameters.v_stretch = 1.5;
+    params.run_parameters.genetic_parameters.n_init = 10;
+    params.run_parameters.genetic_parameters.v_mutation = 1.0;
+    params.run_parameters.genetic_parameters.v_stretch = 1.5;
     params.run_parameters.energy_parameters.e_increase = 10.0;
     params.run_parameters.energy_parameters.e_consumption = 1.0;
     params.run_parameters.energy_parameters.e_intake = 5.0;
@@ -115,17 +300,17 @@ TEST_CASE("ExperimentSweepParameters::expand() creates correct number of "
     sweep_params.starting_parameters.run_parameters.seed = 42;
     sweep_params.starting_parameters.run_parameters.limits.v_min = 0;
     sweep_params.starting_parameters.run_parameters.limits.v_max = 10;
-    sweep_params.starting_parameters.run_parameters.limits.m_limit = 5.0;
+    sweep_params.starting_parameters.run_parameters.reproduction_parameters.m_limit = 5.0;
     sweep_params.starting_parameters.run_parameters.reproduction_probabilities.p_encounter = 0.1;
     sweep_params.starting_parameters.run_parameters.reproduction_probabilities.p_change = 0.2;
-    sweep_params.starting_parameters.run_parameters.reproduction_parameters.starting_population = 100;
+    sweep_params.starting_parameters.run_parameters.reproduction_parameters.m_init = 100;
     sweep_params.starting_parameters.run_parameters.reproduction_parameters.m_const = 2.0;
     sweep_params.starting_parameters.run_parameters.reproduction_parameters.m_slope = 0.5;
     sweep_params.starting_parameters.run_parameters.genetic_probabilities.p_crossing = 0.3;
     sweep_params.starting_parameters.run_parameters.genetic_probabilities.p_mutation = 0.4;
-    sweep_params.starting_parameters.run_parameters.allele_parameters.starting_allele_count = 10;
-    sweep_params.starting_parameters.run_parameters.allele_parameters.v_mutation = 1.0;
-    sweep_params.starting_parameters.run_parameters.allele_parameters.v_stretch = 1.5;
+    sweep_params.starting_parameters.run_parameters.genetic_parameters.n_init = 10;
+    sweep_params.starting_parameters.run_parameters.genetic_parameters.v_mutation = 1.0;
+    sweep_params.starting_parameters.run_parameters.genetic_parameters.v_stretch = 1.5;
     sweep_params.starting_parameters.run_parameters.energy_parameters.e_increase = 10.0;
     sweep_params.starting_parameters.run_parameters.energy_parameters.e_consumption = 1.0;
     sweep_params.starting_parameters.run_parameters.energy_parameters.e_intake = 5.0;
@@ -135,17 +320,17 @@ TEST_CASE("ExperimentSweepParameters::expand() creates correct number of "
     sweep_params.delta.seed = 1;  // Should be ignored
     sweep_params.delta.limits.v_min = 0;
     sweep_params.delta.limits.v_max = 0;
-    sweep_params.delta.limits.m_limit = 0.0;
+    sweep_params.delta.reproduction_parameters.m_limit = 0.0;
     sweep_params.delta.reproduction_probabilities.p_encounter = 0.0;
     sweep_params.delta.reproduction_probabilities.p_change = 0.0;
-    sweep_params.delta.reproduction_parameters.starting_population = 0;
+    sweep_params.delta.reproduction_parameters.m_init = 0;
     sweep_params.delta.reproduction_parameters.m_const = 0.0;
     sweep_params.delta.reproduction_parameters.m_slope = 0.0;
     sweep_params.delta.genetic_probabilities.p_crossing = 0.0;
     sweep_params.delta.genetic_probabilities.p_mutation = 0.0;
-    sweep_params.delta.allele_parameters.starting_allele_count = 0;
-    sweep_params.delta.allele_parameters.v_mutation = 0.0;
-    sweep_params.delta.allele_parameters.v_stretch = 0.0;
+    sweep_params.delta.genetic_parameters.n_init = 0;
+    sweep_params.delta.genetic_parameters.v_mutation = 0.0;
+    sweep_params.delta.genetic_parameters.v_stretch = 0.0;
     sweep_params.delta.energy_parameters.e_increase = 0.0;
     sweep_params.delta.energy_parameters.e_consumption = 0.0;
     sweep_params.delta.energy_parameters.e_intake = 0.0;

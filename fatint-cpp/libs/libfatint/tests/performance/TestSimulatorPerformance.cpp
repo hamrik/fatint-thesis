@@ -1,4 +1,3 @@
-#include "genetics/GeneticReproduction.hpp"
 #include "genetics/GeneticsImpl.hpp"
 #include "simulation/Simulator.hpp"
 #include "simulation/types.hpp"
@@ -18,13 +17,36 @@ const auto NS_IN_MS = 1e6;
 class DummySpeciesCounter : public fatint::measurement::ISpeciesCounter
 {
 
-    [[nodiscard]] auto count_species(const fatint::model::Limits &limits,
-                                     const fatint::genetics::ISimilarity &similarity,
-                                     const fatint::model::Population &population) const -> size_t override
+    [[nodiscard]] auto count_species(const fatint::model::Population &population) const -> size_t override
     {
         return 1;
     }
 };
+
+auto make_simulator(fatint::simulation::RunParameters params) -> std::unique_ptr<fatint::simulation::Simulator>
+{
+    fatint::genetics::EuclideanDistanceSimilarity similarity(
+        params.reproduction_parameters
+    );
+    return std::make_unique<fatint::simulation::Simulator>(
+        std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(similarity),
+        std::make_unique<fatint::genetics::ReservoirSelection>(
+            std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(similarity)
+        ),
+        std::make_unique<fatint::genetics::GeneticReproduction>(
+            std::make_unique<fatint::genetics::BoundedMutation>(params.genetic_probabilities.p_mutation, params.genetic_parameters.v_mutation),
+            std::make_unique<fatint::genetics::Crossover>(params.genetic_probabilities.p_crossing),
+            params.limits.v_min,
+            params.limits.v_max
+        ),
+        std::make_unique<fatint::genetics::RandomGeneAdder>(
+            params.limits.v_min,
+            params.limits.v_max
+        ),
+        std::make_unique<DummySpeciesCounter>(),
+        params
+    );
+}
 
 auto measure_no_churn(size_t sz) -> double
 {
@@ -32,26 +54,16 @@ auto measure_no_churn(size_t sz) -> double
     fatint::math::Random random(0);
     fatint::simulation::RunParameters params;
     params.steps = STEPS;
-    params.reproduction_parameters.starting_population = sz;
+    params.reproduction_parameters.m_init = sz;
     params.reproduction_probabilities.p_encounter = 0;
     params.energy_parameters.e_consumption = 0;
-    params.limits.m_limit = 0;
+    params.reproduction_parameters.m_limit = 0;
     params.energy_parameters.e_increase = static_cast<double>(sz) * params.energy_parameters.e_intake;
 
-    fatint::genetics::SimilarityImpl similarity;
-    fatint::genetics::SelectionImpl selection;
-    fatint::genetics::MutationImpl mutation;
-    fatint::genetics::CrossoverImpl crossover;
-    fatint::genetics::GeneticReproduction reproduction(mutation, crossover);
-    fatint::genetics::ValidatorImpl validator;
-    fatint::genetics::RandomAlleleAdder allele_adder;
-    DummySpeciesCounter species_counter;
-
-    fatint::simulation::Simulator simulator(similarity, selection, reproduction, validator, allele_adder,
-                                            species_counter);
+    auto simulator = make_simulator(params);
 
     auto before = std::chrono::high_resolution_clock::now();
-    fatint::simulation::RunStates output = simulator.run(random, params);
+    fatint::simulation::RunStates output = simulator->run(random);
     auto after = std::chrono::high_resolution_clock::now();
     CHECK(sz == output[output.size() - 1].entity_count);
 
@@ -67,20 +79,10 @@ auto measure_churn(size_t sz) -> double
     params.steps = STEPS;
     params.energy_parameters.e_increase = static_cast<double>(sz);
 
-    fatint::genetics::SimilarityImpl similarity;
-    fatint::genetics::SelectionImpl selection;
-    fatint::genetics::MutationImpl mutation;
-    fatint::genetics::CrossoverImpl crossover;
-    fatint::genetics::GeneticReproduction reproduction(mutation, crossover);
-    fatint::genetics::ValidatorImpl validator;
-    fatint::genetics::RandomAlleleAdder allele_adder;
-    DummySpeciesCounter species_counter;
-
-    fatint::simulation::Simulator simulator(similarity, selection, reproduction, validator, allele_adder,
-                                            species_counter);
+    auto simulator = make_simulator(params);
 
     auto before = std::chrono::high_resolution_clock::now();
-    fatint::simulation::RunStates output = simulator.run(random, params);
+    fatint::simulation::RunStates output = simulator->run(random);
     auto after = std::chrono::high_resolution_clock::now();
     CHECK(STEPS == output.size());
 

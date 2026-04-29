@@ -2,29 +2,42 @@
 
 #include <cassert>
 
+#include "genetics/genetics.hpp"
 #include "measurement/ReservoirSampling.hpp"
+#include "model/error.hpp"
 #include "model/formulas.hpp"
 #include "model/types.hpp"
 
 namespace fatint::genetics
 {
 
-auto SimilarityImpl::compatible(const model::Limits &limits, const model::Genotype &a, const model::Genotype &b) const
-    -> bool
+EuclideanDistanceSimilarity::EuclideanDistanceSimilarity(model::ReproductionParameters params)
+    : params(params),
+      m_limit_sqr(static_cast<size_t>(params.m_limit) * static_cast<size_t>(params.m_limit))
 {
-    assert(a.size() == b.size());
-    auto limit_sqr = static_cast<size_t>(limits.m_limit * limits.m_limit);
-    return euclidean_distance_sqr(a, b) <= limit_sqr;
 }
-auto SimilarityImpl::offspring_count(const model::Limits &limits, const model::ReproductionParameters &repr,
-                                     const model::Genotype &a, const model::Genotype &b) const -> size_t
+
+/// Checks whether two entities can reproduce.
+auto EuclideanDistanceSimilarity::compatible(const model::Entity &a, const model::Entity &b) const -> bool
 {
-    double eds = static_cast<double>(euclidean_distance_sqr(a, b));
+    if (a.genotype.size() != b.genotype.size())
+    {
+        throw fatint::error::ConstraintException("EuclideanDistanceSimilarity requires uniform genotype sizes");
+    }
+    return euclidean_distance_sqr(a.genotype, b.genotype) <= m_limit_sqr;
+}
+
+/// Checks how many offspring two entities can have.
+auto EuclideanDistanceSimilarity::offspring_count(const model::Entity &a, const model::Entity &b) const -> size_t
+{
+    double eds = static_cast<double>(euclidean_distance_sqr(a.genotype, b.genotype));
     double dist = sqrt(eds);
-    int oc = model::offspring_count(dist, repr.m_const, limits.m_limit, repr.m_slope);
+    int oc = model::offspring_count(dist, params.m_const, params.m_limit, params.m_slope);
     return static_cast<size_t>(std::max(0, oc));
 }
-auto SimilarityImpl::euclidean_distance_sqr(const model::Genotype &a, const model::Genotype &b) const -> size_t
+
+auto EuclideanDistanceSimilarity::euclidean_distance_sqr(const model::Genotype &a, const model::Genotype &b) const
+    -> size_t
 {
     size_t sum = 0;
     for (size_t i = 0; i < a.size(); i++)
@@ -35,46 +48,60 @@ auto SimilarityImpl::euclidean_distance_sqr(const model::Genotype &a, const mode
     return sum;
 }
 
-auto SelectionImpl::select(math::Random &random, const model::Limits &limits, const ISimilarity &similarity,
-                           size_t index, const model::Population &entities) const -> std::optional<size_t>
+ReservoirSelection::ReservoirSelection(std::unique_ptr<ISimilarity> similarity) : similarity(std::move(similarity))
+{
+}
+
+auto ReservoirSelection::select(math::Random &rng, const model::Population &entities, size_t subject_index) const
+    -> std::optional<size_t>
 {
     measurement::ReservoirSampling<size_t> sampler;
 
     for (size_t i = 0; i < entities.size(); i++)
     {
-        if (i == index)
+        if (i == subject_index)
         {
             continue;
         }
-        if (!similarity.compatible(limits, entities[index].genotype, entities[i].genotype))
+        if (!similarity->compatible(entities[subject_index], entities[i]))
         {
             continue;
         }
-        sampler.add(random, i);
+        sampler.add(rng, i);
     }
 
     return sampler.get();
 }
 
-void MutationImpl::mutate(math::Random &random, double p_mutation, int v_mutation, model::Genotype &genotype) const
+BoundedMutation::BoundedMutation(double p_mutation, int v_mutation) : p_mutation(p_mutation), v_mutation(v_mutation)
+{
+}
+
+void BoundedMutation::mutate(math::Random &rng, model::Genotype &genotype) const
 {
     for (auto &gene : genotype)
     {
-        if (random.chance(p_mutation))
+        if (rng.chance(p_mutation))
         {
-            gene += random.random(-v_mutation, v_mutation);
+            gene += rng.random(-v_mutation, v_mutation);
         }
     }
 }
 
-void CrossoverImpl::crossover(math::Random &random, double p_crossing, const model::Genotype &a,
-                              const model::Genotype &b, model::Genotype &out) const
+Crossover::Crossover(double p_crossing) : p_crossing(p_crossing)
 {
-    assert(a.size() == b.size());
-    assert(out.size() == a.size());
+}
+
+void Crossover::combine(math::Random &rng, const model::Genotype &a, const model::Genotype &b,
+                        model::Genotype &out) const
+{
+    if (a.size() != b.size() || a.size() != out.size())
+    {
+        throw fatint::error::ConstraintException("Crossover requires uniform genotype sizes");
+    }
     for (size_t i = 0; i < a.size(); i++)
     {
-        if (random.chance(p_crossing))
+        if (rng.chance(p_crossing))
         {
             out[i] = b[i];
         }
@@ -85,11 +112,26 @@ void CrossoverImpl::crossover(math::Random &random, double p_crossing, const mod
     }
 }
 
-auto ValidatorImpl::validate(const model::Limits &limits, const model::Genotype &genotype) const -> bool
+GeneticReproduction::GeneticReproduction(std::unique_ptr<IMutation> mutation, std::unique_ptr<ICombination> crossover,
+                                         int v_min, int v_max)
+    : mutation(std::move(mutation)), crossover(std::move(crossover)), v_min(v_min), v_max(v_max)
 {
-    for (auto gene : genotype)
+}
+
+auto GeneticReproduction::reproduce(math::Random &rng, const model::Entity &a, const model::Entity &b,
+                                    model::Entity &out) const -> bool
+{
+    if (a.genotype.size() != b.genotype.size() || a.genotype.size() != out.genotype.size())
     {
-        if (gene < limits.v_min || gene > limits.v_max)
+        throw fatint::error::ConstraintException("Crossover requires uniform genotype sizes");
+    }
+    out.age = 0;
+    out.energy = 0;
+    crossover->combine(rng, a.genotype, b.genotype, out.genotype);
+    mutation->mutate(rng, out.genotype);
+    for (auto &g : out.genotype)
+    {
+        if (g < v_min || g > v_max)
         {
             return false;
         }
@@ -97,16 +139,23 @@ auto ValidatorImpl::validate(const model::Limits &limits, const model::Genotype 
     return true;
 }
 
-void RandomAlleleAdder::add_allele(math::Random &random, const model::Limits &limits,
-                                   const model::AlleleParameters &parameters, model::Genotype &genotype) const
+RandomGeneAdder::RandomGeneAdder(int v_min, int v_max) : v_min(v_min), v_max(v_max)
 {
-    genotype.push_back(random.random(limits.v_min, limits.v_max));
 }
 
-void VStretchAlleleAdder::add_allele(math::Random &random, const model::Limits &limits,
-                                     const model::AlleleParameters &parameters, model::Genotype &genotype) const
+void RandomGeneAdder::add_gene(math::Random &rng, model::Genotype &genotype) const
 {
-    genotype.push_back(model::stretch_allele(genotype.back(), limits.v_min, limits.v_max, parameters.v_stretch));
+    genotype.push_back(rng.random(v_min, v_max));
+}
+
+VStretchGeneAdder::VStretchGeneAdder(int v_min, int v_max, double v_stretch)
+    : v_min(v_min), v_max(v_max), v_stretch(v_stretch)
+{
+}
+
+void VStretchGeneAdder::add_gene(math::Random &rng, model::Genotype &genotype) const
+{
+    genotype.push_back(model::stretch_gene(genotype.back(), v_min, v_max, v_stretch));
 }
 
 } // namespace fatint::genetics

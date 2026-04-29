@@ -1,7 +1,5 @@
-#include "simulation/utils.hpp"
-
-#include "model/utils.hpp"
 #include "simulation/types.hpp"
+#include "model/utils.hpp"
 
 namespace fatint::simulation
 {
@@ -12,7 +10,7 @@ auto operator+=(RunParameters &a, const RunParameters &b) -> RunParameters &
     a.reproduction_probabilities += b.reproduction_probabilities;
     a.reproduction_parameters += b.reproduction_parameters;
     a.genetic_probabilities += b.genetic_probabilities;
-    a.allele_parameters += b.allele_parameters;
+    a.genetic_parameters += b.genetic_parameters;
     a.energy_parameters += b.energy_parameters;
     return a;
 }

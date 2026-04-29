@@ -1,13 +1,18 @@
 #include "measurement/DepthFirstSearchSpeciesCounter.hpp"
 #include "genetics/genetics.hpp"
 #include "model/types.hpp"
+#include <memory>
 #include <stack>
 
 namespace fatint::measurement
 {
 
-auto DepthFirstSearchSpeciesCounter::count_species(const model::Limits &limits, const genetics::ISimilarity &similarity,
-                                                   const model::Population &population) const -> size_t
+DepthFirstSearchSpeciesCounter::DepthFirstSearchSpeciesCounter(std::unique_ptr<genetics::ISimilarity> similarity)
+    : similarity(std::move(similarity))
+{
+}
+
+auto DepthFirstSearchSpeciesCounter::count_species(const model::Population &population) const -> size_t
 {
     if (population.empty())
     {
@@ -28,7 +33,7 @@ auto DepthFirstSearchSpeciesCounter::count_species(const model::Limits &limits, 
         {
             auto curr = st.top();
             st.pop();
-            auto a = population[curr].genotype;
+            auto &a = population[curr];
 
             for (size_t i = 0; i < population.size(); i++)
             {
@@ -36,8 +41,8 @@ auto DepthFirstSearchSpeciesCounter::count_species(const model::Limits &limits, 
                 {
                     continue;
                 }
-                auto b = population[i].genotype;
-                if (similarity.compatible(limits, a, b))
+                auto &b = population[i];
+                if (similarity->compatible(a, b))
                 {
                     st.push(i);
                     visited[i] = true;

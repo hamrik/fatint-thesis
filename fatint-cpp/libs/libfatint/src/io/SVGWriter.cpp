@@ -1,7 +1,6 @@
 #include "io/SVGWriter.hpp"
 
 #include "simulation/types.hpp"
-#include "simulation/utils.hpp"
 
 namespace fatint::io
 {

@@ -1,43 +1,76 @@
 #include "model/types.hpp"
+#include "model/error.hpp"
+
 #include <ostream>
 
 namespace fatint::model
 {
 
-Limits::Limits() : v_min(DEFAULT_V_MIN), v_max(DEFAULT_V_MAX), m_limit(DEFAULT_M_LIMIT)
+void Limits::validate()
 {
+    if(v_min > v_max)
+    {
+        throw fatint::error::ConstraintException("contraint violated: v_min <= v_max");
+    }
 }
 
-ReproductionProbabilities::ReproductionProbabilities() : p_encounter(DEFAULT_P_ENCOUNTER), p_change(DEFAULT_P_CHANGE)
+void ReproductionProbabilities::validate()
 {
+    if(p_encounter < 0 || p_encounter > 1.0) {
+        throw fatint::error::ConstraintException("constraint violated: 0 <= p_encounter <= 1");
+    }
+    if(p_change < 0 || p_change > 1.0) {
+        throw fatint::error::ConstraintException("constraint violated: 0 <= p_encounter <= 1");
+    }
 }
 
-ReproductionParameters::ReproductionParameters()
-    : starting_population(DEFAULT_STARTING_POPULATION_SIZE), m_const(DEFAULT_M_CONST), m_slope(DEFAULT_M_SLOPE)
+void ReproductionParameters::validate()
 {
+    if(m_init < 1) {
+        throw fatint::error::ConstraintException("constraint violated: 1 <= m_init");
+    }
+    if(m_const < 0) {
+        throw fatint::error::ConstraintException("constraint violated: 0 <= m_const");
+    }
 }
 
-GeneticProbabilities::GeneticProbabilities() : p_crossing(DEFAULT_P_CROSSING), p_mutation(DEFAULT_P_MUTATION)
+void GeneticProbabilities::validate()
 {
+    if(p_crossing < 0 || p_crossing > 1.0) {
+        throw fatint::error::ConstraintException("constraint violated: 0 <= p_crossing <= 1");
+    }
+    if(p_mutation < 0 || p_mutation > 1.0) {
+        throw fatint::error::ConstraintException("constraint violated: 0 <= p_mutation <= 1");
+    }
 }
 
-AlleleParameters::AlleleParameters()
-    : starting_allele_count(DEFAULT_STARTING_ALLELE_COUNT), v_mutation(DEFAULT_V_MUTATION), v_stretch(DEFAULT_V_STRETCH)
+void GeneticParameters::validate()
 {
+    if(n_init < 1) {
+        throw fatint::error::ConstraintException("constraint violated: 1 <= n_init");
+    }
 }
 
-EnergyParameters::EnergyParameters()
-    : e_increase(DEFAULT_E_INCREASE), e_consumption(DEFAULT_E_CONSUMPTION), e_intake(DEFAULT_E_INTAKE),
-      e_discount(DEFAULT_E_DISCOUNT)
+void EnergyParameters::validate()
 {
+    if(e_increase < 0) {
+        throw fatint::error::ConstraintException("constraint violated: 0 <= e_increase");
+    }
+    if(e_consumption < 0) {
+        throw fatint::error::ConstraintException("constraint violated: 0 <= e_consumption");
+    }
+    if(e_intake < 0) {
+        throw fatint::error::ConstraintException("constraint violated: 0 <= e_intake");
+    }
+    if(e_discount < 0 || e_discount > 1.0) {
+        throw fatint::error::ConstraintException("constraint violated: 0 <= e_discount <= 1");
+    }
 }
 
 } // namespace fatint::model
 
 auto operator<<(std::ostream &os, const fatint::model::Limits &params) -> std::ostream &
 {
-    if (params.m_limit != fatint::model::DEFAULT_M_LIMIT)
-        os << " M_limit=" << params.m_limit;
     if (params.v_min != fatint::model::DEFAULT_V_MIN)
         os << " V_min=" << params.v_min;
     if (params.v_max != fatint::model::DEFAULT_V_MAX)
@@ -56,12 +89,14 @@ auto operator<<(std::ostream &os, const fatint::model::ReproductionProbabilities
 
 auto operator<<(std::ostream &os, const fatint::model::ReproductionParameters &params) -> std::ostream &
 {
-    if (params.starting_population != fatint::model::DEFAULT_STARTING_POPULATION_SIZE)
-        os << " StartingPopulation=" << params.starting_population;
+    if (params.m_init != fatint::model::DEFAULT_M_INIT)
+        os << " StartingPopulation=" << params.m_init;
     if (params.m_const != fatint::model::DEFAULT_M_CONST)
         os << " M_const=" << params.m_const;
     if (params.m_slope != fatint::model::DEFAULT_M_SLOPE)
         os << " M_slope=" << params.m_slope;
+    if (params.m_limit != fatint::model::DEFAULT_M_LIMIT)
+        os << " M_limit=" << params.m_limit;
     return os;
 }
 
@@ -74,10 +109,10 @@ auto operator<<(std::ostream &os, const fatint::model::GeneticProbabilities &par
     return os;
 }
 
-auto operator<<(std::ostream &os, const fatint::model::AlleleParameters &params) -> std::ostream &
+auto operator<<(std::ostream &os, const fatint::model::GeneticParameters &params) -> std::ostream &
 {
-    if (params.starting_allele_count != fatint::model::DEFAULT_STARTING_ALLELE_COUNT)
-        os << " StartingAlleleCount=" << params.starting_allele_count;
+    if (params.n_init != fatint::model::DEFAULT_N_INIT)
+        os << " N_init=" << params.n_init;
     if (params.v_mutation != fatint::model::DEFAULT_V_MUTATION)
         os << " V_mutation=" << params.v_mutation;
     if (params.v_stretch != fatint::model::DEFAULT_V_STRETCH)
