@@ -179,7 +179,7 @@ implementációk fontos paraméterei:
       [$V_"stretch"$], [$NN$], [$0$],
       [$M_"const"$], [$NN$], [$1$],
       [$M_"limit"$], [$NN$], [$15$],
-      [$M_"slope"$], [$RR inter [0.0, infinity)$], [$0$],
+      [$M_"slope"$], [$RR$], [$0$],
       [$E_"increase"$], [$RR inter [0.0, infinity)$], [$1000$],
       [$E_"consumption"$], [$RR inter [0.0, infinity)$], [$5$],
       [$E_"intake"$], [$RR inter [0.0, infinity)$], [$10$],

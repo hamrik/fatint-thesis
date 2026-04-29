@@ -109,7 +109,7 @@
   }
 
   lq.diagram(
-    title: "libfatint",
+    title: "C++ implementáció",
     width: 10cm,
     height: 5cm,
     xlabel: "Kör",
@@ -158,7 +158,7 @@
   }
 
   lq.diagram(
-    title: "libfatint",
+    title: "C++ implementáció",
     width: 10cm,
     height: 5cm,
     xlabel: "Populáció mérete",

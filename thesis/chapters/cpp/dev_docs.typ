@@ -17,7 +17,7 @@ kísérletsorok.
 ==== Funkciónális követelmények
 
 Az implementáció:
-- Lehetőséget nyújt a @model-params fejeztben szereplő összes paraméter
+- Lehetőséget nyújt a @model-params fejezetben szereplő összes paraméter
   beállítására.
 - Ellenőrzi a felhasználó által megadott paramétereket és jelenti a hibákat.
 - A modell pontosan követi a @model-desc fejezetben leírt viselkedést.
