@@ -4,7 +4,8 @@
 == Fejlesztői dokumentáció (NetLogo)
 
 A fejlesztői dokumentáció részletezi a FATINT modell NetLogo implementációjának
-működési követelményeit, a meghozott döntéseket és tesztelés menetét.
+működési követelményeit, az implementációban meghozott döntéseket és tesztelés
+menetét.
 
 === Specifikáció
 
@@ -19,6 +20,7 @@ futtató eszközzel járul hozzá.
 Az implementáció:
 - Lehetőséget nyújt a @model-params fejeztben szereplő összes paraméter
   beállítására.
+- Ellenőrzi a felhasználó által megadott paramétereket és jelenti a hibákat.
 - Lehetőséget nyújt az összes paraméter alapértékre való visszaállítására.
 - Lehetőséget nyújt a szimulációt körönként vagy folyamatosan futtatni.
 - A modell állapotát a felületen grafikonok formájában tükrözi.
@@ -34,16 +36,19 @@ Az implementáció:
 - Az implementáció nem függ a NetLogo keretrendszeren kívül semmilyen egyéb
   külső elemtől.
 - Az implementáció felülete átlátható.
+- A szimuláció nem fut hibára, feltéve, hogy a felhasználó által megadott
+  kiinduló paraméterek a @model-defaults táblában szereplő tartományokba esnek.
 - A felület reszponzív marad a szimuláció állapotától függetlenül.
 - Az implementáció igyekszik takarékoskodni a memóriával és a számítási
   kapacitással.
 - Egy 200 szimulációból, szimulációnként legfeljebb 6000 lépésből álló
   kísérletsort 5 percen belül lefuttat egy munkaállomás kategóriás számítógépen.
+- Minden kísérlet terminál.
 
 ==== Felhasználói esetek
 
 #figure(
-  image("/assets/netlogo_usecase.svg"),
+  image("/assets/diagrams/netlogo_usecase.svg"),
   caption: [
     A NetLogo implementáció és a BehaviorSpace releváns funkcióinak felhasználói
     eset diagramja
@@ -70,19 +75,29 @@ táblázatban szereplő interakciókra a táblázatban előírt módon reagál.
   table(
     columns: 3,
     table.header[*GIVEN / Feltéve, hogy a felhasználó...*][*WHEN / Amikor...*][*THEN / Akkor...*],
+    [Érvénytelen paramétereket állított be], [Rákattint a _"Setup"_ gombra], [A hibás paraméterekről hibaüzenetet kap],
+    [Érvénytelen paramétereket állított be], [Rákattint a _"Step"_ vagy _"500 steps"_ gombra], [A hibás paraméterekről hibaüzenetet kap],
+    [Érvénytelen paramétereket állított be], [Rákattint a _"Go"_ gombra], [A hibás paraméterekről hibaüzenetet kap],
+
     [Elindított egy szimulációt], [A populáció mérete nullára csökken], [A szimuláció leáll],
+
     [Elindított egy szimulációt], [Megszakítja a szimulációt], [A szimuláció leáll],
+
     [Legalább egy paramétert módosított],
-    [Megnyomja a _"Reset"_ gombot],
+    [Rákattint a _"Reset"_ gombra],
     [Minden paraméter visszaáll alapértelmezett értékre],
 
     [Elindított korábban kézzel egy szimulációt],
     [Megnyomja a _"Setup"_ gombot],
     [A korábbi szimuláció állapota törlődik, és egy új kezdő populáció jön létre],
 
-    [Elindított kézzel egy szimulációt, és a populáció nem üres],
+    [Elindított kézzel egy szimulációt, a populáció nem üres, `use-v-stretch-formula` kapcsoló KI állásban van],
     [Megnyomja a `+` gombot],
-    [Minden egyed genotípusa bővül egy-egy új génnel],
+    [Minden egyed genotípusa bővül egy-egy véletlen új génnel],
+
+    [Elindított kézzel egy szimulációt, a populáció nem üres, `use-v-stretch-formula` kapcsoló BE állásban van],
+    [Megnyomja a `+` gombot],
+    [Minden egyed genotípusa bővül egy-egy új génnel a @stretch-formula egyenletnek megfelelően],
 
     [Elindított egy kísérletet vagy kísérletsort],
     [A szimuláció sikeresen befejeződik],

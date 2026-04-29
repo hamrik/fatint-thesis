@@ -3,116 +3,70 @@
 
 == Fejlesztői dokumentáció (C++) <cpp-spec>
 
-Egy parancssori eszköz és könyvtár a FATINT modell alapú szimulációk futtatására. Bővebben a felhasználói dokumentációban: @cpp-user-manual.
+A fejlesztői dokumentáció részletezi a FATINT modell C++ implementációjának
+működési követelményeit, az implementációban meghozott döntéseket és tesztelés
+menetét.
+
+=== Specifikáció
+
+A C++ implementáció feladata a FATINT (@model-desc) modell pontos szimulációja,
+és a @fatint cikkben közölt adatok replikációja. Ehhez nyújt egy könyvtárat és
+parancssori eszközt, mellyel könnyen és gyorsan futtathatók kísérletek és
+kísérletsorok.
+
+==== Funkciónális követelmények
+
+Az implementáció:
+- Lehetőséget nyújt a @model-params fejeztben szereplő összes paraméter
+  beállítására.
+- Ellenőrzi a felhasználó által megadott paramétereket és jelenti a hibákat.
+- A modell pontosan követi a @model-desc fejezetben leírt viselkedést.
+- Lehetőséget nyújt kísérletek és kísérletsorok futtatására, a kísérlet vagy
+  kísérletsor ereményeinek mentésére.
+- Lehetőséget nyújt a kísérletek vagy kísérletsorok alakulásának grafikonon
+  történő ábrázolására.
+- Az @cpp-usecase diagramon ábrázolt felhasználói eseteket támogatja.
+
+==== Nem funkcionális követelmények
+
+- Az implementáció nem függ a C++ standard könyvtárán és annak tranzitív
+  függőségein kívül további külső elemtől.
+- A szimuláció nem fut hibára, feltéve, hogy a felhasználó által megadott
+  kiinduló paraméterek a @model-defaults táblában szereplő tartományokba esnek.
+- Az implementáció igyekszik takarékoskodni a memóriával és a számítási
+  kapacitással.
+- Egy 200 szimulációból, szimulációnként legfeljebb 6000 lépésből álló
+  kísérletsort 30 másodpercen belül lefuttat egy munkaállomás kategóriás
+  számítógépen.
+- Minden kísérlet terminál.
+
+==== Felhasználói esetek
+
+#figure(
+  image("/assets/diagrams/cpp_usecase.svg", width: 80%),
+  caption: [
+    A C++ implementáció felhasználói eset diagramja
+  ],
+) <cpp-usecase>
+
+==== Felhasználói történetek
 
 === Architektúra
 
-A C++ implementáció erősen épít a _"Stratégia"_ fejlesztési mintára, mert a szimuláció minden eleme, a genetikus algorimusoktól a fajszámolásig egy-egy különálló, cserélhető algoritmus, melyeket az `Simulator` osztály hangol össze.
+A C++ implementáció erősen épít a _"Stratégia"_ fejlesztési mintára, mert a
+szimuláció minden eleme, a genetikus algorimusoktól a fajszámolásig egy-egy
+különálló, cserélhető algoritmus, melyeket az `Simulator` osztály hangol össze.
 
 #todo("Describe pluggable nature, strategy pattern and the available modules")
 
 #figure(
-[
-```pintora
-classDiagram
-  class Simulator {
-    - ISimilarity similarity
-    - ISelection selection
-    - IReproduction reproduction
-    - IValidator validator
-    - IAlleleAdder allele_adder
-    - ISpeciesCounter species_counter
-    + RunStates run()
-  }
-
-  class ISimilarity {
-    + float diatance(a, b)
-  }
-  class ISelection {
-    + usize select(entities, limits, similarity)
-  }
-  ISimilarity -- ISelection
-
-  class IReproduction {
-    + Entity reproduce(a, b, limits)
-  }
-  class IValidator {
-
-  }
-  class IAlleleAdder {
-
-  }
-  class ISpeciesCounter {
-
-  }
-
-  Simulator o-- ISimilarity
-  Simulator o-- ISelection
-  Simulator o-- IReproduction
-  Simulator o-- IValidator
-  Simulator o-- IAlleleAdder
-  Simulator o-- ISpeciesCounter
-
-  class GeneticReproduction {
-    - IMutation mutation
-    - ICrossover crossover
-  }
-  IReproduction <|.. GeneticReproduction
-
-  class IMutation {
-
-  }
-  GeneticReproduction *-- IMutation
-
-  class ICrossover {
-
-  }
-  GeneticReproduction *-- ICrossover
-
-  class MutationImpl {
-
-  }
-  IMutation <|.. MutationImpl
-
-  class CrossoverImpl {
-
-  }
-  ICrossover <|.. CrossoverImpl
-
-  class SimilarityImpl {
-
-  }
-  ISimilarity <|.. SimilarityImpl
-
-  class SelectionImpl {
-
-  }
-  ISelection <|.. SelectionImpl
-
-  class ValidatorImpl {
-
-  }
-  IValidator <|.. ValidatorImpl
-
-  class RandomAlleleAdder {
-
-  }
-  IAlleleAdder <|-- RandomAlleleAdder
-
-  class StretchAlleleAdder {
-
-  }
-  IAlleleAdder <|-- StretchAlleleAdder
-
-  class DisjointSetsSpeciesCounter {
-
-  }
-  ISpeciesCounter <|.. DisjointSetsSpeciesCounter
-```
-],
-supplement: "Diagram",
-caption: [A `Simulator` osztály és alkotóelemeinek osztálydiagramja]
+  image("/assets/diagrams/cpp_simulator_classes.svg"),
+  caption: [A `Simulator` osztály és alkotóelemeinek osztálydiagramja]
 ) <libfatint-simulator-class-diagram>
+#figure(
+  image("/assets/diagrams/cpp_experiment_classes.svg", width: 60%),
+  caption: [A kísérletsorok és alkotóelemeinek osztálydiagramja]
+) <libfatint-experiment-class-diagram>
 
 A szimuláció fontosabb komponensei interfészként vannak definiálva:
 
@@ -132,29 +86,8 @@ Az egyes elemek egy adatcsővezetéket (_"data pipeline"_) alkotnak.
 Az `ExperimentSweep` példány `Experiment` osztályok példányosításával létrehozza a kezdeti paraméter objektumokat (`RunParameters`), melyeket egy-egy `Simulator` példány dolgoz fel. Ezek a példányok a állapotuk alakulálását egy-egy `RunStates` objektumban rögzíti, melyeket az `Experiment` osztály az `ExperimentStates` objektumba gyűjt, melyeket az `ExperimentSweep` osztály pedig egy végső `ExperimentSweepStates` objektumba. Ez az objektum és egy kísérletsor teljes végeredménye, melyből egy `StatisticsEvaluator` nevű osztály képes `ExperimentSweepResults` típusú, statisztákat tartalmazó objektummá alakítani. Ezutóbbi objtumokat pedig egy `CSVWriter` vagy `SVGWriter` kiírja fájlba vagy a standard kimenetre.
 
 #figure(
-[
-```pintora
-sequenceDiagram
-  participant Main
-  participant ExperimentSweep
-  participant [<collections> Experiment]
-  participant [<collections> Simulator]
-  participant StatisticsEvaluator
-  participant IOutputWriter
-
-  Main ->> ExperimentSweep : ExperimentSweepParameters
-  ExperimentSweep ->> Experiment : ExperimentParameters
-  Experiment ->> Simulator : RunParameters
-  Simulator ->> Experiment : RunStates
-  Experiment ->> ExperimentSweep : ExperimentStates
-  ExperimentSweep ->> Main : ExperimentSweepStates
-  Main ->> StatisticsEvaluator : ExperimentSweepStates
-  StatisticsEvaluator ->> Main : ExperimentSweepResults
-  Main ->> IOutputWriter : ExperimentSweepResults
-```
-],
-supplement: "Diagram",
-caption: [A `fatint` program és a `libfatint` könyvtár adatfolyama]
+  image("/assets/diagrams/cpp_dataflow.svg"),
+  caption: [A `fatint` program és a `libfatint` könyvtár adatfolyama]
 )
 #todo[Some classes were since removed, so this is no longer accurate]
 

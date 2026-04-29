@@ -1,0 +1,67 @@
+@startuml
+left to right direction
+
+actor "Felhasználó" as user
+
+package "NetLogo UI" {
+
+    usecase (Paraméterek alaphelyzetbe) as reset
+    usecase (Paraméterek testreszabása) as configure
+    usecase (Szimulátor alaphelyzetbe) as setup
+
+    usecase (1 kör) as step
+    usecase (500 kör) as 500_step
+    usecase (Folymatos szimuláció) as go
+    usecase (Megszakít) as halt
+
+    usecase (Grafikonok frissítése) as update_plots
+
+}
+package BehaviorSpace {
+
+    usecase (Kísérlet létrehozása) as create_experiment
+    usecase (Kísérlet szerkesztése) as edit_experiment
+    usecase (Kísérlet törlése) as delete_experiment
+
+    usecase (Kísérlet futtatása) as run_experiment
+    'usecase (Kísérlet felfüggesztése) as pause_experiment
+    'usecase (Kísérlet folytatása) as resume_experiment
+    usecase (Kísérlet megszakítása) as abort_experiment
+    usecase (Eredmények mentése) as export_results
+
+}
+
+
+user -- reset
+user -- setup
+user -- configure
+user -- step
+user -- 500_step
+user -- go
+user -- halt
+
+user -- create_experiment
+user -- edit_experiment
+user -- delete_experiment
+user -- run_experiment
+'user -- pause_experiment
+'user -- resume_experiment
+user -- abort_experiment
+
+500_step ..> step : <<includes>>
+go ..> step : <<includes>>
+step ..> update_plots : <<invokes>>
+
+500_step ..> halt : <<precedes>>
+go ..> halt : <<precedes>>
+
+create_experiment ..> edit_experiment : <<precedes>>
+create_experiment ..> delete_experiment : <<precedes>>
+create_experiment ..> run_experiment : <<precedes>>
+run_experiment ..> export_results : <<invokes>>
+run_experiment ..> go : <<includes>>
+
+run_experiment ..> abort_experiment : <<precedes>>
+'run_experiment ..> pause_experiment : <<precedes>>
+'pause_experiment ..> resume_experiment : <<precedes>>
+@enduml

@@ -1,0 +1,190 @@
+@startuml
+class Simulator {
+  - const ISimilarity similarity
+  - const ISelection selection
+  - const IReproduction reproduction
+  - const IValidator validator
+  - const IAlleleAdder allele_adder
+  - const ISpeciesCounter species_counter
+  + RunStates run(&rng, params)
+}
+
+struct Entity {
+  + int age
+  + int energy
+  + Genotype genotype
+}
+Simulator --> Entity
+
+class Random {
+  - pimpl
+  + Random(seed)
+  + void seed(s)
+  + bool chance(p)
+  + int random(min, max)
+  + void shuffle(&vec)
+  + vector<int> random_indices(count)
+}
+Simulator --> Random
+
+struct RunParameters {
+  + int seed
+  + int steps
+  + Limits limits
+  + ReproductionProbabilities r_probs
+  + ReproductionParameters r_params
+  + GeneticProbabilities g_probs
+  + AlleleParamteres a_params
+  + EnergyParameters e_params
+}
+struct Limits {
+  + int v_min
+  + int v_max
+  + int m_limit
+}
+RunParameters o-- Limits
+struct ReproductionProbabilities {
+  + double p_encounter
+  + double p_change
+}
+RunParameters o-- ReproductionProbabilities
+struct ReproductionParameters {
+  + int m_init
+  + int m_const
+  + int m_slope
+}
+RunParameters o-- ReproductionParameters
+struct GeneticProbabilities {
+  + double p_crossing
+  + double p_mutation
+}
+RunParameters o-- GeneticProbabilities
+struct AlleleParamteres {
+  + int n_init
+  + int v_mutation
+  + int v_stretch
+}
+RunParameters o-- AlleleParamteres
+struct EnergyParameters {
+  + double e_increase
+  + double e_consumption
+  + double e_intake
+  + double e_discount
+}
+RunParameters o-- EnergyParameters
+Simulator --> RunParameters
+
+struct State {
+  + int entity_count
+  + int allele_count
+  + int species_count
+}
+class "vector<State>" { }
+class RunStates { }
+RunStates o-- State
+RunStates --|> "vector<State>" : <<typedef>>
+Simulator --> RunStates
+
+interface ISimilarity {
+  + bool compatible(limits, a, b) const
+  + int offspring_count(limits, a, b) const
+}
+interface ISelection {
+  + int? select(&rng, limits, similarity, entity, population) const
+}
+'ISelection --> Random
+ISelection --> ISimilarity
+
+interface IReproduction {
+  + Entity reproduce(a, b, limits) const
+}
+interface IValidator {
+  + bool validate(limits, genotype) const
+}
+interface IAlleleAdder {
+  + void add_allele(&rng, limits, params, &genotype) const
+}
+'IAlleleAdder --> Random
+interface ISpeciesCounter {
+  + int count_species(limits, similarity, population) const
+}
+
+Simulator o-- ISimilarity
+Simulator o-- ISelection
+Simulator o-- IReproduction
+Simulator o-- IValidator
+Simulator o-- IAlleleAdder
+Simulator o-- ISpeciesCounter
+
+class GeneticReproduction {
+  - const IMutation mutation
+  - const ICrossover crossover
+}
+IReproduction <|.. GeneticReproduction
+
+class IMutation {
+  + void mutate(&rng, p_mutation, v_mutation, &genotype) const
+}
+'IMutation --> Random
+GeneticReproduction o-- IMutation
+
+class ICrossover {
+  + void crossover(&rng, p_crossing, a, b, &out) const
+}
+'ICrossover --> Random
+GeneticReproduction o-- ICrossover
+
+class MutationImpl {
+
+}
+IMutation <|.. MutationImpl
+
+class CrossoverImpl {
+
+}
+ICrossover <|.. CrossoverImpl
+
+class SimilarityImpl {
+
+}
+ISimilarity <|.. SimilarityImpl
+
+class SelectionImpl {
+
+}
+ISelection <|.. SelectionImpl
+class ReservoirSampling<T> {
+    - T? current
+    - int n
+    + reset()
+    + T? get()
+    + void add(&rng, t)
+}
+'ReservoirSampling -- Random
+SelectionImpl -- ReservoirSampling
+
+class ValidatorImpl {
+
+}
+IValidator <|.. ValidatorImpl
+
+class RandomAlleleAdder {
+
+}
+IAlleleAdder <|-- RandomAlleleAdder
+
+class StretchAlleleAdder {
+
+}
+IAlleleAdder <|-- StretchAlleleAdder
+
+class DepthFirstSearchSpeciesCounter {
+
+}
+ISpeciesCounter <|.. DepthFirstSearchSpeciesCounter
+class DisjointSetsSpeciesCounter {
+
+}
+ISpeciesCounter <|.. DisjointSetsSpeciesCounter
+ISpeciesCounter --> ISimilarity
+@enduml

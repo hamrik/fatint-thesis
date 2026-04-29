@@ -106,48 +106,48 @@ A modellben számos paramétert beállíthatunk a szimuláció indítása előtt
 
 ==== Energiával kapcsolatos paraméterek
 
-/ $E_"increase"$, avagy környezet energianövekedése: Minden szimulációs kör
-  előtt ennyi energiát adunk a környezet tartalékához.
-/ $E_"consumption"$, energia igény: Ennyi energiát veszít minden egyed a
+/ $E_"increase" in NN$, avagy környezet energianövekedése: Minden szimulációs
+  kör előtt ennyi energiát adunk a környezet tartalékához.
+/ $E_"consumption" in NN$, energia igény: Ennyi energiát veszít minden egyed a
   szimulációs kör végére.
-/ $E_"intake"$, avagy energia bevitel: Ennyi energiát próbál felvenni a
+/ $E_"intake" in NN$, avagy energia bevitel: Ennyi energiát próbál felvenni a
   környzetből minden egyes egyed a szimulációs kör folyamán. Kevesebb energiát
   is felvehet az egyed ha a környezet energiaszintje nem éri el az $E_"intake"$
   szintet.
-/ $E_"discount"$, avagy energiapazarlás: Az egyed a kora előrehaladtával egyre
-  kevesebb energiát tud hasznosítani a felvett energiából, lásd
-  @energy-gain-formula egyenlet.
+/ $E_"discount" in RR$, avagy energiapazarlás: Az egyed a kora
+  előrehaladtával egyre kevesebb energiát tud hasznosítani a felvett energiából,
+  lásd @energy-gain-formula egyenlet.
 
 ==== Szaporodással kapcsolatos paraméterek
 
-/ $V_"min"$ és $V_"max"$, avagy allél intervallum: Az egyes gének minimum és
-  maximum megengedett értéke. Ha egy egyed bármely génje ezen kívül esik, az
-  adott egyed nem vehet részt a szimulációban.
-/ $M_"limit"$, avagy maximális különbözőség: Két egyed akkor kompatibilis
+/ $[V_"min" in ZZ, V_"max" in ZZ]$, avagy allél intervallum: Az egyes gének
+  minimum és maximum megengedett értéke. Ha egy egyed bármely génje ezen kívül
+  esik, az adott egyed nem vehet részt a szimulációban.
+/ $M_"limit" in NN$, avagy maximális különbözőség: Két egyed akkor kompatibilis
   egymással, hogyha a genotípusaik közötti távolságmetrika nem nagyobb, mint
   $M_"limit"$. Befolyásolja a párosodás során létrejövő egyedek számát is, lásd
   @offspring-count-formula egyenlet.
-/ $M_"const"$, avagy minimum gyermekszám: Két kompatibilis egyed párosdása során
+/ $M_"const" in NN$, avagy minimum gyermekszám: Két kompatibilis egyed párosdása során
   legalább $M_"const"$ új egyed jön létre. Lásd @offspring-count-formula
   egyenlet.
-/ $M_"slope"$: Befolyásolja a létrejövő egyedek számában a szülők hasonlóságának
+/ $M_"slope" in RR$: Befolyásolja a létrejövő egyedek számában a szülők hasonlóságának
   szerepét, lásd @offspring-count-formula egyenlet.
-/ $P_"encounter"$, avagy a párosodás valószínűsége: annak az esélye hogy az
+/ $P_"encounter" in RR$, avagy a párosodás valószínűsége: annak az esélye hogy az
   adott körben egy egyed párosodhat egy másik kompatibilis egyeddel.
 
 ==== Genetikai paraméterek
 
-/ $P_"crossover"$, avagy keresztezés valószínűsége: meghatározza, hogy az
+/ $P_"crossover" in RR$, avagy keresztezés valószínűsége: meghatározza, hogy az
   újonnan létrejövő egyed egy adott génje melyik szülőtől származzon.
-/ $P_"mutation"$, avagy mutáció valószínűsége: meghatározza annak a
+/ $P_"mutation" in RR$, avagy mutáció valószínűsége: meghatározza annak a
   valószínűségét, hogy az újonnan létrejövő egyed egy adott génje eltolódik a
   szülő génjéhez képest
-/ $V_"mutation"$, avagy mutáció mértéke: meghatározza, hogy mutáció során a gén
+/ $V_"mutation" in NN$, avagy mutáció mértéke: meghatározza, hogy mutáció során a gén
   legfeljebb mekkora mértékben tolódhat el bármely irányba.
-/ $P_"change"$, avagy génállomány módosulás valószínűsége: meghatározza annak a
+/ $P_"change" in RR$, avagy génállomány módosulás valószínűsége: meghatározza annak a
   valószínűségét, hogy egy új egyed létrejötte nyomán hozzáadunk-e minden egyes
   egyed genotípusához egy-egy új gént.
-/ $V_"stretch"$, avagy a _"stretch"_ eljárás együtthatója: Lásd @stretch-formula
+/ $V_"stretch" in NN$, avagy a _"stretch"_ eljárás együtthatója: Lásd @stretch-formula
   egyenlet.
 
 ==== Egyéb paraméterek
@@ -155,9 +155,9 @@ A modellben számos paramétert beállíthatunk a szimuláció indítása előtt
 A @fatint cikkben ezek a paraméterek nem a modell jellemzői, de az
 implementációk fontos paraméterei:
 
-/ $M_"init"$, avagy kezdő populáció mérete: Ennyi egyedet hozunk létre a
+/ $M_"init" in NN$, avagy kezdő populáció mérete: Ennyi egyedet hozunk létre a
   szimuláció első köre előtt.
-/ $N_"init"$, avagy kezdő génszám: Ennyi génből fognak állni az egyedek
+/ $N_"init" in NN$, avagy kezdő génszám: Ennyi génből fognak állni az egyedek
   genotípusai az első körben.
 
 ==== Alapértelmezett értékek <model-defaults>
@@ -168,21 +168,24 @@ implementációk fontos paraméterei:
     #show table.cell.where(y: 0): strong
     #show table.cell.where(x: 0): it => align(left)[#it]
     #table(
-      columns: 2,
-      table.header[Paraméter][Alapértelmezett érték],
-      [$P_"encounter"$], [$0.1$],
-      [$P_"change"$], [$0$],
-      [$P_"crossing"$], [$0.2$],
-      [$P_"mutation"$], [$0.2$],
-      [$[V_"min", V_"max"]$], [$[0, 100]$],
-      [$V_"mutation"$], [$2$],
-      [$V_"stretch"$], [$0$],
-      [$M_"const"$], [$1$],
-      [$M_"limit"$], [$15$],
-      [$M_"slope"$], [$0$],
-      [$E_"increase"$], [$1000$],
-      [$E_"consumption"$], [$5$],
-      [$E_"intake"$], [$10$],
+      columns: 3,
+      table.header[Paraméter][Megengedett érték tartomány][Alapértelmezett érték],
+      [$P_"encounter"$], [$RR inter [0.0, 1.0]$], [$0.1$],
+      [$P_"change"$], [$RR inter [0.0, 1.0]$], [$0$],
+      [$P_"crossing"$], [$RR inter [0.0, 1.0]$], [$0.2$],
+      [$P_"mutation"$], [$RR inter [0.0, 1.0]$], [$0.2$],
+      [$[V_"min", V_"max"]$], [$V_"min" in ZZ$, $V_"max" in ZZ$], [$[0, 100]$],
+      [$V_"mutation"$], [$NN$], [$2$],
+      [$V_"stretch"$], [$NN$], [$0$],
+      [$M_"const"$], [$NN$], [$1$],
+      [$M_"limit"$], [$NN$], [$15$],
+      [$M_"slope"$], [$RR inter [0.0, infinity)$], [$0$],
+      [$E_"increase"$], [$RR inter [0.0, infinity)$], [$1000$],
+      [$E_"consumption"$], [$RR inter [0.0, infinity)$], [$5$],
+      [$E_"intake"$], [$RR inter [0.0, infinity)$], [$10$],
+      [$E_"discount"$], [$RR inter [0.0, 1.0]$], [$0.9$],
+      [$M_"init"$], [$NN inter [1, infinity)$], [$100$],
+      [$N_"init"$], [$NN inter [1, infinity)$], [$5$],
     )
   ]
 )

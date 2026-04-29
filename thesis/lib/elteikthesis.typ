@@ -143,6 +143,14 @@
 
   set cite(form: "prose")
 
+  show link: it => {
+    set text(fill: blue.darken(30%))
+    [
+      #underline(it)
+      #footnote(it.dest)
+    ]
+  }
+
   // Figure and table captions
   show figure.caption: it => {
     align(center)[
@@ -165,10 +173,6 @@
       it
     )
   }
-
-  // Pintora diagrams
-  import "@preview/pintorita-neo:0.1.0" as pintorita
-  show raw.where(lang: "pintora"): it => pintorita.render(it.text)
 
   // COVER PAGE
   page(

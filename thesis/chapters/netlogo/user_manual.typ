@@ -48,15 +48,16 @@ több táblázatos formátumban. Statisztikák állíthatók fel több szimulác
 + Az ablak megjeleníti a szimuláció paramétereiből és mérhető tulajdonságaiból
   álló kezelőfelületet. Lásd @netlogo-model-ui.
 
-=== A felület leírása
+=== A felület leírása <netlogo-ui-desc>
 
 #figure(
   image("../../assets/screenshots/netlogo_model_ui.png", width: 50%),
   caption: [ A NetLogo 6.4.0 fő ablaka a modell paraméter mezőkkel ],
 ) <netlogo-model-ui>
 
-A felületen tudjuk állítani a kezdőparamétereket, elindítani a szimulációt,
-illetve figyelni a modell állapotának alakülását.
+A @netlogo-model-ui ábrán is látható felületen tudjuk állítani a
+kezdőparamétereket, elindítani a szimulációt, illetve figyelni a modell
+állapotának alakülását.
 
 A modell paramétereit az @model-params fejezet részletezi.
 
@@ -89,8 +90,10 @@ A lila dobozok nyomógombok:
 / 500 steps: Lefuttat legfeljebb 500 szimulációs kört. Ha a populáció létszáma
   nullára esik, a szimuláció teminál akkor is, ha még nem futott le 500 kör.
 / Go: Folyamatosan futtatja a szimulációt amíg a populáció létszáma nullára nem
-  csökken. Ha idő előtt szeretnénk leállítani a szimulációt, azt a *Tools*
-  (_Eszközök_) menü *Halt* (_Megállít_) opciójával tehetjük meg.
+  csökken. Ha idő előtt szeretnénk leállítani a szimulációt, kattintsunk futás
+  közben ismét gombra. Ha a program erre nem reagál, akkor a *Tools*
+  (_Eszközök_) menü *Halt* (_Megállít_) opciójával kényszeríthetjük ki a
+  leállást.
 / `+`: Kikényszeríti egy új gén hozzáadását minden egyed genotípusához.
 
 A sárga dobozokban nyomon követhető a szimuláció aktuális állapota.
@@ -99,6 +102,21 @@ A sárga dobozokban nyomon követhető a szimuláció aktuális állapota.
 / Species count: A szimulációs körben résztvevő egyedek által alkotott fajok
   száma.
 / Allele count: Az egyedek genotípusának elemszáma (gének száma).
+
+==== Szimuláció futtatása
+
+Egy szimuláció előkészítésének és futtatásának menete a következő:
+
++ Rákattintunk a _Reset_ gombra, ezzel minden paramétert visszaállítva
+  alapértelmezett értékére.
++ A @netlogo-ui-desc fejezetben részletezett kezelőszervekkel beállítjuk a
+  kívánt paramétereket.
++ Rákattintunk a _Setup_ gombra a szimuláció alaphelyzetbe állítására. Ha egy
+  paraméter érvénytelen értékre van állítva, erről hibaüzetet kapunk.
++ Rákattintunk a _Step_, _500 steps_ vagy _Go_ gombra, rendre egy kör
+  futtatásához, legfeljebb 500 kör futtatásához, vagy a megszakítás nélküli
+  futtatáshoz.
++ Tanulmányozzuk a _Population_, _Species count_ és _Allele count_ grafikonokat.
 
 A NetLogo kezelőfelületének egyéb elemeiről, illetve a szoftver használatához
 szükséges programozási nyelvről bővebb információt

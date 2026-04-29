@@ -1,0 +1,23 @@
+@startuml
+actor "Felhasználó" as user
+
+usecase "Paraméterek megadása" as configure
+usecase "Kísérlet futtatása" as run_experiment
+usecase "Kísérletsor futtatása" as run_experiment_sweep
+usecase "Eredmények összesítése" as collect_results
+usecase "Eredmények táblázatos kiírása" as export_table
+usecase "Eredmények ábrázolása grafikonon" as export_plot
+
+user -- configure
+user -- run_experiment
+user -- run_experiment_sweep
+user -- export_table
+user -- export_plot
+
+configure ..> run_experiment : <<preceeds>>
+configure ..> run_experiment_sweep : <<preceeds>>
+run_experiment_sweep ..> run_experiment : <<includes>>
+run_experiment ..> collect_results : <<invokes>>
+collect_results ..> export_table : <<preceeds>>
+collect_results ..> export_plot : <<preceeds>>
+@enduml

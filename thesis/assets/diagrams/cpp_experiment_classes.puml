@@ -1,0 +1,74 @@
+@startuml
+
+struct RunParameters {
+  ...
+}
+note right: Lásd Simulator osztálydiagram
+
+struct ExperimentParameters {
+  + RunParameters run_parameters
+  + int runs
+  + vector<RunParameters> expand()
+}
+ExperimentParameters o-- RunParameters
+
+struct ExperimentSweepParameters {
+  + ExperimentParamteres starting_paramters
+  + RunParameters delta
+  + vector<RunParameters> expand()
+}
+ExperimentSweepParameters o-- ExperimentParameters
+ExperimentSweepParameters o-- RunParameters
+
+class RunStates {
+  ...
+}
+note right: Lásd Simulator osztálydiagram
+
+class "vector<RunStates>" { }
+"vector<RunStates>" o-- RunStates
+class ExperimentStates { }
+ExperimentStates --|> "vector<RunStates>" : <<typedef>>
+
+class "vector<ExperimentStates>" { }
+"vector<ExperimentStates>" o-- ExperimentStates
+class ExperimentSweepStates { }
+ExperimentSweepStates --|> "vector<ExperimentStates>" : <<typedef>>
+
+struct Measurement {
+  + double min
+  + double max
+  + double avg
+  + double std
+  + double err
+}
+struct Statistics {
+  + vector<int> entity_count_values
+  + Measurement entity_count
+  + vector<int> allele_count_values
+  + Measurement allele_count
+  + vector<int> species_count_values
+  + Measurement species_count
+}
+Statistics o-- Measurement
+
+class "vector<Statistics>" { }
+"vector<Statistics>" o-- Statistics
+class ExperimentResults { }
+ExperimentResults --|> "vector<Statistics>" : <<typedef>>
+
+class "vector<ExperimentResults>" { }
+"vector<ExperimentResults>" o-- ExperimentResults
+class ExperimentSweepResults { }
+ExperimentSweepResults --|> "vector<ExperimentResults>" : <<typedef>>
+
+class math <<namespace>> {
+  + Measurement measure(values)
+  + ExperimentResults measure(experimentParameters, experimentStates)
+  + ExperimentSweepResults measure(experimentSweepParameters, experimentSweepStates)
+}
+math --> ExperimentSweepParameters
+math --> ExperimentSweepStates
+math --> ExperimentSweepResults
+
+@enduml
