@@ -102,7 +102,6 @@ táblázatban szereplő kapcsoló kombinálciókra a táblázatban előírt mód
   caption: "A C++ implementáció elvárt viselkedése a paraméterek függvényében",
 ) <cpp-gwt>
 
-
 === Architektúra
 
 A C++ implementáció erősen épít a _"Stratégia"_ fejlesztési mintára. A
@@ -185,18 +184,20 @@ commit feltöltése után.
 
 ==== Automatizált tesztek
 
-A fenti fordítási parancsok előállítanak számos egység- és integrációs tesztet is.
-Ezek a tesztek a `ctest` eszközzel indíthatók, a `build` mappában állva:
+A fenti fordítási parancsok előállítanak számos egység- és integrációs tesztet
+is. Ezek a tesztek a CMake `ctest` eszközével indíthatók, a
+`build/libs/libfatint/tests` mappában állva:
 
 ```bash
-$ cd build
-build$ ctest
+$ cd build/libs/fatint/tests
+tests$ ctest --output-on-failure
 ```
 
 A CTest eszköz egy összefoglalást fog kiírni a sikeresen futtatott tesztekről,
 és részleteket biztosít a sikertelenül lefutó tesztekről.
 
-A C++ implementáció tesztjei a `doctest` könytárat használják, és a következőkről bizonyosodnak meg:
+A C++ implementáció tesztjei a `doctest` könytárat használják, és a
+következőkről bizonyosodnak meg:
 
 - `genetics/`
   - A genetikai operátorok, mint a kereszteződés és mutáció, helyesen viselkednek.
@@ -219,44 +220,210 @@ A `simulation/` mappa integrációs teszteket is tartalmaz:
   - A szimuláció új géneket vezet be ha a szaporodás feltételei biztosítottak és a $P_"change"$ paraméter értéke pozitív.
   - A szimuláció eredményei reprodukálhatóak több futtatás után is, amennyiben a véletlen szám generátor kezdőállapota állandó.
 
-==== Kézi tesztelés
+A @fatint cikkben szereplő kísérletek adaptált megfelelői a következők:
 
-Az kapott eredmények kiértékelése kézzel történik. Összehasonlításra kerülnek a NetLogo implementáció eredményeivel.
-Azonos paraméterek azonos viselkedést kell kiváltsanak (de nem azonos számokat).
+#todo("Include NetLogo results and compare, verify identical behavior")
 
-Mindkét implementációban úgy vannak megválasztva az alapértelmezett értékek, hogy minél kevesebb beállítást kelljen módosítani.
+==== A cikk grafikonjai, mint kézi integrációs tesztek
 
-A @fatint cikkben szereplő kísérletek adaptált megfelelői a következők
+A @fatint cikkben demonstrált kísérletsorok segítségével meggyőződhetünk róla,
+hogy a C++ implmenetáció az elvárt módon viselkedik. A @fatint cikkben szereplő
+összes kísérlet elvégezhető az alábbi parancsokkal:
 
 ```bash
+fatint --output default_params.csv
 fatint -e 11 --p_encounter 0.05 --sweep_p_encounter 0.005 --output  p_encounter_0.05-0.10.csv
-fatint -e 11 --p_encounter 0.05 --sweep_p_encounter 0.005 -f svg --output p_encounter_0.05-0.10.svg
-
 fatint -e 6 --p_mutation 0 --sweep_p_mutation 0.1 --output p_mutation_0.00-0.50.csv
-fatint -e 6 --p_mutation 0 --sweep_p_mutation 0.1 -f svg --output p_mutation_0.00-0.50.svg
-
 fatint -e 9 --p_crossing 0 --sweep_p_crossing 0.1 --output p_crossing_0.00-0.80.csv
-fatint -e 9 --p_crossing 0 --sweep_p_crossing 0.1 -f svg --output p_crossing_0.00-0.80.svg
-
 fatint -e 11 --p_change 0.0005 --sweep_p_change 0.00005 --output p_change_0.0005-0.001.csv
-fatint -e 11 --p_change 0.0005 --sweep_p_change 0.00005 -f svg --output p_change_0.0005-0.001.svg
-
 fatint -e 21 --p_change 0.0005 --m_limit 0 --sweep_m_limit 1 --output p_change_0.0005_m_limit_0-20.csv
-fatint -e 21 --p_change 0.0005 --m_limit 0 --sweep_m_limit 1 -f svg --output p_change_0.0005_m_limit_0-20.svg
-
 fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 --output p_change_0.0005_v_stretch_1-20.csv
-fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 -f svg --output p_change_0.0005_v_stretch_1-20.svg
 ```
 
-#todo("Add command-line option to output multiple formats at once")
+Alapértelmezett paraméterek mellett a fajok átlagos száma nem eshet 0-ra, lásd
+@cpp-species-comp-default.
 
-#todo([
-  Explore better alternatives to "eyeballing it", such as:
-  - Comparing graph characteristics
-  - Computing Cross-Correlation, Dynamic Time Wapring or Fréchet distance
-  - Comparing inter-spike intervals
-])
+#figure(
+  grid(
+    columns: 1,
+    gutter: 12pt,
+    libfatint_species_plot("/data/default-libfatint.csv", none),
+    image("/assets/paper_excerpts/default_params.png", height: 20%),
+  ),
+  caption: [
+    Fajok számának átlagos alakulása alapértelmezett beállítások mellett.
 
-#todo("Contextualize the results below")
-#todo("Include NetLogo results and compare, verify identical behavior")
-#todo("There is a clear regression in the C++ implementation. Find and fit it ASAP")
+    Felül: C++ implementáció. Alul: @fatint.
+  ],
+) <cpp-species-comp-default>
+
+$P_"encounter"$ alacsony értékeknél biztos kipusztulást, és magasabb értékeknél
+is legfeljebb egy faj fennmaradását garantálja, lásd
+@cpp-species-comp-p-encounter.
+
+#figure(
+  grid(
+    columns: 1,
+    gutter: 12pt,
+    libfatint_species_plot("/data/p_encounter-libfatint.csv", "p_encounter"),
+    image("/assets/paper_excerpts/P_encounter__0.05__0.095.png"),
+  ),
+  caption: [
+    Fajok számának átlagos alakulása $P_"encounter"$ különböző értékei mellett.
+
+    Felül: C++ implementáció. Alul: @fatint.
+  ],
+) <cpp-species-comp-p-encounter>
+
+$P_"mutation"$ magasabb értékeknél létrehozhat egy-egy rövid életű fajt, de
+mivel ezen fajok gyakran egy egydből állnak, így az egyed halálával a faj is
+kihal. Továbbra is egyetlen faj dominál. Lásd @cpp-species-comp-p-mutation.
+
+#figure(
+  grid(
+    columns: 1,
+    gutter: 12pt,
+    libfatint_species_plot("/data/p_mutation-libfatint.csv", "p_mutation"),
+    image("/assets/paper_excerpts/P_mutation__0__0.5.png"),
+  ),
+  caption: [
+    Fajok számának átlagos alakulása $P_"mutation"$ különböző értékei mellett.
+
+    Felül: C++ implementáció. Alul: @fatint.
+  ],
+) <cpp-species-comp-p-mutation>
+
+$P_"crossing"$ magas értékeknél hasonlóan viselkedik, mint a $P_"mutation"$
+eset, lásd @cpp-species-comp-p-crossing.
+
+#figure(
+  grid(
+    columns: 1,
+    gutter: 12pt,
+    libfatint_species_plot("/data/p_crossing-libfatint.csv", "p_crossing"),
+    image("/assets/paper_excerpts/P_crossing__0__0.5.png"),
+  ),
+  caption: [
+    Fajok számának átlagos alakulása $P_"crossing"$ különböző értékei mellett.
+
+    Felül: C++ implementáció. Alul: @fatint.
+  ],
+) <cpp-species-comp-p-crossing>
+
+Ahogy a @model-desc fejezet is kifejtette, $P_"change"$ a FATINT modell egyik
+legfontosabb paramétere. Ahogy a @cpp-species-comp-p-change ábrán is
+látható, bármilyen nem nulla érték mellett "tüskéket" okoz a faj számokban, mert
+egyszerre hat az összes egyed párosodási preferenciáira. Minél magasabb
+$P_"change"$, annál gyakoribbak a tüskék.
+
+#figure(
+  grid(
+    columns: 1,
+    gutter: 12pt,
+    libfatint_species_plot("/data/p_change-libfatint.csv", "p_change", cap: 20),
+    image("/assets/paper_excerpts/P_change__0.0005__0.001.png"),
+  ),
+  caption: [
+    Fajok számának átlagos alakulása $P_"change"$ különböző értékei mellett.
+
+    Felül: C++ implementáció. Alul: @fatint.
+  ],
+) <cpp-species-comp-p-change>
+
+$P_"change" = 0.0005$-el garantálva az új gének hozzáadását, $M_"limit"$
+különböző értékei arra hatással vannak a "tüskék" méretére. Minél magasabb,
+annál több faj keletkezik a gének hozzáadásakor, ugyanakkor ezen fajok annál
+kisebbek és rövidebb életűek. Lásd @cpp-species-comp-m-limit.
+
+#figure(
+  grid(
+    columns: 1,
+    gutter: 12pt,
+    libfatint_species_plot("/data/m_limit-libfatint.csv", "m_limit", cap: 30),
+    image("/assets/paper_excerpts/M_limit__0__20.png"),
+  ),
+  caption: [
+    Fajok számának átlagos alakulása $M_"limit"$ különböző értékei mellett.
+    $P_"change" = 0.0005$.
+
+    Felül: C++ implementáció. Alul: @fatint.
+  ],
+) <cpp-species-comp-m-limit>
+
+Ha véletlenszerű gének helyett a @stretch-formula egyenletet használjuk, akkor
+ahogy a @cpp-species-comp-v-stretch ábrán is látható, a létrejövő fajok
+száma gének hozzáadások hirtelen megugrik, majd lassabban csökken, mint amikor
+véletlenszerűen adunk az egyedekhez új géneket.
+
+#figure(
+  grid(
+    columns: 1,
+    gutter: 12pt,
+    libfatint_species_plot("/data/v_stretch-libfatint.csv", "v_stretch", cap: 6),
+    image("/assets/paper_excerpts/V_stretch__1__20.png"),
+  ),
+  caption: [
+    Fajok számának átlagos alakulása $V_"stretch"$ különböző értékei mellett.
+    $P_"change" = 0.0005$.
+
+    Felül: C++ implementáció. Alul: @fatint.
+  ],
+) <cpp-species-comp-v-stretch>
+
+==== Teljesítmény
+
+#figure(
+  perf_plot(
+    [Populáció],
+    (
+      (
+        path: "/data/benchmark-species-counter-dfs-one-species-libfatint.csv",
+        label: [Mélységi bejárás, egy faj],
+        skip: 0,
+        x: 0,
+        y: 1,
+      ),
+      (
+        path: "/data/benchmark-species-counter-dfs-many-species-libfatint.csv",
+        label: [Mélységi bejárás, sok faj],
+        skip: 0,
+        x: 0,
+        y: 1,
+      ),
+      (
+        path: "/data/benchmark-species-counter-ds-one-species-libfatint.csv",
+        label: [Diszjunkt-Halmaz, egy faj],
+        skip: 0,
+        x: 0,
+        y: 1,
+      ),
+      (
+        path: "/data/benchmark-species-counter-ds-many-species-libfatint.csv",
+        label: [Diszjunkt-Halmaz, sok faj],
+        skip: 0,
+        x: 0,
+        y: 1,
+      ),
+    ),
+  ),
+  caption: [
+    Az élek létrehozásának és a fajszámláló algorimusok futásidejének összege a
+    populáció létszámának függvényében (logaritmikus skála).
+  ],
+) <cpp-species-counter-perf>
+
+#figure(
+  perf_plot(
+    [$E_"increase"$],
+    (
+      (
+        path: "/data/benchmark-simulator-churn-libfatint.csv",
+        label: [C++ implementáció],
+        skip: 0,
+        x: 0,
+        y: 1,
+      ),
+    ),
+  ),
+  caption: [Egy 1000 lépéses szimuláció időigénye a környezet eltartóképességének függvényében],
+) <cpp-simulation-perf>

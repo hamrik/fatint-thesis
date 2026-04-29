@@ -279,74 +279,6 @@ A Diszjunk-Halmaz algoritmus működése:
     gyökér, az altala feszített fa beolvad a másik gyökér fájába.
   - A halmazok száma eggyel csökkent, tehát a fajok számát eggyel csökkentjük.
 
-#figure(
-  perf_plot(
-    [Populáció],
-    (
-      (
-        path: "/data/benchmark-species-counter-dfs-one-species-NetLogo.csv",
-        label: [Mélységi bejárás, egy faj],
-        skip: 7,
-        x: 0,
-        y: 2,
-      ),
-      (
-        path: "/data/benchmark-species-counter-dfs-many-species-NetLogo.csv",
-        label: [Mélységi bejárás, sok faj],
-        skip: 7,
-        x: 0,
-        y: 2,
-      ),
-      (
-        path: "/data/benchmark-species-counter-ds-one-species-NetLogo.csv",
-        label: [Diszjunkt-Halmaz, egy faj],
-        skip: 7,
-        x: 0,
-        y: 2,
-      ),
-      (
-        path: "/data/benchmark-species-counter-ds-many-species-NetLogo.csv",
-        label: [Diszjunkt-Halmaz, sok faj],
-        skip: 7,
-        x: 0,
-        y: 2,
-      ),
-    ),
-  ),
-  caption: [
-    Az élek létrehozásának és a fajszámláló algorimusok futásidejének összege a
-    populáció létszámának függvényében (logaritmikus skála).
-  ],
-) <netlogo-species-counter-perf>
-
-A @netlogo-species-counter-perf diagram alapján elmondható, hogy a fajok száma
-sokkal nagyobb hatással van az időigényre, mint a választott algoritmus.
-Sok faj esetén a különbség elhanyagolható. Kevés faj esetén a mélységi bejárás
-kicsit gyorsabb.
-
-==== Teljesítmény
-
-#figure(
-  perf_plot(
-    [$E_"increase"$],
-    (
-      (
-        path: "/data/benchmark-simulator-churn-NetLogo.csv",
-        label: [NetLogo 6.4.0],
-        skip: 7,
-        x: 0,
-        y: 2,
-      ),
-    ),
-  ),
-  caption: [Egy 1000 lépéses szimuláció időigénye a környezet eltartóképességének függvényében],
-) <netlogo-simulation-perf>
-
-A @netlogo-simulation-perf diagram azt a látszatot kelti, mintha az egyedszám
-növekedése egy bizonyos pont után nem befolyásolná a futásidőt. Ezt vizsgálni kell.
-
-#todo[This result seems anomalous, investigate]
-
 === Tesztelés
 
 Az implementáció két módon tesztelhető: a felületen kézzel bevitt adatokra adott
@@ -402,7 +334,7 @@ reakció elemzésével, illetve a kísérletsorok által
 ==== A cikk grafikonjai, mint integrációs tesztek
 
 A modellbe előre beépített kísérletsorok segítségével meggyőződhetünk róla,
-hogy a modell implmenetáció az elvárt módon viselkedik. Ezen kísérletek grafikus
+hogy a NetLogo implmenetáció az elvárt módon viselkedik. Ezen kísérletek grafikus
 felület nélkül is futtathatóak a NetLogo gyökérmappájában található
 `NetLogo_Console` eszköz segítségével:
 
@@ -566,3 +498,71 @@ véletlenszerűen adunk az egyedekhez új géneket.
     Felül: NetLogo 6.4.0 implementáció. Alul: @fatint.
   ],
 ) <netlogo-species-comp-v-stretch>
+
+==== Teljesítmény
+
+#figure(
+  perf_plot(
+    [Populáció],
+    (
+      (
+        path: "/data/benchmark-species-counter-dfs-one-species-NetLogo.csv",
+        label: [Mélységi bejárás, egy faj],
+        skip: 7,
+        x: 0,
+        y: 2,
+      ),
+      (
+        path: "/data/benchmark-species-counter-dfs-many-species-NetLogo.csv",
+        label: [Mélységi bejárás, sok faj],
+        skip: 7,
+        x: 0,
+        y: 2,
+      ),
+      (
+        path: "/data/benchmark-species-counter-ds-one-species-NetLogo.csv",
+        label: [Diszjunkt-Halmaz, egy faj],
+        skip: 7,
+        x: 0,
+        y: 2,
+      ),
+      (
+        path: "/data/benchmark-species-counter-ds-many-species-NetLogo.csv",
+        label: [Diszjunkt-Halmaz, sok faj],
+        skip: 7,
+        x: 0,
+        y: 2,
+      ),
+    ),
+  ),
+  caption: [
+    Az élek létrehozásának és a fajszámláló algorimusok futásidejének összege a
+    populáció létszámának függvényében (logaritmikus skála).
+  ],
+) <netlogo-species-counter-perf>
+
+A @netlogo-species-counter-perf diagram alapján elmondható, hogy a fajok száma
+sokkal nagyobb hatással van az fejszámlálás időigényére, mint a választott
+algoritmus. Sok faj esetén a különbség elhanyagolható. Kevés faj esetén a
+mélységi bejárás kicsit gyorsabb.
+
+#figure(
+  perf_plot(
+    [$E_"increase"$],
+    (
+      (
+        path: "/data/benchmark-simulator-churn-NetLogo.csv",
+        label: [NetLogo 6.4.0],
+        skip: 7,
+        x: 0,
+        y: 2,
+      ),
+    ),
+  ),
+  caption: [Egy 1000 lépéses szimuláció időigénye a környezet eltartóképességének függvényében],
+) <netlogo-simulation-perf>
+
+A @netlogo-simulation-perf diagram azt a látszatot kelti, mintha az egyedszám
+növekedése egy bizonyos pont után nem befolyásolná a futásidőt. Ezt vizsgálni kell.
+
+#todo[This result seems anomalous, investigate]
