@@ -522,7 +522,7 @@ INPUTBOX
 855
 431
 V-min
-0.0
+100.0
 1
 0
 Number
@@ -533,7 +533,7 @@ INPUTBOX
 755
 431
 V-max
-100.0
+0.0
 1
 0
 Number
@@ -599,7 +599,7 @@ INPUTBOX
 410
 464
 P-change
-0.0
+2.0
 1
 0
 Number
