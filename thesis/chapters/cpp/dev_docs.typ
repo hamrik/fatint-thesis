@@ -21,14 +21,14 @@ Az implementáció:
   beállítására.
 - Ellenőrzi a felhasználó által megadott paramétereket és jelenti a hibákat.
 - A modell pontosan követi a @model-desc fejezetben leírt viselkedést.
-- Lehetőséget nyújt kísérletek és kísérletsorok futtatására, a kísérlet vagy
-  kísérletsor ereményeinek mentésére.
-- Lehetőséget nyújt a kísérletek vagy kísérletsorok alakulásának grafikonon
-  történő ábrázolására.
+- Lehetőséget nyújt kísérletek és kísérletsorok futtatására.
+- Lehetőséget nyújt a kísérlet vagy kísérletsor ereményeinek
+  táblázat vagy grafikon formájában történő mentésére.
 - Az @cpp-usecase diagramon ábrázolt felhasználói eseteket támogatja.
 
 ==== Nem funkcionális követelmények
 
+- A program kapcsolói és azok súgója logikus és áttekinthető.
 - Az implementáció nem függ a C++ standard könyvtárán és annak tranzitív
   függőségein kívül további külső elemtől.
 - A szimuláció nem fut hibára, feltéve, hogy a felhasználó által megadott
@@ -42,6 +42,17 @@ Az implementáció:
 
 ==== Felhasználói esetek
 
+A C++ implementáció nem egy interaktív eszköz. A kezdő paramétereket a
+felhasználó a parancssorban adja meg. A program induláskor ellenőrzi ezek
+helyességét, és probléma esetén tájékoztatja a felhasználót a hibáról. Ha a
+paraméterek megfelelnek a @model-defaults táblázatban foglaltaknak, a program
+a kísérletsor lefutásáig nem nyújt további visszajelzést a felhasználónak.
+Ha a felhasználó nem adott meg mentési útvonalat, a program a standard kimenetre
+írja az ereményeket, lehetővé téve azok szkriptekben vagy UNIX csőveezetékeken
+keresztül történő további feldolgozását. Ha a felhasználó megadott egy
+mentési útvonalat, a program az eredményeket a megadott útvonalú fájlba írja,
+majd csendben kilép.
+
 #figure(
   image("/assets/diagrams/cpp_usecase.svg", width: 80%),
   caption: [
@@ -51,22 +62,61 @@ Az implementáció:
 
 ==== Felhasználói történetek
 
+A felhasználó kísérleteket szeretne futtatni, hogy elemezhesse a FATINT modell
+viselkedését. Az implementáció akkor működik megfelelően, ha a @cpp-gwt
+táblázatban szereplő kapcsoló kombinálciókra a táblázatban előírt módon reagál.
+
+#figure(
+  table(
+    columns: 3,
+    table.header[*GIVEN / Feltéve, hogy a felhasználó...*][*WHEN / Amikor...*][*THEN / Akkor...*],
+
+    [-],
+    [A felhasználó elindítja a programot a `--help` kapcsolóval],
+    [A program kiírja a súgót.],
+
+    [-],
+    [A felhasználó elindítja a programot, de nem ad meg egyetlen paramétert sem],
+    [A program lefuttat 10 szimulációt alapértelmezett paraméterekkel, a statisztikákat a standard kimenetre írja, majd kilép.],
+
+    [Hibás parancssori paramétereket adott meg],
+    [A felhasználó elindítja a programot],
+    [A program tájékoztatja a felhasználót a hibáról, majd kilép.],
+
+    [Helyes parancssori paramétereket adott meg],
+    [A felhasználó elindítja a programot mentési útvonal nélkül],
+    [A program a szimulációk statisztikáit CSV formátumban a standard kimenetre írja, majd kilép],
+
+    [Helyes parancssori paramétereket adott meg],
+    [A felhasználó elindítja a programot `--output` kapcsolóban megadva a mentési útvonalat],
+    [A program a szimulációk statisztikáit CSV formátumban a megadott fájlba írja, majd kilép],
+
+    [Helyes parancssori paramétereket adott meg, és a `--format` kapcsolót `SVG`-re állította],
+    [A felhasználó elindítja a programot mentési útvonal nélkül],
+    [A program a szimulációk statisztikáit grafinonon ábrolja SVG formátumban, a grafikon forráskódját a standard kimenetre írja, majd kilép],
+
+    [Helyes parancssori paramétereket adott meg, és a `--format` kapcsolót `SVG`-re állította],
+    [A felhasználó elindítja a programot `--output` kapcsolóban megadva a mentési útvonalat],
+    [A program a szimulációk statisztikáit grafinonon ábrolja SVG formátumban, a grafikon forráskódját a megadott fájlba írja, majd kilép],
+  ),
+  caption: "A C++ implementáció elvárt viselkedése a paraméterek függvényében",
+) <cpp-gwt>
+
+
 === Architektúra
 
-A C++ implementáció erősen épít a _"Stratégia"_ fejlesztési mintára, mert a
+A C++ implementáció erősen épít a _"Stratégia"_ fejlesztési mintára. A
 szimuláció minden eleme, a genetikus algorimusoktól a fajszámolásig egy-egy
-különálló, cserélhető algoritmus, melyeket az `Simulator` osztály hangol össze.
-
-#todo("Describe pluggable nature, strategy pattern and the available modules")
+különálló, cserélhető algoritmus. Az egyes elemek egy adatcsővezetéket
+(_"data pipeline"_) alkotnak, melyek között az adatfolyamot a `Simulator`
+osztály szervezi, lásd @libfatint-dataflow diagram.
 
 #figure(
-  image("/assets/diagrams/cpp_simulator_classes.svg"),
-  caption: [A `Simulator` osztály és alkotóelemeinek osztálydiagramja]
-) <libfatint-simulator-class-diagram>
-#figure(
-  image("/assets/diagrams/cpp_experiment_classes.svg", width: 60%),
-  caption: [A kísérletsorok és alkotóelemeinek osztálydiagramja]
-) <libfatint-experiment-class-diagram>
+  image("/assets/diagrams/cpp_dataflow.svg"),
+  caption: [A `fatint` program és a `libfatint` könyvtár adatfolyama]
+) <libfatint-dataflow>
+
+#todo[Some classes were since removed, so this is no longer accurate]
 
 A szimuláció fontosabb komponensei interfészként vannak definiálva:
 
@@ -79,31 +129,45 @@ A szimuláció fontosabb komponensei interfészként vannak definiálva:
 / IMutation: A `GeneticReproduction` mutációs operátora. Az gyermekegyed génjeit módosítja.
 / ICrossover: A `GeneticReproduction` keresztezés operátora. A két szülő egyed génjeit kombinája egy gyermekegyedben.
 
-#todo("The class diagram is incomplete, finish it")
+Minden interfész egy tiszta függvény, nem tartalmazhatnak állapotot. Ez
+garantálja, hogy a több szimuláció több szálon egyszerre használhassa ugyanazon
+példányokat koordináció nélkül, mégis reprodukálható módon, versenyhelyzetek
+nélkül.
 
-Az egyes elemek egy adatcsővezetéket (_"data pipeline"_) alkotnak.
-
-Az `ExperimentSweep` példány `Experiment` osztályok példányosításával létrehozza a kezdeti paraméter objektumokat (`RunParameters`), melyeket egy-egy `Simulator` példány dolgoz fel. Ezek a példányok a állapotuk alakulálását egy-egy `RunStates` objektumban rögzíti, melyeket az `Experiment` osztály az `ExperimentStates` objektumba gyűjt, melyeket az `ExperimentSweep` osztály pedig egy végső `ExperimentSweepStates` objektumba. Ez az objektum és egy kísérletsor teljes végeredménye, melyből egy `StatisticsEvaluator` nevű osztály képes `ExperimentSweepResults` típusú, statisztákat tartalmazó objektummá alakítani. Ezutóbbi objtumokat pedig egy `CSVWriter` vagy `SVGWriter` kiírja fájlba vagy a standard kimenetre.
+Az interfészeket, azok kapcsolatát és implementációikat a
+@libfatint-simulator-class-diagram és @libfatint-experiment-class-diagram
+diagramok részletezik.
 
 #figure(
-  image("/assets/diagrams/cpp_dataflow.svg"),
-  caption: [A `fatint` program és a `libfatint` könyvtár adatfolyama]
-)
-#todo[Some classes were since removed, so this is no longer accurate]
+  image("/assets/diagrams/cpp_simulator_classes.svg"),
+  caption: [A `Simulator` osztály és alkotóelemeinek osztálydiagramja]
+) <libfatint-simulator-class-diagram>
+#figure(
+  image("/assets/diagrams/cpp_experiment_classes.svg", width: 60%),
+  caption: [A kísérletsorok és alkotóelemeinek osztálydiagramja]
+) <libfatint-experiment-class-diagram>
 
 === Forráskód fordítása <build-from-source>
 
 A forráskód fordításához a következő elemekre van szükség:
 
-- *CMake* 3.11 vagy újabb
+- *CMake* 3.11 vagy újabb.
 - Egy C++20 szabványt támogató *C++ fordító* (pl. GCC 9 vagy újabb)
-- Intel Thread Building Blocks (Elhagyható, de ajánlott, különben a szimuláció egyetlen szálon fog futni, jelentősen lassítva azt)
+- *Intel Thread Building Blocks*.
+  A C++ standard könyvtárának parallel algoritmusait implementálja.
+  Egyes standard könyvtárak (például `libstdc++`) megkövetelik, mások
+  (például `libc++`) nem.
 
-#todo("Migrate from TBB to hand-built job queue")
+Ubuntu rendszeren ezek a függőségek a következő paranccsal telepíthetőek:
 
-Minden további függőséget már tartalmaz a repó.
+```bash
+$ sudo apt install build-essential cmake libtbb12 libtbb-dev
+```
 
-A fordításhoz nyisson egy parancssort a repó gyökérmappájában, majd adja ki a következő parancsokat:
+Minden további függőség a forráskód része.
+
+A fordításhoz a projekt `fatint-cpp` könyvtárában állva adjuk ki a következő
+parancsokat:
 
 ```bash
 $ cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release

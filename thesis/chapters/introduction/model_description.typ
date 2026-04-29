@@ -208,3 +208,18 @@ _"Stretch method"_ (_nyújtási eljárás_) módszerével állapítunk meg, akko
 alábbi @stretch-formula egyenletet kell használni:
 $ "new gene" = V_"min" dot ( "last gene" dot V_"stretch" ) mod ( V_"max" - V_"min" + 1 ) $ <stretch-formula>
 ahol $"last gene"$ az adott entitás genotípusának utolsó eleme.
+
+=== Kísérletek
+
+A FATINT modell mindkét implementációjának dokumentációja használni fogja
+*Kísérlet* és *Kísérletsor* fogalmakat:
+
+#definition(title: "Kísérlet")[
+  A szimuláció többszöri futtatása ugyanazon kezdő paraméterekkel, de különböző
+  véletlen számokkal.
+]
+
+#definition(title: "Kísérletsor")[
+  Kísérletek futtatása az egyik paraméter több lehetséges értékével, a többi
+  paraméter rögzítése mellett.
+]

@@ -107,7 +107,9 @@ táblázatban szereplő interakciókra a táblázatban előírt módon reagál.
     [A szimulációt megszakítja],
     [A részeredmények a felhasználó által megadott útvonalon mentésre kerülnek],
   ),
-  caption: "A modell elvárt viselkedése a paraméterek függvényében",
+  caption: [
+    A NetLogo implementáció elvárt viselkedése az interakciók függvényében
+  ],
 ) <netlogo-gwt>
 
 === Implementáció részletei

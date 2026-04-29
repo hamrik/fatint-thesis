@@ -30,8 +30,7 @@ programokba.
   ```bash
   $ sudo apt install libtbb12
   ```
-+ Látogassuk meg
-#link("https://github.com/hamrik/fatint-thesis/releases/latest")[a projekt GitHub tárhelyét].
++ Látogassuk meg #link("https://github.com/hamrik/fatint-thesis/releases/latest")[a projekt GitHub tárhelyét].
 + Töltsük le a legfrissebb verzió bejegyzésének alján linkelt ZIP fájlt.
 + Csomagoljuk ki egy nekünk tetsző helyre.
 + Nyissunk egy terminált a kicsomagolt mappában.

@@ -128,22 +128,12 @@ nyújt.
 === Kísérletek futtatása
 
 A grafikus kezelőfelülettel első kézből megtapasztalható a modell viselkedése,
-de adatelemzésre ez a felület nem alkalmas. A NetLogo BehaviorSpace nevű eszköze
-viszont képes táblázatos formátumban elmenteni a szimuláció lépésenkénti
-állapotát, több szimulációt is képes futtatni egyszerre, illetve statisztikákat
-előállítani több szimuláció állapotának átlagolásával.
-
-#definition(title: "Kísérlet")[
-  A szimuláció többszöri futtatása ugyanazon kezdő paraméterekkel, de különböző
-  véletlen számokkal.
-]
-
-#definition(title: "Kísérletsor")[
-  Egy-egy kísérlet futtatása egy vagy több paraméter több lehetséges értékével,
-  a többi paraméter rögzítése mellett.
-
-  A NetLogo _"BehaviorSpace Experiment"_-nek hívja őket.
-]
+de adatelemzésre ez a felület nem alkalmas. A modell NetLogo implementációja a
+beépített kísérleteit és kísérletsorait a BehaviorSpace eszközzel definiálja.
+A NetLogo BehaviorSpace nevű eszköze képes több szimulációt futtatni egyszerre,
+táblázatos formátumban menteni a szimulációk lépésenkénti állapotát, valamint
+statisztikákat előállítani a szimulációk állapotának átlagolásával. Használata
+egyszerű:
 
 #grid(
   columns: 2,
