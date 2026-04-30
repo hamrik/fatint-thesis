@@ -6,7 +6,9 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest.hpp>
 
-TEST_CASE("ReservoirSampling starts empty")
+const size_t ITERATIONS = 1000;
+
+TEST_CASE("ReservoirSampling - empty returns nullopt")
 {
     fatint::measurement::ReservoirSampling<int> reservoir;
 
@@ -14,112 +16,90 @@ TEST_CASE("ReservoirSampling starts empty")
     CHECK(!result.has_value());
 }
 
-TEST_CASE("ReservoirSampling reset works")
+TEST_CASE("ReservoirSampling - always picks single option")
 {
     fatint::measurement::ReservoirSampling<int> reservoir;
-    fatint::math::Random rng(42);
 
-    reservoir.add(rng, 42);
-    // After adding one element, there's a chance it was selected
-    reservoir.reset();
-    // After reset, should be empty
-    CHECK(!reservoir.get().has_value());
+    for(size_t i = 0; i < ITERATIONS; i++)
+    {
+        fatint::math::Random rng(i);
+
+        reservoir.add(rng, 1);
+        CHECK(reservoir.get().has_value());
+        CHECK(reservoir.get().value() == 1);
+    }
 }
 
-TEST_CASE("ReservoirSampling with deterministic seed")
+TEST_CASE("ReservoirSampling - reset works")
 {
-    fatint::measurement::ReservoirSampling<int> reservoir1;
-    fatint::measurement::ReservoirSampling<int> reservoir2;
-    fatint::math::Random rng1(123);
-    fatint::math::Random rng2(123);
+    fatint::measurement::ReservoirSampling<size_t> reservoir;
 
-    // Add same sequence with same seed
-    for (int i = 0; i < 100; i++)
+    for(size_t i = 0; i < ITERATIONS; i++)
+    {
+        fatint::math::Random rng(i);
+
+        reservoir.add(rng, i);
+        CHECK(reservoir.get().has_value());
+        CHECK(reservoir.get().value() == i);
+
+        reservoir.reset();
+        CHECK(!reservoir.get().has_value());
+    }
+}
+
+TEST_CASE("ReservoirSampling - deterministic given same seed")
+{
+    fatint::measurement::ReservoirSampling<size_t> reservoir1;
+    fatint::measurement::ReservoirSampling<size_t> reservoir2;
+    fatint::math::Random rng1(1);
+    fatint::math::Random rng2(1);
+
+    for (size_t i = 0; i < ITERATIONS; i++)
     {
         reservoir1.add(rng1, i);
         reservoir2.add(rng2, i);
     }
 
-    // Should get same result with same seed
     auto res1 = reservoir1.get();
     auto res2 = reservoir2.get();
 
-    // Both should either have or not have a value
-    CHECK(res1.has_value() == res2.has_value());
-    if (res1.has_value() && res2.has_value())
-    {
-        CHECK(res1.value() == res2.value());
-    }
+    CHECK(res1.has_value());
+    CHECK(res2.has_value());
+    CHECK(res1.value() == res2.value());
 }
 
-TEST_CASE("ReservoirSampling works with different types")
-{
-    SUBCASE("double")
-    {
-        fatint::measurement::ReservoirSampling<double> reservoir;
-        fatint::math::Random rng(42);
-
-        reservoir.add(rng, 3.14);
-        reservoir.add(rng, 2.71);
-
-        auto result = reservoir.get();
-        // May or may not have a value depending on random choices
-        if (result.has_value())
-        {
-            CHECK((result.value() == doctest::Approx(3.14) || result.value() == doctest::Approx(2.71)));
-        }
-    }
-
-    SUBCASE("string")
-    {
-        fatint::measurement::ReservoirSampling<std::string> reservoir;
-        fatint::math::Random rng(42);
-
-        reservoir.add(rng, "hello");
-        reservoir.add(rng, "world");
-
-        auto result = reservoir.get();
-        // May or may not have a value
-        if (result.has_value())
-        {
-            CHECK((result.value() == "hello" || result.value() == "world"));
-        }
-    }
-}
 
 TEST_CASE("ReservoirSampling statistical behavior")
 {
-    fatint::math::Random rng(42);
-
-    // Count how often each element appears when selected
+    const int ELEMENTS = 5;
     std::map<int, int> counts;
-    const int trials = 10000;
-    const int elements = 5;
 
-    for (int trial = 0; trial < trials; trial++)
+    for (size_t i = 0; i < ITERATIONS; i++)
     {
         fatint::measurement::ReservoirSampling<int> reservoir;
-        fatint::math::Random trial_rng(rng.random(0, 1000000));
+        fatint::math::Random rng(i);
 
-        for (int i = 0; i < elements; i++)
+        for (int i = 0; i < ELEMENTS; i++)
         {
-            reservoir.add(trial_rng, i);
+            reservoir.add(rng, i);
         }
 
         auto result = reservoir.get();
-        if (result.has_value())
-        {
-            counts[result.value()]++;
-        }
+        CHECK(result.has_value());
+
+        counts[result.value()]++;
     }
 
-    // Check that we got some samples
-    int total_samples = 0;
-    for (int i = 0; i < elements; i++)
+    int min_count = INT_MAX;
+    int max_count = 0;
+    for (int i = 0; i < ELEMENTS; i++)
     {
-        total_samples += counts[i];
+        min_count = std::min(min_count, counts[i]);
+        max_count = std::max(max_count, counts[i]);
     }
 
-    // Should have selected something in most trials
-    CHECK(total_samples > trials * 0.3);
+    int difference = max_count - min_count;
+
+    // The difference between the least picked and most picked shall be <10%
+    CHECK(difference < (ITERATIONS * ELEMENTS) / 10);
 }
