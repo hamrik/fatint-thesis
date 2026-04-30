@@ -7,12 +7,9 @@ mellyel természetes és szociális modellek vizsgálhatók. Kiválóan alkalmas
 FATINT modell (lásd @model-desc) egyedeinek és kapcsolatainak szimulálására.
 
 Ezen implementációval a NetLogo 6.4 keretrendszerben szimulálható a FATINT
-modell, előre megadott vagy testreszabott paraméterekkel. Felmérhető lépésenként
-az egyedek és az általuk alkotott fajok száma, és ezek az adatok exportálhatóak
-több táblázatos formátumban. Statisztikák állíthatók fel több szimuláció között,
-és következtetések szűrhetők le a modell viselkedését illetően.
-
-#todo[Sounds weird, rephrase.]
+modell. Felmérhető lépésenként az egyedek és az általuk alkotott fajok száma,
+és ezen adatok, illetve statisztikáik exportálhatóak többféle táblázatos
+formátumban.
 
 === Rendszerkövetelmények
 
@@ -67,7 +64,7 @@ néz, akkor az opció be van kapcsolva. A fehér mezős zöld dobozkba gépelve
 testreszabhatóak a szám típusú paraméterek.
 
 / Starting population: A szimuláció populációjának kezdő mérete, $M_"init"$.
-/ Starting allele count: Az egyedek genotípusának kezdő mérete, $N_"init"$.
+/ Starting gene count: Az egyedek genotípusának kezdő mérete, $N_"init"$.
 / Use stretch method: Új gének véletlenszerű generálása helyett a
   @stretch-formula egyenletben megfogalmazott _"Stretch"_ módszer használata.
 
@@ -101,7 +98,7 @@ A sárga dobozokban nyomon követhető a szimuláció aktuális állapota.
 / Population: A szimulációs körben részt vevő egyedek száma.
 / Species count: A szimulációs körben résztvevő egyedek által alkotott fajok
   száma.
-/ Allele count: Az egyedek genotípusának elemszáma (gének száma).
+/ Gene count: Az egyedek genotípusának elemszáma (gének száma).
 
 ==== Szimuláció futtatása
 
@@ -116,14 +113,11 @@ Egy szimuláció előkészítésének és futtatásának menete a következő:
 + Rákattintunk a _Step_, _500 steps_ vagy _Go_ gombra, rendre egy kör
   futtatásához, legfeljebb 500 kör futtatásához, vagy a megszakítás nélküli
   futtatáshoz.
-+ Tanulmányozzuk a _Population_, _Species count_ és _Allele count_ grafikonokat.
++ Tanulmányozzuk a _Population_, _Species count_ és _Gene count_ grafikonokat.
 
 A NetLogo kezelőfelületének egyéb elemeiről, illetve a szoftver használatához
 szükséges programozási nyelvről bővebb információt
-#link("https://docs.netlogo.org/")[a NetLogo használati utasítása]
-nyújt.
-
-#todo[_Allele_ is an incorrect term for this, use _Gene_]
+#link("https://docs.netlogo.org/")[a NetLogo használati utasítása] nyújt.
 
 === Kísérletek futtatása
 

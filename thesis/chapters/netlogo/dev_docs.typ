@@ -153,10 +153,10 @@ további mezőket. Ezek mindig publikusak. A grafikus felületre felvett gombok
 szintén globális válzotók. A FATINT modell implmenetáció globális változóként
 tárolja:
 / `p-encounter`, `v-min`, `m-limit`, stb: a modell kezdő paraméterei
-/ `starting-pop`: a szimuláció populációjának kezdő létszáma
-/ `starting-allele-count`: az egyedek genotípusának kezdő hossza
+/ `m-init`: a szimuláció populációjának kezdő létszáma
+/ `n-init`: az egyedek genotípusának kezdő hossza
 / `available-energy`: a környezet energiaszintje
-/ `allele-count`: az egyedek genotípusának hossza
+/ `gene-count`: az egyedek genotípusának hossza
 / `species-count`: a fajok száma
 
 Optimalizációs céllal definiálja továbbá az *`M-limit-sqr`*-t, azaz a
@@ -192,10 +192,10 @@ A FATINT modellben a `setup` eljárás:
 + Kitöröl minden élt és teknőst
 + Nullázza az eltelt körök számát (*`tick`*)
 + Beállítja `M-limit-sqr`-t
-+ Létehoz `starting-pop` számú új teknőst:
++ Létehoz `m-init` számú új teknőst:
   - A teknős a korát és energiaszinjét nullára állítja
   - Az `e-discounting` segédváltozót $E_"dicount"^"age" = E_"discount"^0 = 1$-re állítja
-  - Genotípusnak létrehoz egy `strating-allele-count` elemű vektort,
+  - Genotípusnak létrehoz egy `n-init` elemű vektort,
     $[V_"min", V_"max"]$ alléltartományba eső véletlen génekkel.
   - A teknős létrehoz egy-egy közös, irányítatlan élt minden olyan teknőssel,
     mellyel még nincs éle, de genotípusuk euklédeszi távolsága nem nagyobb, mint
@@ -366,8 +366,6 @@ A fenti kísérleten túl a modell tartalmaz három teljesítmény felmérést:
 - `benchmark-species-counter-ds-many-species`
 - `benchmark-simulator-no-churn`
 - `benchmark-simulator-churn`
-
-#todo("Eliminate wasteful whitespace")
 
 Alapértelmezett paraméterek mellett a fajok átlagos száma nem eshet 0-ra,
 lásd @netlogo-species-comp-default.

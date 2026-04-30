@@ -25,9 +25,6 @@
   finalized: false,
 )
 
-#todo("Add test plan for NetLogo")
-#todo("Add doc comments and generate doxygen docs for C++ implementation")
-
 #include "chapters/introduction/main.typ"
 #include "chapters/netlogo/main.typ"
 #include "chapters/cpp/main.typ"

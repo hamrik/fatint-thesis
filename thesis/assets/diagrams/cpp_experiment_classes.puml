@@ -13,7 +13,7 @@ struct ExperimentParameters {
 ExperimentParameters o-- RunParameters
 
 struct ExperimentSweepParameters {
-  + ExperimentParamteres starting_paramters
+  + ExperimentParameters starting_parameters
   + RunParameters delta
   + vector<RunParameters> expand()
 }
@@ -45,8 +45,8 @@ struct Measurement {
 struct Statistics {
   + vector<int> entity_count_values
   + Measurement entity_count
-  + vector<int> allele_count_values
-  + Measurement allele_count
+  + vector<int> gene_count_values
+  + Measurement gene_count
   + vector<int> species_count_values
   + Measurement species_count
 }
