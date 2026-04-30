@@ -273,7 +273,7 @@ auto make_simulator(fatint::simulation::RunParameters params, bool use_disjoint_
 }
 
 auto run_experiments(const fatint::simulation::ExperimentSweepParameters &experiment_sweep_parameters, bool use_ds)
-    -> fatint::simulation::ExperimentSweepResults
+    -> fatint::math::ExperimentSweepStatistics
 {
     auto run_params = experiment_sweep_parameters.expand();
     std::vector<fatint::simulation::RunStates> run_results(run_params.size());
@@ -283,13 +283,13 @@ auto run_experiments(const fatint::simulation::ExperimentSweepParameters &experi
                        auto simulator = make_simulator(params, use_ds);
                        return simulator->run(random);
                    });
-    fatint::simulation::ExperimentSweepResults results =
+    fatint::math::ExperimentSweepStatistics results =
         fatint::math::measure(experiment_sweep_parameters, run_results);
     return results;
 }
 
 void write_results(const fatint::simulation::ExperimentSweepParameters &experiment_sweep_parameters,
-                   const fatint::simulation::ExperimentSweepResults &results, const std::string &output_file,
+                   const fatint::math::ExperimentSweepStatistics &results, const std::string &output_file,
                    const std::string &output_format)
 {
     std::streambuf *buf = std::cout.rdbuf();

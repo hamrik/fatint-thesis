@@ -11,7 +11,7 @@ namespace fatint::io
 class SVGWriter : public IOutputWriter
 {
   public:
-    void write(const simulation::ExperimentSweepParameters &params, const simulation::ExperimentSweepResults &results,
+    void write(const simulation::ExperimentSweepParameters &params, const math::ExperimentSweepStatistics &results,
                std::ostream &dest) override;
 };
 

@@ -42,9 +42,9 @@ auto measure(const std::vector<double> &values) -> Measurement
     return {.min = min, .max = max, .avg = average, .std = standard_deviation, .err = standard_deviation / srn};
 }
 
-auto measure(size_t runs, size_t steps, const ExperimentStates &results) -> ExperimentResults
+auto measure(size_t runs, size_t steps, const ExperimentStates &results) -> ExperimentStatistics
 {
-    ExperimentResults statistics;
+    ExperimentStatistics statistics;
 
     if (results.size() != runs)
     {
@@ -83,29 +83,29 @@ auto measure(size_t runs, size_t steps, const ExperimentStates &results) -> Expe
     return statistics;
 }
 
-auto measure(const ExperimentParameters &params, const ExperimentStates &results) -> ExperimentResults
+auto measure(const ExperimentParameters &params, const ExperimentStates &results) -> ExperimentStatistics
 {
     return measure(params.runs, params.run_parameters.steps, results);
 }
 
-auto measure(const ExperimentSweepParameters &params, const ExperimentSweepStates &results) -> ExperimentSweepResults
+auto measure(const ExperimentSweepParameters &params, const ExperimentSweepStates &results) -> ExperimentSweepStatistics
 {
-    ExperimentSweepResults sweep_results;
+    ExperimentSweepStatistics sweep_results;
     size_t runs = params.starting_parameters.runs;
     size_t steps = params.starting_parameters.run_parameters.steps;
 
     for (const auto &result : results)
     {
-        ExperimentResults statistics = measure(runs, steps, result);
+        ExperimentStatistics statistics = measure(runs, steps, result);
         sweep_results.push_back(statistics);
     }
 
     return sweep_results;
 }
 
-auto measure(const ExperimentSweepParameters &params, const ExperimentStates &results) -> ExperimentSweepResults
+auto measure(const ExperimentSweepParameters &params, const ExperimentStates &results) -> ExperimentSweepStatistics
 {
-    ExperimentSweepResults sweep_results;
+    ExperimentSweepStatistics sweep_results;
     size_t experiments = params.experiments;
     size_t runs = params.starting_parameters.runs;
     size_t steps = params.starting_parameters.run_parameters.steps;
@@ -114,7 +114,7 @@ auto measure(const ExperimentSweepParameters &params, const ExperimentStates &re
     {
         ExperimentStates result(results.begin() + static_cast<long>(i * runs),
                                 results.begin() + static_cast<long>((i + 1) * runs));
-        ExperimentResults statistics = measure(runs, steps, result);
+        ExperimentStatistics statistics = measure(runs, steps, result);
         sweep_results.push_back(statistics);
     }
 

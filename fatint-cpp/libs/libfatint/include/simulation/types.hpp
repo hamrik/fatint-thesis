@@ -8,7 +8,6 @@
 #include <cstddef>
 #include <vector>
 
-#include "math/types.hpp"
 #include "model/types.hpp"
 
 namespace fatint::simulation
@@ -84,18 +83,6 @@ struct State
     size_t species_count;
 };
 
-/// Statistics of a single step across all runs.
-///
-struct Statistics
-{
-    math::Measurement entity_count;
-    std::vector<double> entity_count_values;
-    math::Measurement gene_count;
-    std::vector<double> gene_count_values;
-    math::Measurement species_count;
-    std::vector<double> species_count_values;
-};
-
 /// States of all steps of a single run.
 ///
 using RunStates = std::vector<State>;
@@ -104,17 +91,9 @@ using RunStates = std::vector<State>;
 ///
 using ExperimentStates = std::vector<RunStates>;
 
-/// Statistics of all steps across all runs.
-///
-using ExperimentResults = std::vector<Statistics>;
-
 /// The final states of an experiment sweep.
 ///
 using ExperimentSweepStates = std::vector<ExperimentStates>;
-
-/// The final statistics of an experiment sweep.
-///
-using ExperimentSweepResults = std::vector<ExperimentResults>;
 
 auto operator+=(RunParameters &a, const RunParameters &b) -> RunParameters &;
 

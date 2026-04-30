@@ -1,6 +1,7 @@
 #include "io/CSVWriter.hpp"
 
 #include "simulation/types.hpp"
+#include "math/Statistics.hpp"
 
 namespace fatint::io
 {
@@ -27,7 +28,7 @@ void CSVWriter::write_header(const simulation::ExperimentParameters &params, std
 }
 
 void CSVWriter::write_row(size_t step, const simulation::ExperimentParameters &params,
-                          const simulation::Statistics &result, std::ostream &dest)
+                          const math::Statistics &result, std::ostream &dest)
 {
     dest << "\n";
     dest << params.run_parameters.reproduction_parameters.m_init << ",";
@@ -71,7 +72,7 @@ void CSVWriter::write_row(size_t step, const simulation::ExperimentParameters &p
     }
 }
 
-void CSVWriter::write(const simulation::ExperimentParameters &params, const simulation::ExperimentResults &results,
+void CSVWriter::write(const simulation::ExperimentParameters &params, const math::ExperimentStatistics &results,
                       std::ostream &dest)
 {
     write_header(params, dest);
@@ -82,7 +83,7 @@ void CSVWriter::write(const simulation::ExperimentParameters &params, const simu
 }
 
 void CSVWriter::write(const simulation::ExperimentSweepParameters &params,
-                      const simulation::ExperimentSweepResults &results, std::ostream &dest)
+                      const math::ExperimentSweepStatistics &results, std::ostream &dest)
 {
     write_header(params.starting_parameters, dest);
     simulation::ExperimentParameters exp_params = params.starting_parameters;

@@ -19,7 +19,7 @@ const double SVG_LEGEND_WIDTH = 400;
  * @param dest The destination stream.
  */
 void SVGWriter::write(const simulation::ExperimentSweepParameters &params,
-                      const simulation::ExperimentSweepResults &results, std::ostream &dest)
+                      const math::ExperimentSweepStatistics &results, std::ostream &dest)
 {
     double width_with_padding = SVG_WIDTH;
     double height_with_padding = SVG_HEIGHT;
