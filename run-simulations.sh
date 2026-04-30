@@ -18,46 +18,50 @@ run_fatint() {
 
 	echo '  - Sweeping P_encounter'
 	fatint \
-		-e 6 \
-		--p_encounter 0.05 \
-		--sweep_p_encounter 0.01 \
+		--sweep p_encounter \
+		--sweep-from 0.05 \
+		--sweep-by 0.005 \
+		--sweep-to 0.095 \
 		--output thesis/data/p_encounter-libfatint.csv
 
 	echo '  - Sweeping P_crossing'
 	fatint \
-		-e 6 \
-		--p_crossing 0.0 \
-		--sweep_p_crossing 0.1 \
+	    --sweep p_crossing \
+		--sweep-from 0 \
+		--sweep-by 0.1 \
+		--sweep-to 0.5 \
 		--output thesis/data/p_crossing-libfatint.csv
 
 	echo '  - Sweeping P_mutation'
 	fatint \
-		-e 6 \
-		--p_mutation 0.0 \
-		--sweep_p_mutation 0.1 \
+        --sweep p_mutation \
+        --sweep-from 0 \
+        --sweep-by 0.1 \
+        --sweep-to 0.5 \
 		--output thesis/data/p_mutation-libfatint.csv
 
 	echo '  - Sweeping P_change'
 	fatint \
-		-e 11 \
-		--p_change 0.0005 \
-		--sweep_p_change 0.00005 \
+	    --sweep p_change \
+        --sweep-from 0.0005 \
+        --sweep-by 0.00005 \
+        --sweep-to 0.001 \
 		--output thesis/data/p_change-libfatint.csv
 
 	echo '  - Sweeping M_limit'
 	fatint \
-		-e 21 \
-		--p_change 0.0005 \
-		--m_limit 0 \
-		--sweep_m_limit 1 \
+	    --p_change 0.0005 \
+        --sweep m_limit \
+        --sweep-from 0 \
+        --sweep-to 20 \
 		--output thesis/data/m_limit-libfatint.csv
 
 	echo '  - Sweeping V_stretch'
 	fatint \
-		-e 20 \
-		--p_change 0.0005 \
-		--v_stretch 1 \
-		--sweep_v_stretch 1 \
+        --p_change 0.0005 \
+        --sweep v_stretch \
+        --sweep-from 1 \
+        --sweep-to 20 \
 		--output thesis/data/v_stretch-libfatint.csv
 
 }
@@ -226,7 +230,7 @@ benchmark_netlogo() {
 
 }
 
-if [ $# -eq 0 -o "$1" = 'fatint' ]
+if [ $# -eq 0 -o "$1" = 'libfatint' ]
 then
     run_fatint
     benchmark_fatint

@@ -22,7 +22,7 @@ auto EuclideanDistanceSimilarity::compatible(const model::Entity &a, const model
 {
     if (a.genotype.size() != b.genotype.size())
     {
-        throw fatint::error::ConstraintException("EuclideanDistanceSimilarity requires uniform genotype sizes");
+        throw fatint::error::MismatchException("EuclideanDistanceSimilarity requires uniform genotype sizes", a.genotype.size(), b.genotype.size());
     }
     return euclidean_distance_sqr(a.genotype, b.genotype) <= m_limit_sqr;
 }
@@ -95,9 +95,13 @@ Crossover::Crossover(double p_crossing) : p_crossing(p_crossing)
 void Crossover::combine(math::Random &rng, const model::Genotype &a, const model::Genotype &b,
                         model::Genotype &out) const
 {
-    if (a.size() != b.size() || a.size() != out.size())
+    if (a.size() != b.size())
     {
-        throw fatint::error::ConstraintException("Crossover requires uniform genotype sizes");
+        throw fatint::error::MismatchException("Crossover requires uniform parent genotype sizes", a.size(), b.size());
+    }
+    if (a.size() != out.size())
+    {
+        throw fatint::error::MismatchException("Crossover requires child genotype size to match parents", a.size(), out.size());
     }
     for (size_t i = 0; i < a.size(); i++)
     {
@@ -121,10 +125,6 @@ GeneticReproduction::GeneticReproduction(std::unique_ptr<IMutation> mutation, st
 auto GeneticReproduction::reproduce(math::Random &rng, const model::Entity &a, const model::Entity &b,
                                     model::Entity &out) const -> bool
 {
-    if (a.genotype.size() != b.genotype.size() || a.genotype.size() != out.genotype.size())
-    {
-        throw fatint::error::ConstraintException("Crossover requires uniform genotype sizes");
-    }
     out.age = 0;
     out.energy = 0;
     crossover->combine(rng, a.genotype, b.genotype, out.genotype);

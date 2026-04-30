@@ -4,7 +4,7 @@
 void fatint::simulation::RunParameters::validate()
 {
     if(steps < 1) {
-        throw fatint::error::ConstraintException("constraint violated: 1 <= steps");
+        throw fatint::error::ParameterConstraintException("constraint violated: 1 <= steps", steps);
     }
     limits.validate();
     reproduction_probabilities.validate();
@@ -17,7 +17,7 @@ void fatint::simulation::RunParameters::validate()
 void fatint::simulation::ExperimentParameters::validate()
 {
     if(runs < 1) {
-        throw fatint::error::ConstraintException("constraint violated: 1 <= runs");
+        throw fatint::error::ParameterConstraintException("constraint violated: 1 <= runs", runs);
     }
     run_parameters.validate();
 }
@@ -25,7 +25,7 @@ void fatint::simulation::ExperimentParameters::validate()
 void fatint::simulation::ExperimentSweepParameters::validate()
 {
     if(experiments < 1) {
-        throw fatint::error::ConstraintException("constraint violated: 1 <= experiments");
+        throw fatint::error::ParameterConstraintException("constraint violated: 1 <= experiments", experiments);
     }
     starting_parameters.validate();
     ExperimentParameters p{starting_parameters};

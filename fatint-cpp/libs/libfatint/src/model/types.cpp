@@ -10,60 +10,60 @@ void Limits::validate()
 {
     if(v_min > v_max)
     {
-        throw fatint::error::ConstraintException("contraint violated: v_min <= v_max");
+        throw fatint::error::ParameterConstraintException("contraint violated: v_min <= v_max", v_max);
     }
 }
 
 void ReproductionProbabilities::validate()
 {
     if(p_encounter < 0 || p_encounter > 1.0) {
-        throw fatint::error::ConstraintException("constraint violated: 0 <= p_encounter <= 1");
+        throw fatint::error::ParameterConstraintException("constraint violated: 0 <= p_encounter <= 1", p_encounter);
     }
     if(p_change < 0 || p_change > 1.0) {
-        throw fatint::error::ConstraintException("constraint violated: 0 <= p_encounter <= 1");
+        throw fatint::error::ParameterConstraintException("constraint violated: 0 <= p_change <= 1", p_change);
     }
 }
 
 void ReproductionParameters::validate()
 {
     if(m_init < 1) {
-        throw fatint::error::ConstraintException("constraint violated: 1 <= m_init");
+        throw fatint::error::ParameterConstraintException("constraint violated: 1 <= m_init", m_init);
     }
     if(m_const < 0) {
-        throw fatint::error::ConstraintException("constraint violated: 0 <= m_const");
+        throw fatint::error::ParameterConstraintException("constraint violated: 0 <= m_const", m_const);
     }
 }
 
 void GeneticProbabilities::validate()
 {
     if(p_crossing < 0 || p_crossing > 1.0) {
-        throw fatint::error::ConstraintException("constraint violated: 0 <= p_crossing <= 1");
+        throw fatint::error::ParameterConstraintException("constraint violated: 0 <= p_crossing <= 1", p_crossing);
     }
     if(p_mutation < 0 || p_mutation > 1.0) {
-        throw fatint::error::ConstraintException("constraint violated: 0 <= p_mutation <= 1");
+        throw fatint::error::ParameterConstraintException("constraint violated: 0 <= p_mutation <= 1", p_mutation);
     }
 }
 
 void GeneticParameters::validate()
 {
     if(n_init < 1) {
-        throw fatint::error::ConstraintException("constraint violated: 1 <= n_init");
+        throw fatint::error::ParameterConstraintException("constraint violated: 1 <= n_init", n_init);
     }
 }
 
 void EnergyParameters::validate()
 {
     if(e_increase < 0) {
-        throw fatint::error::ConstraintException("constraint violated: 0 <= e_increase");
+        throw fatint::error::ParameterConstraintException("constraint violated: 0 <= e_increase", e_increase);
     }
     if(e_consumption < 0) {
-        throw fatint::error::ConstraintException("constraint violated: 0 <= e_consumption");
+        throw fatint::error::ParameterConstraintException("constraint violated: 0 <= e_consumption", e_consumption);
     }
     if(e_intake < 0) {
-        throw fatint::error::ConstraintException("constraint violated: 0 <= e_intake");
+        throw fatint::error::ParameterConstraintException("constraint violated: 0 <= e_intake", e_intake);
     }
     if(e_discount < 0 || e_discount > 1.0) {
-        throw fatint::error::ConstraintException("constraint violated: 0 <= e_discount <= 1");
+        throw fatint::error::ParameterConstraintException("constraint violated: 0 <= e_discount <= 1", e_discount);
     }
 }
 
