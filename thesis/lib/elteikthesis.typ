@@ -1,8 +1,11 @@
-// ELTE FI Thesis Template for Typst
+/// ELTE FI Thesis Template for Typst
+
 // Initially converted from the LaTeX template at
 // https://github.com/mcserep/elteikthesis
-// using Claude Sonnet 4.6
+// using Claude Sonnet 4.6,
+// then havily modified by hand
 
+/// Setup ELTE FI thesis layout
 #let thesis(
   title: "Thesis Title",
   author: "Author Name",
@@ -274,7 +277,7 @@
   body
 }
 
-// Theorem-like environments
+/// Render a definition block
 #let definition(body, title: none) = {
   block(
     fill: rgb("#f0f0f0"),
@@ -290,6 +293,7 @@
   )
 }
 
+/// Render a theorem block
 #let theorem(body, title: none) = {
   let label = if (context text.lang) == "hu" { "Tétel" } else { "Theorem" }
   block(
@@ -308,6 +312,7 @@
   )
 }
 
+/// Render a remark block
 #let remark(body, title: none) = {
   let label = if (context text.lang) == "hu" { "Megjegyzés" } else { "Remark" }
   block(
@@ -323,8 +328,10 @@
   )
 }
 
+/// Alias for `remark()`
 #let note(body, title: none) = remark(body, title: title)
 
+/// Render a warning block
 #let warning(body) = [
   #let rblock = block.with(stroke: orange, radius: 0.5em, fill: orange.lighten(80%))
   #block(inset: (top: 0.35em), {
@@ -333,6 +340,7 @@
   <todo>
 ]
 
+/// Render a todo block
 #let todo(body) = [
   #let rblock = block.with(stroke: red, radius: 0.5em, fill: red.lighten(80%))
   #let top-left = place.with(top + left, dx: 1em, dy: -0.35em)

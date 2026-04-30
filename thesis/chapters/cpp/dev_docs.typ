@@ -467,23 +467,75 @@ A könytár forrásának `tests/genetics/` könytára 8 egység tesztet tartalma
 
 A `tests/math/` könyvtárban 8 egységteszt ellenőrzi a `Random` véletlenszám generátort és egy teszt a statisztikai segédfüggvényt:
 - Két `Random` példány azonos kezdőállapot ($42$) mellett azonos számokat generál.
-- Egy `Random` példány állapota korábbi használat után is alapállapotba $42$ hozható, a kapott számok nem függenek a korábbi állapotoktól.
-- A `Random` példány ezer hívás után is betartja a megadott $[10, 20]$ zárt intervallumot.
-- A `Random` példány valós számok generálásakor betartja a megadott $[0, 1)$ balról zárt, jobbról nyílt intervallumot.
-- A `Random` példány $P = 0$ valószínűség mellett mindig hamis értéket sorsol.
-- A `Random` példány $P = 1$ valószínűség mellett mindig igaz értéket sorsol.
-- A `Random` példány $P = 0$ valószínűség mellett az esetek $50% plus.minus 5%$-ban igaz értéket sorsol.
-- A `Random` példány által kevert sorrendben generált $5$ elemű index sorozat rendezés után a $[0..4] in NN$ sorozat
-- A `measure` segédfüggvény az $S = [1..5] in NN$ sorozat szerint $min S = 1$, $max S = 5$, $(sum S) / (|S|) = 3$, $s approx 1.5811$ és $s / sqrt(|S|) approx 0.7071$.
+- `Random` állapota korábbi használat után is alapállapotba $42$ hozható, a kapott számok nem függenek a korábbi állapotoktól.
+- `Random` ezer hívás után is betartja a megadott $[10, 20]$ zárt intervallumot.
+- `Random` valós számok generálásakor betartja a megadott $[0, 1)$ balról zárt, jobbról nyílt intervallumot.
+- `Random` $P = 0$ valószínűség mellett mindig hamis értéket sorsol.
+- `Random` $P = 1$ valószínűség mellett mindig igaz értéket sorsol.
+- `Random` $P = 0$ valószínűség mellett az esetek $50% plus.minus 5%$-ban igaz értéket sorsol.
+- `Random` által kevert sorrendben generált $5$ elemű index sorozat rendezés után a $[0..4] in NN$ sorozat
+- `measure` segédfüggvény az $S = [1..5] in NN$ sorozat szerint $min S = 1$, $max S = 5$, $(sum S) / (|S|) = 3$, $s approx 1.5811$ és $s / sqrt(|S|) approx 0.7071$.
 
-A `tests/measurement/`: könyvtárban található 8-8 teszt a `DepthFirstSearchSpeciesCounter` és `DisjointSetsSpeciesCounter` számlálóknak, valamint 5 teszt a `ReservoirSampling` mintavételezőnek:
+A `tests/measurement/`: könyvtárban található 5-5 teszt a `DepthFirstSearchSpeciesCounter` és `DisjointSetsSpeciesCounter` számlálóknak, valamint 5 teszt a `ReservoirSampling` mintavételezőnek:
 
-A `tests/model/` könyvtárban 9 egységteszt vizsgálja a modell egyenleteit, ls 7 további a paraméter struktúrák túlterhelt `+=` operátorait:
+- `DepthFirstSearchSpeciesCounter` üres populációra $0$ fajt számol
+- `DepthFirstSearchSpeciesCounter` egy egyedet egy fajként számol
+- `DepthFirstSearchSpeciesCounter` két kompatibilis egyedet egy fajként számol
+- `DepthFirstSearchSpeciesCounter` két inkompatiblis egyedet két fajként számol
+- `DepthFirstSearchSpeciesCounter` négy egyedet, melyek két párt alkotnak, két fajként számol
+- `DisjointSetsSpeciesCounter` üres populációra $0$ fajt számol
+- `DisjointSetsSpeciesCounter` egy egyedet egy fajként számol
+- `DisjointSetsSpeciesCounter` két kompatibilis egyedet egy fajként számol
+- `DisjointSetsSpeciesCounter` két inkompatiblis egyedet két fajként számol
+- `DisjointSetsSpeciesCounter` négy egyedet, melyek két párt alkotnak, két fajként számol
+- `ReservoirSampling` opciók felajánlása nélkül lekérésre `nullopt`-ot ad
+- `ReservoirSampling` egy opció felajánlása után azt az opciót mindig visszaadja
+- `ReservoirSampling` egy opció felajánlása után alaphelyzetbe hozhtató, és `nullopt`-ot ad
+- `ReservoirSampling` azonos kezdőállapotok mellett determinisztikus
+- `ReservoirSampling` azonos valószínűséggel válaszja bármelyik felajánlott opciót
+
+A `tests/model/` könyvtárban 10 egységteszt vizsgálja a modell egyenleteit, és 6 további a paraméter struktúrák túlterhelt `+=` operátorait:
+
+- `entity_energy_change` (@energy-gain-formula egyenlet) $0$ korú egyedek energiabevitelét nem rontja
+- `entity_energy_change` (@energy-gain-formula egyenlet) rontja az energia bevitelt ha az egyed öreg
+- `offspring_count` (@offspring-count-formula egyenlet) megfelelő értéket ad tökéletes szűrői kompatibitás mellett
+- `offspring_count` (@offspring-count-formula egyenlet) megfelelő értéket ad magas szűrői kompatibitás mellett
+- `offspring_count` (@offspring-count-formula egyenlet) megfelelő értéket ad alacsony szűrői kompatibitás mellett
+- `offspring_count` (@offspring-count-formula egyenlet) $0$ értéket ad inkompatibilis párra
+- `offspring_count` (@offspring-count-formula egyenlet) meredekségi változója megfelelően befolyásolja az eredményt
+- `stretch_gene` (@stretch-formula egyenlet) megfelelő myújtással működik
+- `stretch_gene` (@stretch-formula egyenlet) megfelelő modulussal működik
+- `stretch_gene` (@stretch-formula egyenlet) pozitív $V_"min"$ értékkel is működik
+- `Limits` `A` példányt incrementáljuk `B`-vel; utána `A` minden mezője `B` azonos mezőjének értékével több
+- `ReproductionProbabilities` `A` példányát incrementáljuk `B`-vel; utána `A` minden mezője `B` azonos mezőjének értékével több
+- `ReproductionParameters` `A` példányát incrementáljuk `B`-vel; utána `A` minden mezője `B` azonos mezőjének értékével több
+- `GeneticProbabilities` `A` példányát incrementáljuk `B`-vel; utána `A` minden mezője `B` azonos mezőjének értékével több
+- `GeneParameters` `A` példányát incrementáljuk `B`-vel; utána `A` minden mezője `B` azonos mezőjének értékével több
+- `EnergyParameters` `A` példányát incrementáljuk `B`-vel; utána `A` minden mezője `B` azonos mezőjének értékével több
 
 A `tests/performance` könyvtárban 4 teljesítmény teszt méri a faj számlálók időgényét, és 2 további teszt a `Simulator` időigényét:
 
-A `tests/simulation` könyvtárban 22 teszt vizsálja a paraméter validáló függvényeket, egy a `RunParameters` túlterhelt `+=` operátorát, és 1-1 teszt az `ExperimentParameters` és `ExperimentSweepParameters` `expand` segédfüggvényeit:
+- `DisjointSetsSpeciesCounter` időigénye $2^n, n in NN inter [3, 11]$ darab közös fajba tartozó egyed megszámolásához
+- `DisjointSetsSpeciesCounter` időigénye $2^n, n in NN inter [3, 11]$ darab önálló fajba tartozó egyed megszámolásához
+- `DepthFirstSearchSpeciesCounter` időigénye $2^n, n in NN inter [3, 11]$ darab közös fajba tartozó egyed megszámolásához
+- `DepthFirstSearchSpeciesCounter` időigénye $2^n, n in NN inter [3, 11]$ darab önálló fajba tartozó egyed megszámolásához
+- `Simulator` időigénye $2^n, n in NN inter [3, 11]$ darab hallhatatlan, steril egyed szimulálásához 1000 lépésben
+- `Simulator` időigénye 1000 lépés szimulálásához, ahol $E_"increase" in {2^n | n in NN inter [3, 11]}$, azaz a környezet egyre több egyedet tud eltartani, növelve körönkénti születések és halálok számát
 
+A `tests/simulation` könyvtárban 22 teszt vizsálja a paraméter validáló függvényeket, egy a `RunParameters` túlterhelt `+=` operátorát, 1-1 teszt az `ExperimentParameters` és `ExperimentSweepParameters` `expand` segédfüggvényeit és 6 integrációs teszt a `Simulator` osztályt:
+
+- `RunParameters` minden lehetséges tartoményszegést jelez
+- `ExperimentParameters` minden lehetséges tartoményszegést jelez
+- `ExperimentSweepParameters` minden lehetséges tartoményszegést jelez
+- `RunParameters` `A` példányát incrementáljuk `B`-vel; utána `A` minden mezője `B` azonos mezőjének értékével több
+- `ExperimentParameters::expand()` a megfelelő `RunParamters` objektumokat hozza létre
+- `ExperimentSweepParameters::expand()` a megfelelő `RunParamters` objektumokat hozza létre
+- `Simulator` szaporodás híján ($P_"encounter" = 0$) $50$ lépésen belül terminál
+- `Simulator` szimulációjában laza párosodási preferencia mellett ($M_"limit" = 100$) 50 lépés után is van még elő egyed
+- `Simulator` determinisztikus; azonos kezdőparaméterű véletlenszám generátorok melett azonos eredményeket produkál
+- `Simulator` $M_"limit" = 100, P_"encounter" = 0.2$ mellett 50 lépés után magasabb génszámot ad, mint $N_"init"$
+- `Simulator` szimulációja alapértelmezett paraméterek mellett egy stabit fajt képez
+- `Simulator` $P_"change" = 0.001$ mellett 2000 lépés után több, mint egy fajt produkál
 
 A @fatint cikkben szereplő kísérletek adaptált megfelelői a következők:
 
