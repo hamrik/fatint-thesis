@@ -54,40 +54,40 @@ Statistics o-- Measurement
 
 class "vector<Statistics>" { }
 "vector<Statistics>" o-- Statistics
-class ExperimentResults { }
-ExperimentResults --|> "vector<Statistics>" : <<typedef>>
+class ExperimentStatistics { }
+ExperimentStatistics --|> "vector<Statistics>" : <<typedef>>
 
-class "vector<ExperimentResults>" { }
-"vector<ExperimentResults>" o-- ExperimentResults
-class ExperimentSweepResults { }
-ExperimentSweepResults --|> "vector<ExperimentResults>" : <<typedef>>
+class "vector<ExperimentStatistics>" { }
+"vector<ExperimentStatistics>" o-- ExperimentStatistics
+class ExperimentSweepStatistics { }
+ExperimentSweepStatistics --|> "vector<ExperimentStatistics>" : <<typedef>>
 
 class math <<namespace>> {
   + Measurement measure(values)
-  + ExperimentResults measure(experimentParameters, experimentStates)
-  + ExperimentSweepResults measure(experimentSweepParameters, experimentSweepStates)
+  + ExperimentStatistics measure(experimentParameters, experimentStates)
+  + ExperimentSweepStatistics measure(experimentSweepParameters, experimentSweepStates)
 }
 math --> ExperimentSweepParameters
 math --> ExperimentSweepStates
-math --> ExperimentSweepResults
+math --> ExperimentSweepStatistics
 
 interface IOOutputWriter {
-  + void write(params, results, &out_stream)
+  + void write(params, statistics, &out_stream)
 }
 class CSVWriter {
-  + void write(params, results, &out_stream)
+  + void write(params, statistics, &out_stream)
 }
 class SVGWriter {
-  + void write(params, results, &out_stream)
+  + void write(params, statistics, &out_stream)
 }
 
 IOOutputWriter <|-- CSVWriter
 IOOutputWriter <|-- SVGWriter
 
 CSVWriter --> ExperimentSweepParameters
-CSVWriter --> ExperimentSweepResults
+CSVWriter --> ExperimentSweepStatistics
 
 SVGWriter --> ExperimentSweepParameters
-SVGWriter --> ExperimentSweepResults
+SVGWriter --> ExperimentSweepStatistics
 
 @enduml

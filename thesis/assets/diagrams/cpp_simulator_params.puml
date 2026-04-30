@@ -56,5 +56,5 @@ RunParameters *-- GeneticParameters
 RunParameters *-- GeneticProbabilities
 RunParameters *-- EnergyParameters
 
-Simulator --> RunParameters
+Simulator *-- RunParameters
 @enduml

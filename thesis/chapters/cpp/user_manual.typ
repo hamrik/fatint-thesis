@@ -2,7 +2,7 @@
 
 == Felhasználói dokumentáció (C++) <cpp-user-manual>
 
-A C++ implementáció (továbbiakban *`fatint` program*) egy felület nélküli,
+A C++ implementáció (továbbiakban *a program*) egy felület nélküli,
 parancssorból futtatható implementációja a FATINT modellnek (@model-desc),
 továbbá egy könyvtár (továbbiakban *libfatint*), mely beépíthető egyéb
 programokba. Elsődleges célja, hogy a @fatint cikkben megfogalmazott

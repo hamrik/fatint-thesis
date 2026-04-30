@@ -84,11 +84,11 @@ struct ReproductionParameters
     /// Starting population size.
     size_t m_init{DEFAULT_M_INIT};
     /// Minimum number of offspring during reproduction.
-    double m_const{DEFAULT_M_CONST};
+    size_t m_const{DEFAULT_M_CONST};
     /// Slope of the offspring function.
     double m_slope{DEFAULT_M_SLOPE};
     /// Maximum number of offspring during reproduction.
-    double m_limit{DEFAULT_M_LIMIT};
+    size_t m_limit{DEFAULT_M_LIMIT};
 
     void validate();
 };

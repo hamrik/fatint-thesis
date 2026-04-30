@@ -98,7 +98,6 @@ Simulator *-- ISelection
 Simulator *-- IReproduction
 Simulator *-- IGeneAdder
 Simulator *-- ISpeciesCounter
-Simulator *-- RunParameters
 
 ISimilarity <|-- EuclideanDistanceSimilarity
 ISelection <|-- ReservoirSelection

@@ -18,13 +18,13 @@ inline auto entity_energy_change(int age, double energy_taken, double e_discount
 }
 
 /// Determines how many entities a pair of compatible entities can create
-inline auto offspring_count(double genetic_distance, double m_const, double m_limit, double m_slope) -> int
+inline auto offspring_count(double genetic_distance, size_t m_const, size_t m_limit, double m_slope) -> int
 {
     assert(genetic_distance >= 0);
     assert(m_const >= 0);
     assert(m_limit >= genetic_distance);
     assert(m_slope >= 0);
-    return static_cast<int>(floor(m_const - (m_limit - genetic_distance) * m_slope));
+    return static_cast<int>(floor(static_cast<double>(m_const) - (static_cast<double>(m_limit) - genetic_distance) * m_slope));
 }
 
 /// Determines the next gene to be added to the entity given its current

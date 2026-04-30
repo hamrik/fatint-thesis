@@ -1,9 +1,12 @@
 @startuml
-:char **argv;
-:ExperimentSweepParamters;
-:ExperimentParameters;
-:RunParameters;
-:RunStates;
-:ExperimentResults;
-:ExperimentSweepResults;
+hide empty description
+
+[*] --> argv : main()
+argv --> ExperimentSweepParameters : parse_args()
+ExperimentSweepParameters --> ExperimentParameters : ExperimentSweepParameters::expand()
+ExperimentParameters --> RunParameters : ExperimentParameters::expand()
+RunParameters --> RunStates : Simulator::run()
+RunStates --> ExperimentResults : measure()
+ExperimentResults --> ExperimentSweepResults : measure()
+ExperimentSweepResults --> fájl : IOOutputWriter::write()
 @enduml

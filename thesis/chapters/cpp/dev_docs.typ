@@ -71,9 +71,7 @@ táblázatban szereplő kapcsoló kombinációkra a táblázatban előírt módo
     columns: 3,
     table.header[*GIVEN / Feltéve, hogy a felhasználó...*][*WHEN / Amikor...*][*THEN / Akkor...*],
 
-    [-],
-    [A felhasználó elindítja a programot a `--help` kapcsolóval],
-    [A program kiírja a súgót.],
+    [-], [A felhasználó elindítja a programot a `--help` kapcsolóval], [A program kiírja a súgót.],
 
     [-],
     [A felhasználó elindítja a programot, de nem ad meg egyetlen paramétert sem],
@@ -102,20 +100,13 @@ táblázatban szereplő kapcsoló kombinációkra a táblázatban előírt módo
   caption: "A C++ implementáció elvárt viselkedése a paraméterek függvényében",
 ) <cpp-gwt>
 
-=== Architektúra
+=== Implementáció részletei
+
+==== Architektúra
 
 A C++ implementáció erősen épít a _"Stratégia"_ fejlesztési mintára. A
 szimuláció minden eleme, a genetikus algorimusoktól a fajszámolásig egy-egy
-különálló, cserélhető algoritmus. Az egyes elemek egy adatcsővezetéket
-(_"data pipeline"_) alkotnak, melyek között az adatfolyamot a `Simulator`
-osztály szervezi, lásd @libfatint-dataflow diagram.
-
-#figure(
-  image("/assets/diagrams/cpp_dataflow.svg"),
-  caption: [A `fatint` program és a `libfatint` könyvtár adatfolyama]
-) <libfatint-dataflow>
-
-#todo[Some classes were since removed, so this is no longer accurate]
+különálló, cserélhető algoritmus.
 
 A szimuláció fontosabb komponensei interfészként vannak definiálva:
 
@@ -146,20 +137,268 @@ konstans referencia, vagy érték.
 
 #figure(
   image("/assets/diagrams/cpp_simulator_classes.svg"),
-  caption: [A `Simulator` osztály és függőségeinek osztálydiagramja]
+  caption: [A `Simulator` osztály és függőségeinek osztálydiagramja],
 ) <libfatint-simulator-class-diagram>
 #figure(
   image("/assets/diagrams/cpp_simulator_params.svg"),
-  caption: [A `Simulator` osztály és paramétereinek osztálydiagramja]
+  caption: [A `Simulator` osztály és paramétereinek osztálydiagramja],
 ) <libfatint-simulator-params-diagram>
 #figure(
   image("/assets/diagrams/cpp_simulator_usages.svg"),
-  caption: [A `Simulator` osztály és az álatala használt típusok osztálydiagramja]
+  caption: [A `Simulator` osztály és az álatala használt típusok osztálydiagramja],
 ) <libfatint-simulator-usages-diagram>
 #figure(
   image("/assets/diagrams/cpp_experiment_classes.svg", width: 60%),
-  caption: [A kísérletsorok és alkotóelemeinek osztálydiagramja]
+  caption: [A kísérletsorok és alkotóelemeinek osztálydiagramja],
 ) <libfatint-experiment-class-diagram>
+
+==== A program szakaszai
+
+Az egyes elemek egy adatcsővezetéket (_"data pipeline"_) alkotnak, melyek között
+az adatfolyamot a `Simulator` osztály szervezi, lásd @libfatint-dataflow diagram.
+
+#figure(
+  image("/assets/diagrams/cpp_dataflow.svg"),
+  caption: [Az adatok transzformációja `fatint` programban és a `libfatint` könyvtárban],
+) <libfatint-dataflow>
+
++ A program a `cxxopts` könyvtár segítségével értelmezi a parancssori
+  kapcsolókat és előállít egy `ExperimentSweepParameters` objektumot. Ez az
+  objektum minden, a kísérletsorral kapcsolatos paramétert tartalmaz.
++ Az `ExperimentSweepParameters::expand()` metódusa előállítja az egyes
+  szimulációk `RunParameters` paramétereit, figyelembe véve a véletlenszám
+  generátor kezdőállapotának inkrementálását egy kísérleten belül és a
+  kísérletsor által végigsöpört paraméter inkrementálását kísérletek között.
++ A program az egyes paraméter típusokban definiált `validate()` metódussal
+  ellenőrzi a kísérletsor összes paraméterét. Ha valamelyik nem megfelelő,
+  (a `valiedate()` dob egy `ConstraintException` kivételt) kijelzi a hibás
+  paramétert, a hiba szövegét, majd terminál.
++ Ha nincsen hiba, akkor a program minden egyes `RunParameter` objektumhoz
+  felépít egy `Simulator` példányt a megadott kapcsolóknak megfelelő
+  függőségekkel és a paraméterekkel, initializál egy `Random` véletlenszám
+  generátort a megfelelő kezdőállapottal, majd lefuttatja a szimulációt
+  (`Simulator::run`). A kapott `RunStates` állapotokat kigyűjti egy
+  `ExperimentStates` gyűjteménybe. A szimulációs lépéseket a @cpp-sim-steps
+  részletezi.
++ A program a `math::measure` segédfüggvénnyel minden kísérlethez lépésenkénti
+  statiszikákat (`ExperimentStatistics`) állít elő az egyes kísérletek
+  szimulációinak azonos lépéskori állapotából, majd a kísérletek statisztikáit
+  kigyűjti egy `ExperimentSweepStatistics` gyűjteménybe.
++ A program a felhasználó által meghatározott útvonalhoz létrehoz egy kimeneti
+  folyamot (`std::ostream`), a falhasználó által meghatározott adat exportálót
+  (`CSVWriter` vagy `SVGWriter`) példányosítja, majd átadja az exportálónak a
+  paramétereket, statisztikákat és a folyamot.
++ Az exportáló végeztével a program kilép.
+
+==== A szimuláció menete <cpp-sim-steps>
+
+A `Simulator::run` metódus egy teljes kísérletet lefuttat, majd visszaadja
+a lépésenként mért populáció létszámot, gének számát és fajok számát. Az alábbi
+lépésekből áll:
+
++ A szimuláció létrehoz egy új `Environment` példányt. Ez az osztály tartja
+  számon a környezet energiaszintjét.
++ Létrehoz egy vektort a szimuláció állapotok tárolásához. Ezt a vektort úgy
+  méretezi, hogy a megadott maximális lépésszám (`steps`) mellett futás közben
+  ne kelljen újraallokálni a vektort.
++ Létehoz $M_"init"$ `Entity` egyedet egyenként $N_"init"$ méretű genotípus
+  vektorral, $0$ korral és $0$ energiával.
++ A következő lépéseket a szimuláció legfeljebb `steps` alkalommal ismétli:
+  - A környezet (`Environment`) energiaszintjét megnöveli $E_"increase"$
+    egységgel.
+  - Lefuttatja a `Simulator::tick` metódust:
+    - A életben lévő entitások indexeit véletlen sorrendben összekeveri
+      (`Random::random_indices`). Ez biztosítja, hogy minden egyednek igazságos
+      hozzáférése legyen a közös környezeti energia készlethez.
+    - A kisorsolt sorrendben minden egyedhez:
+      - Az `Environment::take(`$E_"intake"$`)` metódussal kiszámolja mennyi
+        energiát tud az egyed magához venni a környezetből. Ez a metódus
+        egyúttal csökkentiaz energia készletet.
+      - Megemeli az egyed korát eggyel, majd módosítja annak energia szintjét a
+        @energy-gain-formula egyenlet (`model::energy_gain_formula()`) szerint.
+  - A szimuláció töröl minden olyan egyedet, melynek energiaszintje már nem
+    pozitív.
+  - Lefuttatja a `Simulator::reproduce` metódust:
+    - Inicializál egy $N_"new" := 0$ számlálót.
+    - Minden egyedhez, melyhez egy véletlen $P_"encounter"$ feltétel teljesül,
+      keres egy kompatiblis párt a kapott `ISelection::select` implementációval.
+    - Ha talált egy kompatibilis párt, kiszámolja a kapott
+      `ISimilarity::offspring_count` implementáció segítségével, hogy hány
+      utódjuk fog születni.
+    - Minden utódhoz inicializál egy új `Entity` objektumot, majd a kapott
+      `IReproduction::reproduce` segítségével inicializálja az utód genotípusát.
+      Az `IReproduction::reproduce` metódus visszatérési értéke egy logikai
+      érték, akkor igaz, ha az utód genotípusának minden génje a megengedett
+      alléltartományba esik. Ezesetben a `Simulator` hozzáadja az utódot a
+      populációhoz.
+    - Minden sikeresen hozzáadott utód után $P_"change"$ valószínűséggel
+      inkrementálja eggyel $N_"new"$-t.
+    - Végül visszatér a $N_"new"$ értékével.
+  - A `Simulator` minden egyedhez hozzáad $N_"new"$ új gént a kapott
+    `IGeneAdder::add_gene` implementációval.
+  - Megszámolja a fajok számát a kapott `ISpeciesCounter::count_species`
+    implementációval.
+  - Az egyedek, gének és fajok számát egy `State` objektumba csomagolja és
+    hozzáadja az állapotvektorhoz.
+  - Ha nem maradt több egyed, a ciklus terminál.
++ A szimuláció végül visszatér az állapotvektorral.
+
+==== A szimuláció paraméter objektumainak rövid bemutatása
+
+A modell paraméterei (@model-params) a `RunParameters` objektumban vannak,
+az alábbi struktúrákba csoportosítva:
+
+/ `Limits`: A megengedett $[V_"min", V_"max"]$ alléltartomány
+/ `ReproductionProbabilities`: A párosodás során használt $P_"encounter"$
+  párosodási esély és $P_"change"$ genotípus bővítés valószínűsége.
+/ `ReproductionParamters`: Az $M_"init"$ kezdő létszám és a @stretch-formula
+  egyenletben használt $M_"const"$, $M_"slope"$ és $M_"limit"$.
+/ `GeneticProbabilities`: A genetikai operátorok valószínűségi paraméterei:
+  $P_"crossing"$ és $P_"mutation"$
+/ `GeneticParamters`: A kezdő génszám $N_"init"$, valamint a genotípusokat
+  érintő műveletek paraméterei: $V_"mutation"$ és $V_"stretch"$.
+/ `EnergyParameters`: A környezet energiaszintjét növelő paraméter
+  $E_"increase"$, valamint az @energy-gain-formula egyenletben használt
+  paraméterek: $E_"consumption"$, $E_"intake"$ és $E_"discount"$.
+
+==== A szimuláció egyéb objektumainak rövid bemutatása
+
+A környezet energiakészletét az *`Environment`* osztály kezeli. Az aktuális
+energia szint lekérhető a `current_energy` getterrel, de közvetlenül nem
+módosítható. A `replenish` metódus növeli a szintet a megadott értékkel,
+a `take` metódus pedig csökkenti legfeljebb a megadott mértékkel, de legfeljebb
+annyival, hogy nulla alá ne süllyedjen az energiaszint. A tényleges csökkentés
+mértékét visszaadja.
+
+Az *`Entity`* struktúra tárolja az egyed egyedek állapotát: a korát (`age`),
+energiszintjét (`energy`), és genotípusát (`genotype`).
+
+A *`State`* struktúra foglalja össze a szimulációban tapasztalható állapotokat egy
+adott időpillanatban (lépésben). Tartalmazza az egyedek számát (`entity_count`),
+az egyes egyedek génjeinek számát (`gene_count`) és a fajok számát
+(`species_count`).
+
+A *`RunStates`* a `State` struktúrákból álló `vector`, a `Simulator::run`
+visszatérési értéke. Az adott szimuláció állapotának időbeli alakulásának
+története.
+
+==== Az impementációk rövid bemutatása
+
+A *`EuclideanDistanceSimilarity`* a kapott egyedek genotípusának eukédeszi
+távolságából állapítja meg az $M_"limit"$ és az @offspring-count-formula
+egyenlet segítségével, hogy lehet-e utóduk és hány.
+
+A *`ReservoirSelection`* a `ReservoirSampling` technikát alkalmazza, hogy
+végigiterálva az összes egyeden (kihagyva a kapott alanyt) igazságosan
+válasszon egy `ISimilarity` szerint kompatiblis párt ismeretlen számú,
+lehetséges választás közül anélkül, hogy minden találatot el kéne tárolnia egy
+tömbbe. A `ReservoirSamnpling` futása során egy választást tartalmaz,
+és minden bemutatott opciónál $1 / n$ valószínűséggel cseréli le az addigi
+választását az új opcióra, ahol $n$ az addig bemutatott opciók száma.
+Visszatérési értéke `std::optional<T>`, mert ha egy opciót sem kapott nincs mit
+visszaadni. A FATINT C++ implementiációjában az egyetlen sablonos osztály.
+
+A *`GeneticReproduction`* két általános genetikai operátort használ új egyedek
+létrehozásához: `ICombination`, ami két szülő egyed tulajdonágait kombinálja,
+és `IMutation`, ami az utód génjeit véletlenszerűen módosíthatja.
+
+A *`BoundedMutation`* az `IMutation` implementációja, génenként $P_"mutation"$
+valószínűséggel módosítja azt egy $[-V_"mutation", V_"mutation"]$ intervallumba
+eső véletlen számmal. Nem garantálja, hogy a kapott genotípus betartja az
+megengedett alléltartományt.
+
+A *`Crossover`* az `ICombination` implementiációja, a kapott utód genotípus
+minden génjét egyenként $P_"crossover"$ valószínűséggel az egyik szülőből,
+$1 - P_"crossover"$ valószínűséggel a másik szülőből másolja.
+
+A *`RandomGeneAdder`* egy véletlenszerű, a megengedett alléltartományba eső gént
+fűz hozzá a kapott genotípushoz.
+
+A *`VStretchGeneAdder`* a @stretch-formula egyenletet használja a kapott
+genotípus utolsó génjéből számolja ki az új gént, amit hozzáfűz a genotípushoz.
+
+A *`DepthFirstSearchSpeciesCounter`* mélységi bejárást használja számolja meg
+a fajokat a kapott populációban:
++ Initializálja a fajok számát $0$-ra.
++ Amíg van meg nem jelölt egyed:
+  - Inkrementálja a fajok számát eggyel.
+  - Behelyezi egy meg nem jelölt egyed populáción belüli indexét egy verembe,
+    majd megjelöli az egyedet.
+  - Amíg a verem nem üres:
+    - Kiveszi a veremből a legfelső indexet.
+    - A hozzá tartozó egyedhez megkeresi a populáció összes kompatibilis
+      egyedét, a jelöletleneket behelyezi a verembe majd megjelöli őket.
++ Miután minden egyedet megjelölt visszatér a fajok számával.
+Mivel minden lépésben összehasonlít minden egyed párt, ezért időbeli
+komplexitása $O(|V| + |V|^2) approx O(|V|^2$ ahol, $|V|$ a populáció létszáma.
+
+A *`DisjointSetsSpeciesCounter`* a Diszjunkt-Halmaz adatszerkezetet használja
+a fajok megszámolásához:
++ Inicializálja a fajok számát $|V|$-re, azaz a populáció létszámára.
++ Minden egyedhez társít egy "szülő" indexet (kezdetben a saját indexét),
+  valamint egy rangot. Ezzel létrehoz $|V|$ db fát. Hívjuk azon egyedeket
+  "gyökérnek", melyek saját maguk szülei.
++ Minden kompatibilis egyed párt "egyesít":
+  - Leköveti a mindkét egyed szülő indexet amíg meg nem találja a gyökerüket.
+    Egy, a fák magasságát csökkentő optimalizáció, ha út közben minden egyed
+    szülőjét lecseréljük a nagyszülőjére (_"path halving"_).
+  - Ha mindkét egyednek ugyanaz a gyökere, nincs további teendő ezzel a párral.
+  - Ha a gyökerek eltérnek, de a rangjuk egyforma, az egyik gyökér rangját
+    megnöveli eggyel.
+  - A kisebb rangú győkér szülőjét beállítja a nagyobb rangú györkérnek, ezzel
+    az alacsonyabb fát beolvasztva a magasabbikba.
+    Az algorimus működik rangok nélkül is, de a fák magasabbra nőhetnek.
+  - Csökkenti a fajok számát eggyel.
+Az egyesítés időigénye $O(1)$, a györkér keresés időigénye pedig
+$O(alpha(|V|))$, ahol $alpha$ az elhanyagolhatóan lassan növekvő inverz
+Ackermann függény. Viszont az időigényt dominálja a kompatilis párok
+megkeresése, ami $O(|V|^2)$ időigényű.
+
+==== A fajszámlálók teljesítményének összehasonlítása
+
+#figure(
+  perf_plot(
+    [Populáció],
+    (
+      (
+        path: "/data/benchmark-species-counter-dfs-one-species-libfatint.csv",
+        label: [Mélységi bejárás, egy faj],
+        skip: 0,
+        x: 0,
+        y: 1,
+      ),
+      (
+        path: "/data/benchmark-species-counter-dfs-many-species-libfatint.csv",
+        label: [Mélységi bejárás, sok faj],
+        skip: 0,
+        x: 0,
+        y: 1,
+      ),
+      (
+        path: "/data/benchmark-species-counter-ds-one-species-libfatint.csv",
+        label: [Diszjunkt-Halmaz, egy faj],
+        skip: 0,
+        x: 0,
+        y: 1,
+      ),
+      (
+        path: "/data/benchmark-species-counter-ds-many-species-libfatint.csv",
+        label: [Diszjunkt-Halmaz, sok faj],
+        skip: 0,
+        x: 0,
+        y: 1,
+      ),
+    ),
+  ),
+  caption: [
+    A fajszámláló algorimusok időigénye populáció létszámának függvényében
+    (logaritmikus skála).
+  ],
+) <libfatint-species-counter-perf>
+
+A @libfatint-species-counter-perf diagramon látható, hogy magas fajszám mellett
+a hogy amíg magas fajszám mellett a Diszjunkt-Halmaz gyorsabb a mélységi
+bejárásnál, addig az alacsony fajszám a mélységi bejárásnak kedvez.
 
 === Forráskód fordítása <build-from-source>
 
@@ -196,50 +435,57 @@ A kész program a `./build` mappába kerül.
 A C++ implementáció tesztelésekor meg kell győződni arról, hogy a modell
 ugyanúgy viselkedik, ahogy a @fatint cikkben le van írva, továbbá, hogy az
 eredmények reprodukálhatóak. Ezt egység- és integrációs tesztekkel érjük el.
-A teszteket a projekt GitHub oldalán beállított CI pipeline is lefuttatja minden
-kommit feltöltése után.
+Az automatizált teszteket a projekt GitHub oldalán beállított CI pipeline is
+lefuttatja minden kommit feltöltése után.
 
 ==== Automatizált tesztek
 
-A fenti fordítási parancsok előállítanak számos egység- és integrációs tesztet
-is. Ezek a tesztek a CMake `ctest` eszközével indíthatók, a
-`build/libs/libfatint/tests` mappában állva:
+A fenti fordítási parancsok előállítanak számos egység- és integrációs tesztet.
+Ezek a tesztek a CMake `ctest` eszközével indíthatók, a
+`build/libs/libfatint/tests` mappából:
 
 ```bash
-$ cd build/libs/fatint/tests
+$ cd build/libs/libfatint/tests
 tests$ ctest --output-on-failure
 ```
 
-A CTest eszköz egy összefoglalást fog kiírni a sikeresen futtatott tesztekről,
-és részleteket biztosít a sikertelenül lefutó tesztekről.
+Az `--output-on-failure` kapcsolóval a CTest egy összefoglalót nyújt a sikeresen
+futtatott tesztekről és részleteket a sikertelenül lefutó tesztekről.
 
 A C++ implementáció tesztjei a `doctest` könytárat használják, és a
 következőkről bizonyosodnak meg:
 
-- `genetics/`
-  - A genetikai operátorok, mint a kereszteződés és mutáció, helyesen viselkednek.
-- `math/`:
-  - A véletlenszám generátor segédfüggvények a megfelelő valószínűséggel, reprodukálható módon működnek.
-  - A kiszámolt statisztikák helyesek.
-  - #todo("Test numerical stability when calculating stats for a large array")
-- `measurement/`:
-  - A Diszjunkt-Halmaz alapú fajszámláló helyesen működik.
-  - A tárolós (Reservoir) mintavételezési algoritmus egyenletes eloszlással működik.
-- `model/`:
-  - A modell egyenletei a @fatint cikkhez hűen vannak implementálva.
-  - A doméntípusok operátorai helyesen működnek.
-- `simulation/`:
-  - A kísérlet sorozatok valóban csak egyetlen paramétert módosítanak, és azt is helyesen.
+A könytár forrásának `tests/genetics/` könytára 8 egység tesztet tartalmaz:
+- `EuclideanDistanceSimilarity` hasonlónak tart két egyforma egyedet $M_"limit" = 1$ mellet.
+- `EuclideanDistanceSimilarity` különbözőnek tart két egymástól távol eső genotusú egyedet $M_"limit" = 1$ mellett.
+- `BoundedMutation` nem módosítja a géneket $P_"mutation" = 0$ mellett.
+- `BoundedMutation` minden gént módosít $P_"mutation" = 0$ mellett.
+- `Crossover` mindig az első szülő egyed génjeit választja $P_"crossover" = 0$ mellett.
+- `Crossover` mindig a második szülő egyed génjeit választja $P_"crossover" = 1$ mellett.
+- `RandomGeneAdder` betartja a megszabott $[V_"min", V_"max"]$ alléltartományt.
+- `VStretchGeneAdder` a @stretch-formula egyenletnek megfelelő gént ad a
 
-A `simulation/` mappa integrációs teszteket is tartalmaz:
+A `tests/math/` könyvtárban 8 egységteszt ellenőrzi a `Random` véletlenszám generátort és egy teszt a statisztikai segédfüggvényt:
+- Két `Random` példány azonos kezdőállapot ($42$) mellett azonos számokat generál.
+- Egy `Random` példány állapota korábbi használat után is alapállapotba $42$ hozható, a kapott számok nem függenek a korábbi állapotoktól.
+- A `Random` példány ezer hívás után is betartja a megadott $[10, 20]$ zárt intervallumot.
+- A `Random` példány valós számok generálásakor betartja a megadott $[0, 1)$ balról zárt, jobbról nyílt intervallumot.
+- A `Random` példány $P = 0$ valószínűség mellett mindig hamis értéket sorsol.
+- A `Random` példány $P = 1$ valószínűség mellett mindig igaz értéket sorsol.
+- A `Random` példány $P = 0$ valószínűség mellett az esetek $50% plus.minus 5%$-ban igaz értéket sorsol.
+- A `Random` példány által kevert sorrendben generált $5$ elemű index sorozat rendezés után a $[0..4] in NN$ sorozat
+- A `measure` segédfüggvény az $S = [1..5] in NN$ sorozat szerint $min S = 1$, $max S = 5$, $(sum S) / (|S|) = 3$, $s approx 1.5811$ és $s / sqrt(|S|) approx 0.7071$.
 
-  - A szimuláció során az egyedek idővel "éhen halnak", és ha a szaporodás feltételei nem adottak, a teljes populáció 30 lépésen belül eltűnik.
-  - A szimuláció új géneket vezet be ha a szaporodás feltételei biztosítottak és a $P_"change"$ paraméter értéke pozitív.
-  - A szimuláció eredményei reprodukálhatóak több futtatás után is, amennyiben a véletlen szám generátor kezdőállapota állandó.
+A `tests/measurement/`: könyvtárban található 8-8 teszt a `DepthFirstSearchSpeciesCounter` és `DisjointSetsSpeciesCounter` számlálóknak, valamint 5 teszt a `ReservoirSampling` mintavételezőnek:
+
+A `tests/model/` könyvtárban 9 egységteszt vizsgálja a modell egyenleteit, ls 7 további a paraméter struktúrák túlterhelt `+=` operátorait:
+
+A `tests/performance` könyvtárban 4 teljesítmény teszt méri a faj számlálók időgényét, és 2 további teszt a `Simulator` időigényét:
+
+A `tests/simulation` könyvtárban 22 teszt vizsálja a paraméter validáló függvényeket, egy a `RunParameters` túlterhelt `+=` operátorát, és 1-1 teszt az `ExperimentParameters` és `ExperimentSweepParameters` `expand` segédfüggvényeit:
+
 
 A @fatint cikkben szereplő kísérletek adaptált megfelelői a következők:
-
-#todo("Include NetLogo results and compare, verify identical behavior")
 
 ==== A cikk grafikonjai, mint kézi integrációs tesztek
 

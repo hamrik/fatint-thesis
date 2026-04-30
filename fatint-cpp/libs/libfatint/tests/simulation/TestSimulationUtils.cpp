@@ -82,19 +82,20 @@ TEST_CASE("Constraint violations are caught")
         };
         CHECK_THROWS(p0.validate());
 
-        fatint::simulation::RunParameters p1{
-            .reproduction_parameters = {
-                .m_const = -1
-            }
-        };
-        CHECK_THROWS(p1.validate());
+        // fatint::simulation::RunParameters p1{
+        //     .reproduction_parameters = {
+        //         .m_const = -1
+        //     }
+        // };
+        // CHECK_THROWS(p1.validate());
 
-        fatint::simulation::RunParameters p2{
-            .reproduction_parameters = {
-                .m_limit = -1
-            }
-        };
-        CHECK_THROWS(p2.validate());
+        // fatint::simulation::RunParameters p2{
+        //     .reproduction_parameters = {
+        //         .m_limit = -1
+        //     }
+        // };
+        // CHECK_THROWS(p2.validate());
+
     }
     SUBCASE("RunParameters - GeneticProbabilities")
     {

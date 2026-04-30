@@ -153,7 +153,7 @@ TEST_CASE("RandomGeneAdder - correctly adds genes")
     }
 }
 
-TEST_CASE("VStretchGeneAdderImpl - correctly adds genes using v-stretch "
+TEST_CASE("VStretchGeneAdder - correctly adds genes using v-stretch "
           "formula")
 {
     fatint::math::Random random(0);
