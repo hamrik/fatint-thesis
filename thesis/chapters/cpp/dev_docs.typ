@@ -43,15 +43,15 @@ Az implementáció:
 ==== Felhasználói esetek
 
 A C++ implementáció nem egy interaktív eszköz. A kezdő paramétereket a
-felhasználó a parancssorban adja meg. A program induláskor ellenőrzi ezek
-helyességét, és probléma esetén tájékoztatja a felhasználót a hibáról. Ha a
-paraméterek megfelelnek a @model-defaults táblázatban foglaltaknak, a program
-a kísérletsor lefutásáig nem nyújt további visszajelzést a felhasználónak.
-Ha a felhasználó nem adott meg mentési útvonalat, a program a standard kimenetre
-írja az ereményeket, lehetővé téve azok szkriptekben vagy UNIX csőveezetékeken
-keresztül történő további feldolgozását. Ha a felhasználó megadott egy
-mentési útvonalat, a program az eredményeket a megadott útvonalú fájlba írja,
-majd csendben kilép.
+felhasználó a parancssorban adja meg. A program induláskor ellenőrzi a megadoott
+paraméterek helyességét, és probléma esetén tájékoztatja a felhasználót a
+hibáról. Ha a paraméterek megfelelnek a @model-defaults táblázatban
+foglaltaknak, a program a kísérletsor lefutásáig nem nyújt további visszajelzést
+a felhasználónak. Ha a felhasználó nem adott meg mentési útvonalat, a program a
+standard kimenetre írja az ereményeket, lehetővé téve azok szkriptekben vagy
+UNIX csőveezetékeken keresztül történő további feldolgozását. Ha a felhasználó
+megadott egy mentési útvonalat, a program az eredményeket a megadott útvonalú
+fájlba írja, majd csendben kilép.
 
 #figure(
   image("/assets/diagrams/cpp_usecase.svg", width: 80%),
@@ -64,7 +64,7 @@ majd csendben kilép.
 
 A felhasználó kísérleteket szeretne futtatni, hogy elemezhesse a FATINT modell
 viselkedését. Az implementáció akkor működik megfelelően, ha a @cpp-gwt
-táblázatban szereplő kapcsoló kombinálciókra a táblázatban előírt módon reagál.
+táblázatban szereplő kapcsoló kombinációkra a táblázatban előírt módon reagál.
 
 #figure(
   table(
@@ -123,7 +123,7 @@ A szimuláció fontosabb komponensei interfészként vannak definiálva:
 / ISelection: Keres egy kompatibilis párt egy adott egyedhez.
 / IReproduction: Kombinálja két szülő egyed tulajdonságait egy gyermek egyedben. Pl. `GeneticReproduction`.
 / IValidator: Ellenőrzi, hogy egy egyed megfelel-e a szimulációs paraméterekben megszabott határoknak, például hogy a génjei a megszabott $[V_"min", V_"max"]$ allélhalmazba esnek-e.
-/ IAlleleAdder: Meghatározza egy egyed genotípusa alapján a következő aktiválandó gént. Pl. `RandomAlleleAdder` vagy `StretchMethodAlleleAdder`.
+/ IAlleleAdder: Meghatározza egy egyed genotípusa alapján a következő aktiválandó gént. Pl. `RandomGeneAdder` vagy `VStretchGeneAdder`.
 / ISpeciesCounter: Megszámolja a párzási preferenciák mentén elkülöníthető fajok számát. Pl. `DepthFirstSearchSpeciesCounter` vagy `DisjointSetsSpeciesCounter`. Az implementáció nem lehet hatással a végeredményre.
 / IMutation: A `GeneticReproduction` mutációs operátora. Az gyermekegyed génjeit módosítja.
 / ICrossover: A `GeneticReproduction` keresztezés operátora. A két szülő egyed génjeit kombinája egy gyermekegyedben.
@@ -134,13 +134,28 @@ példányokat koordináció nélkül, mégis reprodukálható módon, versenyhel
 nélkül.
 
 Az interfészeket, azok kapcsolatát és implementációikat a
-@libfatint-simulator-class-diagram és @libfatint-experiment-class-diagram
-diagramok részletezik.
+@libfatint-simulator-class-diagram, @libfatint-simulator-params-diagram,
+@libfatint-simulator-usages-diagram és @libfatint-experiment-class-diagram
+diagramok részletezik. Az összetettség csökkentése érdekében az ábrán látható
+osztályok egyszerűsítve vannak ábrázolva a forráshoz képest.
+Diagramon szereplő összes osztály összes mezője érték ha primitív és
+`unique_ptr`-en keresztül birtokolt példány, ha implementáció. Minden osztály
+rendelkezik egy minden mezőt átvevő konstruktorral. A diagramon `&` jelöli azon
+referenciákat, melyeket a metódus módosíthat. Minden egyéb argumentum vagy
+konstans referencia, vagy érték.
 
 #figure(
   image("/assets/diagrams/cpp_simulator_classes.svg"),
-  caption: [A `Simulator` osztály és alkotóelemeinek osztálydiagramja]
+  caption: [A `Simulator` osztály és függőségeinek osztálydiagramja]
 ) <libfatint-simulator-class-diagram>
+#figure(
+  image("/assets/diagrams/cpp_simulator_params.svg"),
+  caption: [A `Simulator` osztály és paramétereinek osztálydiagramja]
+) <libfatint-simulator-params-diagram>
+#figure(
+  image("/assets/diagrams/cpp_simulator_usages.svg"),
+  caption: [A `Simulator` osztály és az álatala használt típusok osztálydiagramja]
+) <libfatint-simulator-usages-diagram>
 #figure(
   image("/assets/diagrams/cpp_experiment_classes.svg", width: 60%),
   caption: [A kísérletsorok és alkotóelemeinek osztálydiagramja]
@@ -157,7 +172,8 @@ A forráskód fordításához a következő elemekre van szükség:
   Egyes standard könyvtárak (például `libstdc++`) megkövetelik, mások
   (például `libc++`) nem.
 
-Ubuntu rendszeren ezek a függőségek a következő paranccsal telepíthetőek:
+Példáum Ubuntu 24.04 rendszeren a függőségeket a következő paranccsal
+telepítjük:
 
 ```bash
 $ sudo apt install build-essential cmake libtbb12 libtbb-dev
@@ -165,7 +181,7 @@ $ sudo apt install build-essential cmake libtbb12 libtbb-dev
 
 Minden további függőség a forráskód része.
 
-A fordításhoz a projekt `fatint-cpp` könyvtárában állva adjuk ki a következő
+A fordításhoz a projekt `fatint-cpp` könyvtárában állva kiadjuk az alábbi
 parancsokat:
 
 ```bash
@@ -173,14 +189,15 @@ $ cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release
 $ cmake --build build --parallel
 ```
 
-A kész program a `./build/fatint` mappába kerül.
+A kész program a `./build` mappába kerül.
 
 === Tesztek futtatása
 
-A C++ implementáció tesztelésekor meg kell győződni arról, hogy a modell ugyanúgy viselkedik,
-ahogy a @fatint cikkben le van írva, továbbá, hogy az eredmények reprodukálhatóak. Ezt egység-
-és integrációs tesztekkel érjük el, melyeket a repóban beállított CI pipeline is lefuttat minden
-commit feltöltése után.
+A C++ implementáció tesztelésekor meg kell győződni arról, hogy a modell
+ugyanúgy viselkedik, ahogy a @fatint cikkben le van írva, továbbá, hogy az
+eredmények reprodukálhatóak. Ezt egység- és integrációs tesztekkel érjük el.
+A teszteket a projekt GitHub oldalán beállított CI pipeline is lefuttatja minden
+kommit feltöltése után.
 
 ==== Automatizált tesztek
 

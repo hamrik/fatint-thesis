@@ -1,0 +1,60 @@
+@startuml
+class Simulator {
+  - const ISimilarity similarity
+  - const ISelection selection
+  - const IReproduction reproduction
+  - const IGeneAdder gene_adder
+  - const ISpeciesCounter species_counter
+  - const RunParameters parameters
+  + RunStates run(&rng)
+}
+
+struct RunParameters {
+  + int seed
+  + int steps
+  + Limits limits
+  + ReproductionProbabilities r_probs
+  + ReproductionParameters r_params
+  + GeneticProbabilities g_probs
+  + GeneticParameters g_params
+  + EnergyParameters e_params
+}
+struct Limits {
+  + int v_min
+  + int v_max
+}
+struct ReproductionProbabilities {
+  + double p_encounter
+  + double p_change
+}
+struct ReproductionParameters {
+  + int m_init
+  + int m_const
+  + double m_slope
+  + int m_limit
+}
+struct GeneticProbabilities {
+  + double p_crossing
+  + double p_mutation
+}
+struct GeneticParameters {
+  + int n_init
+  + int v_mutation
+  + double v_stretch
+}
+struct EnergyParameters {
+  + double e_increase
+  + double e_consumption
+  + double e_intake
+  + double e_discount
+}
+
+RunParameters *-- Limits
+RunParameters *-- ReproductionParameters
+RunParameters *-- ReproductionProbabilities
+RunParameters *-- GeneticParameters
+RunParameters *-- GeneticProbabilities
+RunParameters *-- EnergyParameters
+
+Simulator --> RunParameters
+@enduml

@@ -3,18 +3,11 @@ class Simulator {
   - const ISimilarity similarity
   - const ISelection selection
   - const IReproduction reproduction
-  - const IValidator validator
-  - const IAlleleAdder allele_adder
+  - const IGeneAdder gene_adder
   - const ISpeciesCounter species_counter
-  + RunStates run(&rng, params)
+  - const RunParameters parameters
+  + RunStates run(&rng)
 }
-
-struct Entity {
-  + int age
-  + int energy
-  + Genotype genotype
-}
-Simulator --> Entity
 
 class Random {
   - pimpl
@@ -25,134 +18,73 @@ class Random {
   + void shuffle(&vec)
   + vector<int> random_indices(count)
 }
-Simulator --> Random
-
-struct RunParameters {
-  + int seed
-  + int steps
-  + Limits limits
-  + ReproductionProbabilities r_probs
-  + ReproductionParameters r_params
-  + GeneticProbabilities g_probs
-  + AlleleParamteres a_params
-  + EnergyParameters e_params
-}
-struct Limits {
-  + int v_min
-  + int v_max
-  + int m_limit
-}
-RunParameters o-- Limits
-struct ReproductionProbabilities {
-  + double p_encounter
-  + double p_change
-}
-RunParameters o-- ReproductionProbabilities
-struct ReproductionParameters {
-  + int m_init
-  + int m_const
-  + int m_slope
-}
-RunParameters o-- ReproductionParameters
-struct GeneticProbabilities {
-  + double p_crossing
-  + double p_mutation
-}
-RunParameters o-- GeneticProbabilities
-struct AlleleParamteres {
-  + int n_init
-  + int v_mutation
-  + int v_stretch
-}
-RunParameters o-- AlleleParamteres
-struct EnergyParameters {
-  + double e_increase
-  + double e_consumption
-  + double e_intake
-  + double e_discount
-}
-RunParameters o-- EnergyParameters
-Simulator --> RunParameters
-
-struct State {
-  + int entity_count
-  + int allele_count
-  + int species_count
-}
-class "vector<State>" { }
-class RunStates { }
-RunStates o-- State
-RunStates --|> "vector<State>" : <<typedef>>
-Simulator --> RunStates
 
 interface ISimilarity {
-  + bool compatible(limits, a, b) const
-  + int offspring_count(limits, a, b) const
+  + bool compatible(a, b) const
+  + int offspring_count(a, b) const
 }
 interface ISelection {
-  + int? select(&rng, limits, similarity, entity, population) const
+  + int? select(&rng, population, subject_index) const
 }
-'ISelection --> Random
-ISelection --> ISimilarity
-
+interface IMutation {
+  + void mutate(&rng, &genotype) const
+}
+interface ICombination {
+  + void combine(&rng, a, b, &out) const
+}
 interface IReproduction {
-  + Entity reproduce(a, b, limits) const
+  + bool reproduce(&rng, a, b, &offspring) const
 }
-interface IValidator {
-  + bool validate(limits, genotype) const
+interface IGeneAdder {
+  + void add_gene(&rng, &genotype) const
 }
-interface IAlleleAdder {
-  + void add_allele(&rng, limits, params, &genotype) const
-}
-'IAlleleAdder --> Random
 interface ISpeciesCounter {
-  + int count_species(limits, similarity, population) const
+  + int count_species(population) const
 }
 
-Simulator o-- ISimilarity
-Simulator o-- ISelection
-Simulator o-- IReproduction
-Simulator o-- IValidator
-Simulator o-- IAlleleAdder
-Simulator o-- ISpeciesCounter
-
+class EuclideanDistanceSimilarity {
+    - ReproductionParameters parameters
+    + bool compatible(a, b) const
+    + int offspring_count(a, b) const
+}
+class ReservoirSelection {
+    - const ISimilarity similarity
+    + int? select(&rng, population, subject_index) const
+}
+class BoundedMutation {
+    - double p_mutation
+    - double v_mutation
+    + void mutate(&rng, &genotype) const
+}
+class Crossover {
+    - double p_crossing
+    + void combine(&rng, a, b, &out) const
+}
 class GeneticReproduction {
-  - const IMutation mutation
-  - const ICrossover crossover
+    - const IMutation mutation
+    - const ICrossover crossover
+    + bool reproduce(&rng, a, b, &offspring) const
 }
-IReproduction <|.. GeneticReproduction
-
-class IMutation {
-  + void mutate(&rng, p_mutation, v_mutation, &genotype) const
+class RandomGeneAdder {
+    - int v_min
+    - int v_max
+    + void add_gene(&rng, &genotype) const
 }
-'IMutation --> Random
-GeneticReproduction o-- IMutation
-
-class ICrossover {
-  + void crossover(&rng, p_crossing, a, b, &out) const
+class VStretchGeneAdder {
+    - int v_min
+    - int v_max
+    - double v_stretch
+    + void add_gene(&rng, &genotype) const
 }
-'ICrossover --> Random
-GeneticReproduction o-- ICrossover
-
-class MutationImpl {
-
+class DepthFirstSearchSpeciesCounter {
+    - const ISimilarity similarity
+    + int count_species(population) const
 }
-IMutation <|.. MutationImpl
-
-class CrossoverImpl {
-
+class DisjointSetsSpeciesCounter {
+    - const ISimilarity similarity
+    + int count_species(population) const
 }
-ICrossover <|.. CrossoverImpl
 
-class SimilarityImpl {
-
-}
-ISimilarity <|.. SimilarityImpl
-
-class SelectionImpl {
-
-}
-ISelection <|.. SelectionImpl
 class ReservoirSampling<T> {
     - T? current
     - int n
@@ -160,31 +92,32 @@ class ReservoirSampling<T> {
     + T? get()
     + void add(&rng, t)
 }
-'ReservoirSampling -- Random
-SelectionImpl -- ReservoirSampling
 
-class ValidatorImpl {
+Simulator *-- ISimilarity
+Simulator *-- ISelection
+Simulator *-- IReproduction
+Simulator *-- IGeneAdder
+Simulator *-- ISpeciesCounter
+Simulator *-- RunParameters
 
-}
-IValidator <|.. ValidatorImpl
+ISimilarity <|-- EuclideanDistanceSimilarity
+ISelection <|-- ReservoirSelection
+IReproduction <|-- GeneticReproduction
+IGeneAdder <|-- RandomGeneAdder
+IGeneAdder <|-- VStretchGeneAdder
+ISpeciesCounter <|-- DepthFirstSearchSpeciesCounter
+ISpeciesCounter <|-- DisjointSetsSpeciesCounter
 
-class RandomAlleleAdder {
+ReservoirSelection --> ReservoirSampling
 
-}
-IAlleleAdder <|-- RandomAlleleAdder
+GeneticReproduction *-- IMutation
+GeneticReproduction *-- ICombination
 
-class StretchAlleleAdder {
+IMutation <|-- BoundedMutation
+ICombination <|-- Crossover
 
-}
-IAlleleAdder <|-- StretchAlleleAdder
-
-class DepthFirstSearchSpeciesCounter {
-
-}
-ISpeciesCounter <|.. DepthFirstSearchSpeciesCounter
-class DisjointSetsSpeciesCounter {
-
-}
-ISpeciesCounter <|.. DisjointSetsSpeciesCounter
-ISpeciesCounter --> ISimilarity
+ReservoirSampling --> Random
+RandomGeneAdder --> Random
+Crossover --> Random
+BoundedMutation --> Random
 @enduml

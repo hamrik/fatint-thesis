@@ -165,7 +165,6 @@ implementációk fontos paraméterei:
 #figure(
   caption: "A modell paramétereinek alapértelmezett értékei",
   [
-    #show table.cell.where(y: 0): strong
     #show table.cell.where(x: 0): it => align(left)[#it]
     #table(
       columns: 3,

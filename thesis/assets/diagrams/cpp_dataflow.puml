@@ -1,16 +1,9 @@
 @startuml
-participant Main
-participant Simulator
-participant StatisticsEvaluator
-participant IOutputWriter
-
-Main ->> ExperimentSweep : ExperimentSweepParameters
-ExperimentSweep ->> Experiment : ExperimentParameters
-Experiment ->> Simulator : RunParameters
-Simulator ->> Experiment : RunStates
-Experiment ->> ExperimentSweep : ExperimentStates
-ExperimentSweep ->> Main : ExperimentSweepStates
-Main ->> StatisticsEvaluator : ExperimentSweepStates
-StatisticsEvaluator ->> Main : ExperimentSweepResults
-Main ->> IOutputWriter : ExperimentSweepResults
+:char **argv;
+:ExperimentSweepParamters;
+:ExperimentParameters;
+:RunParameters;
+:RunStates;
+:ExperimentResults;
+:ExperimentSweepResults;
 @enduml

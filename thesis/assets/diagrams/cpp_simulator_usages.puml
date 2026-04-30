@@ -1,0 +1,45 @@
+@startuml
+class Simulator {
+  - const ISimilarity similarity
+  - const ISelection selection
+  - const IReproduction reproduction
+  - const IGeneAdder gene_adder
+  - const ISpeciesCounter species_counter
+  - const RunParameters parameters
+  + RunStates run(&rng)
+}
+
+struct Entity {
+  + int age
+  + double energy
+  + Genotype genotype
+}
+
+class "vector<int>" {}
+class Genotype {}
+Genotype --|> "vector<int>" : <<typedef>>
+
+class Environment {
+  - double energy
+  + double take(double max_amount)
+  + void replenish(double amount)
+}
+
+struct State {
+  + int entity_count
+  + int gene_count
+  + int species_count
+}
+
+class "vector<State>" { }
+class RunStates { }
+RunStates --|> "vector<State>" : <<typedef>>
+
+Simulator --> Entity
+Simulator --> Environment
+Simulator --> RunStates
+
+"vector<State>" *-- State
+
+Entity *-- Genotype
+@enduml

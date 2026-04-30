@@ -3,7 +3,7 @@
 struct RunParameters {
   ...
 }
-note right: Lásd Simulator osztálydiagram
+note bottom: Lásd Simulator osztálydiagram
 
 struct ExperimentParameters {
   + RunParameters run_parameters
@@ -23,7 +23,7 @@ ExperimentSweepParameters o-- RunParameters
 class RunStates {
   ...
 }
-note right: Lásd Simulator osztálydiagram
+note bottom: Lásd Simulator osztálydiagram
 
 class "vector<RunStates>" { }
 "vector<RunStates>" o-- RunStates
@@ -70,5 +70,24 @@ class math <<namespace>> {
 math --> ExperimentSweepParameters
 math --> ExperimentSweepStates
 math --> ExperimentSweepResults
+
+interface IOOutputWriter {
+  + void write(params, results, &out_stream)
+}
+class CSVWriter {
+  + void write(params, results, &out_stream)
+}
+class SVGWriter {
+  + void write(params, results, &out_stream)
+}
+
+IOOutputWriter <|-- CSVWriter
+IOOutputWriter <|-- SVGWriter
+
+CSVWriter --> ExperimentSweepParameters
+CSVWriter --> ExperimentSweepResults
+
+SVGWriter --> ExperimentSweepParameters
+SVGWriter --> ExperimentSweepResults
 
 @enduml
