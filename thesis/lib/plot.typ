@@ -99,7 +99,7 @@
   let plots = if prop != none {
     plot_ranges(data, prop).map(plot_slice)
   } else {
-    plot_ranges(data, "starting_population").map(plot_slice)
+    plot_ranges(data, "m_init").map(plot_slice)
   }
 
   let legend_def = if legend and prop != none {
