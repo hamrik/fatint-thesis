@@ -9,7 +9,7 @@ globals [
   available-energy
   population
   species-count
-  allele-count
+  gene-count
 
   ;; Euclidean distance threshold between genotypes of two compatible agents.U pdated by `setup`.
   ;; Squared value is stored to spare a `sqrt` operation when checking.
@@ -17,7 +17,7 @@ globals [
 ]
 turtles-own [
   ;; Model
-  phenotype
+  genotype
   e-discounting
   accumulated-energy
 
@@ -119,16 +119,16 @@ to repopulate
 
   set available-energy 0
   set population       M-init
-  set allele-count     N-init
+  set gene-count     N-init
 
   create-turtles M-init [
     set e-discounting      1
     set accumulated-energy 0
-    set phenotype          n-values allele-count [random-gene]
+    set genotype          n-values gene-count [random-gene]
 
     set shape "square"
-    setxy (item 0 phenotype) (item 1 phenotype)
-    set color (list ((item 2 phenotype) + 100) ((item 2 phenotype) + 100) ((item 3 phenotype) + 100))
+    setxy (item 0 genotype) (item 1 genotype)
+    set color (list ((item 2 genotype) + 100) ((item 2 genotype) + 100) ((item 3 genotype) + 100))
   ]
 end
 
@@ -186,34 +186,34 @@ to-report combine [ga gb]
 end
 
 to reproduce
-  let new-allele-count 0
+  let new-gene-count 0
 
   ask turtles with [(random-float 1.0) < P-encounter] [
     if any? my-links [
       ask one-of my-links [
-        let a               [phenotype] of end1
-        let b               [phenotype] of end2
+        let a               [genotype] of end1
+        let b               [genotype] of end2
         let dist            sqrt (euclidean-distance-sqr a b)
         let offspring-count M-const + (M-limit - dist) * M-slope
 
         ask end1 [
           hatch offspring-count [
-            set phenotype          (map combine a b)
+            set genotype          (map combine a b)
             set e-discounting      1
             set accumulated-energy 0
 
             ;; Make sure offspring is viable
-            foreach phenotype [ g ->
+            foreach genotype [ g ->
               if (g < V-min or g > V-max) [ die ]
             ]
 
             ;; Speciation event: introduce new gene to everyone
             if random-float 1.0 < P-change [
-              set new-allele-count new-allele-count + 1
+              set new-gene-count new-gene-count + 1
             ]
 
-            setxy (item 0 phenotype) (item 1 phenotype)
-            set color (list ((item 2 phenotype) + 100) ((item 2 phenotype) + 100) ((item 3 phenotype) + 100))
+            setxy (item 0 genotype) (item 1 genotype)
+            set color (list ((item 2 genotype) + 100) ((item 2 genotype) + 100) ((item 3 genotype) + 100))
 
             linkup
           ]
@@ -222,10 +222,10 @@ to reproduce
     ]
   ]
 
-  if (new-allele-count > 0) [
+  if (new-gene-count > 0) [
     ask links [ die ]
-    repeat new-allele-count [
-      add-allele
+    repeat new-gene-count [
+      add-gene
     ]
     ask turtles [ linkup ]
   ]
@@ -241,28 +241,28 @@ to count-species
   ]
 end
 
-to add-random-allele
+to add-random-gene
   ask turtles [
-    set phenotype (lput random-gene phenotype)
+    set genotype (lput random-gene genotype)
   ]
 end
 
-to add-stretched-allele
+to add-stretched-gene
   ask turtles [
-    let gene           last phenotype
+    let gene           last genotype
     let stretched-gene V-min + ( (gene * V-stretch) mod (V-max - V-min + 1) )
 
-    set phenotype (lput stretched-gene phenotype)
+    set genotype (lput stretched-gene genotype)
   ]
 end
 
-to add-allele
+to add-gene
   ifelse use-stretch-method [
-    add-stretched-allele
+    add-stretched-gene
   ] [
-    add-random-allele
+    add-random-gene
   ]
-  set allele-count allele-count + 1
+  set gene-count gene-count + 1
 end
 
 to-report euclidean-distance-sqr [a b]
@@ -270,12 +270,12 @@ to-report euclidean-distance-sqr [a b]
 end
 
 to-report compatible-with [p]
-  let d euclidean-distance-sqr phenotype p
+  let d euclidean-distance-sqr genotype p
   report d <= M-limit-sqr
 end
 
 to linkup
-  let p phenotype
+  let p genotype
   create-links-with other turtles with [compatible-with p]
 end
 
@@ -436,7 +436,7 @@ BUTTON
 65
 404
 +
-add-random-allele\ncount-species
+add-random-gene\ncount-species
 NIL
 1
 T
@@ -470,7 +470,7 @@ PLOT
 251
 410
 371
-Allele count
+Gene count
 NIL
 NIL
 0.0
@@ -481,7 +481,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -11053225 true "" "plot allele-count"
+"default" 1.0 0 -11053225 true "" "plot gene-count"
 
 SWITCH
 65
@@ -816,10 +816,10 @@ count turtles
 MONITOR
 410
 314
-463
+467
 359
-Alleles
-allele-count
+Genes
+gene-count
 17
 1
 11
@@ -863,17 +863,6 @@ NIL
 NIL
 1
 
-MONITOR
-463
-74
-546
-119
-Viable pairs
-count links
-17
-1
-11
-
 @#$#@#$#@
 @#$#@#$#@
 default
@@ -897,7 +886,7 @@ NetLogo 6.4.0
     <go>go</go>
     <timeLimit steps="6000"/>
     <metric>species-count</metric>
-    <enumeratedValueSet variable="starting-pop">
+    <enumeratedValueSet variable="M-init">
       <value value="100"/>
     </enumeratedValueSet>
   </experiment>
@@ -959,12 +948,12 @@ set use-ds false
 set M-limit 1</preExperiment>
     <setup>repopulate
 ask turtles [
-  set phenotype n-values allele-count [ 0 ]
+  set genotype n-values n-init [ 0 ]
 ]</setup>
     <go>profile-species-counter
 stop</go>
     <metric>profiler:inclusive-time "profile-sc-step"</metric>
-    <enumeratedValueSet variable="starting-pop">
+    <enumeratedValueSet variable="M-init">
       <value value="16"/>
       <value value="32"/>
       <value value="64"/>
@@ -982,12 +971,12 @@ set use-ds false
 set M-limit 1</preExperiment>
     <setup>repopulate
 ask turtles [
-  set phenotype n-values allele-count [ who ]
+  set genotype n-values n-init [ who ]
 ]</setup>
     <go>profile-species-counter
 stop</go>
     <metric>profiler:inclusive-time "profile-sc-step"</metric>
-    <enumeratedValueSet variable="starting-pop">
+    <enumeratedValueSet variable="M-init">
       <value value="16"/>
       <value value="32"/>
       <value value="64"/>
@@ -1005,12 +994,12 @@ set use-ds true
 set M-limit 1</preExperiment>
     <setup>repopulate
 ask turtles [
-  set phenotype n-values allele-count [ 0 ]
+  set genotype n-values n-init [ 0 ]
 ]</setup>
     <go>profile-species-counter
 stop</go>
     <metric>profiler:inclusive-time "profile-sc-step"</metric>
-    <enumeratedValueSet variable="starting-pop">
+    <enumeratedValueSet variable="M-init">
       <value value="16"/>
       <value value="32"/>
       <value value="64"/>
@@ -1028,12 +1017,12 @@ set use-ds true
 set M-limit 1</preExperiment>
     <setup>repopulate
 ask turtles [
-  set phenotype n-values allele-count [ who ]
+  set genotype n-values n-init [ who ]
 ]</setup>
     <go>profile-species-counter
 stop</go>
     <metric>profiler:inclusive-time "profile-sc-step"</metric>
-    <enumeratedValueSet variable="starting-pop">
+    <enumeratedValueSet variable="M-init">
       <value value="16"/>
       <value value="32"/>
       <value value="64"/>
@@ -1053,7 +1042,7 @@ set E-consumption 0</preExperiment>
     <go>profile-simulator
 stop</go>
     <metric>profiler:inclusive-time "profile-s-step"</metric>
-    <enumeratedValueSet variable="starting-pop">
+    <enumeratedValueSet variable="M-init">
       <value value="16"/>
       <value value="32"/>
       <value value="64"/>
@@ -1071,7 +1060,7 @@ profiler:reset</preExperiment>
     <go>profile-simulator
 stop</go>
     <metric>profiler:inclusive-time "profile-s-step"</metric>
-    <enumeratedValueSet variable="starting-pop">
+    <enumeratedValueSet variable="M-init">
       <value value="16"/>
       <value value="32"/>
       <value value="64"/>
