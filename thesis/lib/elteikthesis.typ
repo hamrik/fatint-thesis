@@ -79,7 +79,7 @@
   // Page setup: A4 with specified margins
   set page(
     paper: "a4",
-    margin: (left: 35mm, right: 25mm, top: 25mm, bottom: 25mm),
+    margin: (left: 25mm, right: 25mm, top: 25mm, bottom: 25mm),
     header-ascent: 16pt,
     numbering: "1",
     header: context {
@@ -262,6 +262,7 @@
   page(
     numbering: none,
     header: none,
+    footer: none
   )[
     #outline(
       title: labels.outline,

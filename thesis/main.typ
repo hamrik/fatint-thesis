@@ -1,6 +1,6 @@
 #import "lib/elteikthesis.typ": thesis
 
-#show: thesis.with(
+#thesis(
   university: "Eötvös Loránd Tudományegyetem",
   faculty: "Informatikai kar",
   department: "Mesterséges Intelligencia Tanszék",
@@ -23,10 +23,10 @@
   language: "hu",
 
   finalized: true,
-)
+)[
+  #include "chapters/introduction/main.typ"
+  #include "chapters/netlogo/main.typ"
+  #include "chapters/cpp/main.typ"
 
-#include "chapters/introduction/main.typ"
-#include "chapters/netlogo/main.typ"
-#include "chapters/cpp/main.typ"
-
-#bibliography("thesis.bib")
+  #bibliography("thesis.bib")
+]
