@@ -67,7 +67,7 @@
   lq.diagram(
     title: "NetLogo 6.4.0",
     width: 10cm,
-    height: 5cm,
+    height: 7cm,
     xlabel: "Kör",
     xaxis: (exponent: 0),
     ylabel: "Fajok átlagos száma",
@@ -111,7 +111,7 @@
   lq.diagram(
     title: "C++ implementáció",
     width: 10cm,
-    height: 5cm,
+    height: 7cm,
     xlabel: "Kör",
     xaxis: (exponent: 0),
     ylabel: "Fajok átlagos száma",
@@ -171,7 +171,7 @@
   )
 }
 
-#let perf_plot(xlabel, srcs) = {
+#let perf_plot(xlabel, srcs, legend-outside: false) = {
   let plot_chunk = (src) => {
     let data = lq.load-txt(
       read(src.path),
@@ -192,13 +192,18 @@
   }
 
   lq.diagram(
-    width: 7cm,
-    height: 5cm,
+    width: 12cm,
+    height: 7cm,
     xlabel: xlabel,
     xscale: "log",
     ylabel: "Időigény (ms)",
     yscale: "log",
-    legend: (position: (100% + 1em, 0%)),
+    legend: if (legend-outside) {
+      (position: bottom+left, dy: -100% - .1em)
+    } else {
+      (position: (1%, 1%))
+    },
+    cycle: MARKS,
     ..srcs.map(plot_chunk)
   )
 }

@@ -5,16 +5,19 @@
 == Fejlesztői dokumentáció (NetLogo)
 
 A fejlesztői dokumentáció részletezi a FATINT modell NetLogo implementációjának
-működési követelményeit, az implementációban meghozott döntéseket és tesztelés
+működési követelményeit, a fejlesztése során meghozott döntéseket és tesztelés
 menetét.
 
 === Specifikáció
 
 A NetLogo implementáció feladata a FATINT (@model-desc) modell pontos
-szimulációja, és a @fatint cikkben közölt adatok replikációja. A NetLogo ehhez
-egyszerű programozási nyelvével, felülettervező eszközeivel, a processzor magok
-hatékony kihasználásával, és a BehaviorSpace nevű kísérletsor szerkesztő és
-futtató eszközzel járul hozzá.
+szimulációja, és a @fatint cikkben közölt eredmények replikációja.
+A NetLogo ehhez egyszerű programozási nyelvével, felülettervező eszközeivel,
+a processzor magok hatékony kihasználásával, és a BehaviorSpace nevű kísérletsor
+szerkesztő és futtató eszközzel járul hozzá.
+
+Felhasználói felületén könnyen módosíthatóak az egyes paraméterek és
+gyorsan tesztelhetőek a módosítások modellre gyakorolt hatásai.
 
 ==== Funkcionális követelmények
 
@@ -550,21 +553,27 @@ szereplő nevekkel lettek definiálva:
   caption: [A @fatint cikkben szereplő kísérletsorok NetLogo megfelelői]
 ) <netlogo-experiment-table>
 
-A fenti kísérleten túl a modell tartalmaz három teljesítmény felmérést:
+A fenti kísérleten túl a modell tartalmaz néhány teljesítmény felmérést:
 
-/ `benchmark-species-counter-dfs-one-species`: Mélységi bejárás futásideje ${2^4, 2^5, ..., 2^12}$ egyed mellett, melyek egy fajba tartoznak
-/ `benchmark-species-counter-dfs-many-species`: Mélységi bejárás futásideje ${2^4, 2^5, ..., 2^12}$  egyed mellett, melyek külön fajba tartoznak
-/ `benchmark-species-counter-ds-one-species`: Diszjunkt-halmaz futásideje ${2^4, 2^5, ..., 2^12}$  egyed mellett, melyek egy fajba tartoznak
-/ `benchmark-species-counter-ds-many-species`: Diszjunkt-halmaz futásideje ${2^4, 2^5, ..., 2^12}$  egyed mellett, melyek külön fajba tartoznak
-/ `benchmark-simulator-no-churn`: Szimuláció időigénye ${2^4, 2^5, ..., 2^12}$ darab steril, hallhatatlan egyedből álló populációval
-/ `benchmark-simulator-churn`: Szimuláció időigénye $E_"intake" in {2^4, 2^5, ..., 2^12}$ esetekben, azaz ahol a környezet egyre több egyedet képes eltartani
+/ `benchmark-species-counter-dfs-one-species`:
+  Mélységi bejárás futásideje egy fajba tartózó egyedekkel, ${2^4, 2^5, ..., 2^12}$ méretű populációval
+/ `benchmark-species-counter-dfs-many-species`:
+  Mélységi bejárás futásideje különböző egyelemű fajokba tartózó egyedekkel, ${2^4, 2^5, ..., 2^12}$ méretű populációval
+/ `benchmark-species-counter-ds-one-species`:
+  Diszjunkt-halmaz futásideje egy fajba tartózó egyedekkel, ${2^4, 2^5, ..., 2^12}$ méretű populációval
+/ `benchmark-species-counter-ds-many-species`:
+  Diszjunkt-halmaz futásideje különböző egyelemű fajokba tartózó egyedekkel, ${2^4, 2^5, ..., 2^12}$ méretű populációval
+/ `benchmark-simulator-no-churn`:
+  Szimuláció időigénye ${2^4, 2^5, ..., 2^12}$ darab steril, hallhatatlan egyedből álló populációval
+/ `benchmark-simulator-churn`:
+  Szimuláció időigénye $E_"intake" in {2^4, 2^5, ..., 2^12}$ esetekben, azaz ahol a környezet egyre több egyedet képes eltartani
 
 #figure(
   grid(
     columns: 1,
     gutter: 12pt,
     netlogo_species_plot("/data/default-NetLogo.csv", none),
-    image("/assets/paper_excerpts/default_params.png", height: 20%),
+    image("/assets/paper_excerpts/default_params.png", height: 30%),
   ),
   caption: [
     Fajok számának átlagos alakulása alapértelmezett beállítások mellett.
@@ -573,8 +582,8 @@ A fenti kísérleten túl a modell tartalmaz három teljesítmény felmérést:
   ],
 ) <netlogo-species-comp-default>
 
-Alapértelmezett paraméterek mellett a fajok átlagos száma nem eshet 0-ra,
-lásd @netlogo-species-comp-default.
+Alapértelmezett paraméterek mellett a fajok átlagos száma nem esik 0-ra,
+egy faj stabilan fennmarad. Lásd @netlogo-species-comp-default.
 
 #figure(
   grid(
@@ -591,7 +600,10 @@ lásd @netlogo-species-comp-default.
 ) <netlogo-species-comp-p-encounter>
 
 $P_"encounter"$ alacsony értékeknél biztos kipusztulást, és magasabb értékeknél
-is legfeljebb egy faj fennmaradását garantálja, lásd
+is legfeljebb egy faj fennmaradását garantálja. A NetLogo grafikonon a keretrendszer
+nem generál üres sorokat a populáció kipusztulása után, tehát a grafikonon nem esik
+a fajok száma nullára. Helyette az idő előtt terminált szimulációhoz tartozó
+pontok nem érnek el a grafikon végéig, hanem félbeszakadnak. Lásd
 @netlogo-species-comp-p-encounter.
 
 #figure(
@@ -644,7 +656,7 @@ eset, lásd @netlogo-species-comp-p-crossing.
 ) <netlogo-species-comp-p-change>
 
 Ahogy a @model-desc fejezet is kifejtette, $P_"change"$ a FATINT modell egyik
-legfontosabb paramétere. Ahogy a @netlogo-species-comp-p-change ábrán is
+legfontosabb paramétere. Ahogy az @netlogo-species-comp-p-change ábrán is
 látható, bármilyen nem nulla érték mellett "tüskéket" okoz a faj számokban, mert
 egyszerre hat az összes egyed párosodási preferenciáira. Minél magasabb
 $P_"change"$, annál gyakoribbak a tüskék.
@@ -685,9 +697,8 @@ kisebbek és rövidebb életűek. Lásd @netlogo-species-comp-m-limit.
 ) <netlogo-species-comp-v-stretch>
 
 Ha véletlenszerű gének helyett a @stretch-formula egyenletet használjuk, akkor
-ahogy a @netlogo-species-comp-v-stretch ábrán is látható, a létrejövő fajok
-száma gének hozzáadások hirtelen megugrik, majd lassabban csökken, mint amikor
-véletlenszerűen adunk az egyedekhez új géneket.
+ahogy az @netlogo-species-comp-v-stretch ábrán is látható, a létrejövő fajok
+száma gének hozzáadásakor hirtelen megugrik, majd néhány körön belül csökken.
 
 ==== Teljesítmény
 
@@ -736,6 +747,7 @@ sokkal nagyobb hatással van az fajszámlálás időigényére, mint a választo
 algoritmus. Sok faj esetén a különbség elhanyagolható. Kevés faj esetén a
 mélységi bejárás kicsit gyorsabb.
 
+/*
 #figure(
   perf_plot(
     [Egyedek száma],
@@ -749,8 +761,10 @@ mélységi bejárás kicsit gyorsabb.
       ),
     ),
   ),
-  caption: [Egy 1000 lépéses szimuláció időigénye steril, hallhatatlan egyedek számának függvényében],
+  caption: [Egy 1000 lépéses szimuláció időigénye steril, hallhatatlan egyedek számának függvényében (logaritmikus skála)],
 ) <netlogo-simulation-nochurn-perf>
+*/
+
 #figure(
   perf_plot(
     [$E_"increase"$],
@@ -764,7 +778,7 @@ mélységi bejárás kicsit gyorsabb.
       ),
     ),
   ),
-  caption: [Egy 1000 lépéses szimuláció időigénye a környezet eltartóképességének függvényében],
+  caption: [Egy 1000 lépéses szimuláció időigénye a környezet eltartóképességének függvényében (logaritmikus skála)],
 ) <netlogo-simulation-perf>
 
-A @netlogo-simulation-nochurn-perf és @netlogo-simulation-perf grafikonokon látható, hogy a szimulációt jelentősen lassítja a régi egyedek és éleik törlése, az új egyedek inicializálása és azok éleinek felépítése.
+A @netlogo-simulation-perf grafikonokon látható, hogy a szimulációt jelentősen lassítja a régi egyedek és éleik törlése, az új egyedek inicializálása és azok éleinek felépítése.

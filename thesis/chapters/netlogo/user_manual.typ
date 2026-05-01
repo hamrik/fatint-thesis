@@ -59,7 +59,7 @@ megnyitásához kövessük a @netlogo-setup-tutorial lépéseit:
   caption: [ A NetLogo 6.4.0 fő ablaka a modell paraméter mezőkkel ],
 ) <netlogo-model-ui>
 
-A @netlogo-model-ui ábrán is látható felületen tudjuk állítani a
+Az @netlogo-model-ui ábrán is látható felületen tudjuk állítani a
 kezdőparamétereket, elindítani a szimulációt, illetve figyelni a modell
 állapotának alakülását.
 

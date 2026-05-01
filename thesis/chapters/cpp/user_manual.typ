@@ -238,6 +238,7 @@ $ ./fatint --sweep m_limit 10 --sweep-from 10 --sweep-by 10 --sweep-to 30 --form
 A grafikonon minden a kísérletsor minden kísérlete ugyanarra a grafikonra kerül,
 más-más színnel.
 
+#pagebreak(weak:true)
 === A FATINT modell implementáció könyvtárként való használata
 
 A C++ implementáció egyszerre egy eszköz és egy könyvtár, mely beépíthető egyéb

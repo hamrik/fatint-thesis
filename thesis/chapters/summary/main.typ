@@ -39,7 +39,7 @@ mellé lehetőség van egy grafikus felület fejlesztésére is.
 A könyvtárban jelenleg több interfésznek csak egy implementációja van. Lehetséges kutatási irány például különböző távolságmetrikák implementálása
 és összehasonlítása, új kimeneti formátumok implementálása is hasznos lehet.
 
-== Mesterséges intelligencia
+== Mesterséges intelligencia használata
 
 A szakdolgozat a #link("https://typst.app")[Typst szövegformázó rendszerrel]
 készült. Az ELTE szakdolgozat formai követelményeit Cserép Máté egy #link("https://github.com/mcserep/elteikthesis")[LaTex rendszerhez készített sablonban] implementálta. Ezt a vázlatot a szerző #text("Claude Sonnet 4.6", lang: "en") modellel Typst nyelvre fordította, majd kézi felülvizsgálat után

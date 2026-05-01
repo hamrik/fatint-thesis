@@ -30,6 +30,11 @@
   #include "chapters/summary/main.typ"
 
   #outline(
+    title: [Definíciók listája],
+    target: figure.where(kind: "definition"),
+  )
+
+  #outline(
     title: [Ábrák listája],
     target: figure.where(kind: image),
   )
