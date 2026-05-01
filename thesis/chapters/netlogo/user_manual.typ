@@ -30,7 +30,7 @@ A NetLogo és a szimulációk futtatásához az alábbiak a minimális követelm
 === Telepítés és indítás
 
 #figure(
-  image("../../assets/screenshots/netlogo_menu_open.png", width: 50%),
+  image("/assets/screenshots/netlogo_menu_open.png", width: 50%),
   caption: [ A NetLogo 6.4.0 fő ablaka, a lenyitott _Fájl_ menüvel ],
 ) <netlogo-menu-open>
 
@@ -90,7 +90,7 @@ lehetnek annak hatékonyságára:
 
 A lila dobozok nyomógombok:
 
-/ #text("Reset", lang: "en"):
+/ #text("Reset parameters", lang: "en"):
   Minden változót visszaállít az alapértelmezett értékekre, lásd
   @model-defaults fejezet.
 / #text("Setup", lang: "en"):
@@ -121,19 +121,21 @@ A sárga dobozokban nyomon követhető a szimuláció aktuális állapota.
 / #text("Gene count", lang: "en"):
   Az egyedek genotípusának elemszáma (aktivált gének száma).
 
+#pagebreak(weak: true)
 ==== Szimuláció futtatása
 
-Egy szimuláció előkészítéséhez és futtatásához kövessük az alábbi lépéseket:
+Egy szimuláció előkészítéséhez és futtatásához kövessük a @netlogo-usage lépéseit:
 
-+ Kattintsunk a _Reset_ gombra, ezzel minden paramétert visszaállítva
+#list(caption: "A kezelőfelület használata.")[
++ Kattintsunk a _Reset parameters_ gombra, ezzel minden paramétert visszaállítva
   alapértelmezett értékére.
 + A @netlogo-ui-desc fejezetben részletezett kezelőszervekkel állítsuk be a
   kívánt paramétereket.
 + Kattintsunk a _Setup_ gombra a szimuláció alaphelyzetbe állítására. Ha egy
-  paraméter érvénytelen értékre van állítva, erről hibaüzenetet kapunk.
+  paraméter érvénytelen értékre van állítva, erről hibaüzenetet kapunk, lásd @netlogo-assert-error.
 + Kattintsunk a _Step_, _500 steps_ vagy _Go_ gombra, rendre egy kör
   futtatásához, legfeljebb 500 kör futtatásához, vagy a megszakítás nélküli
-  futtatáshoz.
+  futtatáshoz. Lásd @netlogo-model-running.
 + A szimuláció automatikusan leáll amikor az utolsó egyed is meghal.
   A _Go_ gombbal indított szimuláció megállítható azzal, hogy újra rákattintunk
   a _Go_ gombra. Továbbá minden szimuláció megszakítható azzal, hogy a *Tools*
@@ -141,6 +143,27 @@ Egy szimuláció előkészítéséhez és futtatásához kövessük az alábbi l
 + Tanulmányozzuk a _Population_, _Species count_ és _Gene count_ grafikonok
   alakulását. Ezen grafikonok rendre a populáció létszámának, az általuk
   alkotott fajok számának és az aktivált gének számának alakulását rögzítik.
+] <netlogo-usage>
+
+#figure(
+  image("/assets/screenshots/netlogo_assert_error.png", width: 50%),
+  caption: "Hibás paraméterre figyelmeztető ablak"
+) <netlogo-assert-error>
+
+#figure(
+  image("/assets/screenshots/netlogo_model_running.png", width: 50%),
+  caption: "A NetLogo felülete futás közben"
+) <netlogo-model-running>
+
+Ha a NetLogo bármilyen váratlan hibára fut, átvált az
+@netlogo-code-editor ábrán látható forráskód szerkesztő
+nézetre. A modell nézetre az ablak tetején található
+*Interface* fülre kattintva juthatunk.
+
+#figure(
+  image("/assets/screenshots/netlogo_code_editor.png", width: 50%),
+  caption: "A NetLogo szkript szerkesztője"
+) <netlogo-code-editor>
 
 A NetLogo kezelőfelületének egyéb elemeiről, illetve a szoftver használatához
 szükséges programozási nyelvről bővebb információt

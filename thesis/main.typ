@@ -8,9 +8,9 @@
   department: "Mesterséges Intelligencia Tanszék",
 
   title: [
-    #text("Evolutionary Technology:", lang: "en")
+    Evolúciós Technológia:
 
-    #text("Replication of the FATINT system", lang: "en")
+    A FATINT rendszer replikációja
   ],
 
   author: "Hamrik Szabin",
