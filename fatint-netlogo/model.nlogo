@@ -7,7 +7,6 @@ __includes [
 
 globals [
   available-energy
-  population
   species-count
   gene-count
 
@@ -118,17 +117,12 @@ to repopulate
   resize-world V-min V-max V-min V-max
 
   set available-energy 0
-  set population       M-init
-  set gene-count     N-init
+  set gene-count       N-init
 
   create-turtles M-init [
     set e-discounting      1
     set accumulated-energy 0
     set genotype          n-values gene-count [random-gene]
-
-    set shape "square"
-    setxy (item 0 genotype) (item 1 genotype)
-    set color (list ((item 2 genotype) + 100) ((item 2 genotype) + 100) ((item 3 genotype) + 100))
   ]
 end
 
@@ -211,9 +205,6 @@ to reproduce
             if random-float 1.0 < P-change [
               set new-gene-count new-gene-count + 1
             ]
-
-            setxy (item 0 genotype) (item 1 genotype)
-            set color (list ((item 2 genotype) + 100) ((item 2 genotype) + 100) ((item 3 genotype) + 100))
 
             linkup
           ]
@@ -318,13 +309,13 @@ to profile-simulator
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-889
 10
-1495
-617
+10
+119
+120
 -1
 -1
-5.921
+1.0
 1
 10
 1
@@ -941,7 +932,7 @@ set P-change 0.0005</preExperiment>
     <metric>species-count</metric>
     <steppedValueSet variable="V-stretch" first="1" step="1" last="20"/>
   </experiment>
-  <experiment name="benchmark-species-counter-dfs-one-species" repetitions="3" runMetricsEveryStep="true">
+  <experiment name="benchmark-species-counter-dfs-one-species" repetitions="5" runMetricsEveryStep="true">
     <preExperiment>reset
 profiler:reset
 set use-ds false
@@ -962,9 +953,10 @@ stop</go>
       <value value="512"/>
       <value value="1024"/>
       <value value="2048"/>
+      <value value="4096"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="benchmark-species-counter-dfs-many-species" repetitions="3" runMetricsEveryStep="true">
+  <experiment name="benchmark-species-counter-dfs-many-species" repetitions="5" runMetricsEveryStep="true">
     <preExperiment>reset
 profiler:reset
 set use-ds false
@@ -985,9 +977,10 @@ stop</go>
       <value value="512"/>
       <value value="1024"/>
       <value value="2048"/>
+      <value value="4096"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="benchmark-species-counter-ds-one-species" repetitions="3" runMetricsEveryStep="true">
+  <experiment name="benchmark-species-counter-ds-one-species" repetitions="5" runMetricsEveryStep="true">
     <preExperiment>reset
 profiler:reset
 set use-ds true
@@ -1008,9 +1001,10 @@ stop</go>
       <value value="512"/>
       <value value="1024"/>
       <value value="2048"/>
+      <value value="4096"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="benchmark-species-counter-ds-many-species" repetitions="3" runMetricsEveryStep="true">
+  <experiment name="benchmark-species-counter-ds-many-species" repetitions="5" runMetricsEveryStep="true">
     <preExperiment>reset
 profiler:reset
 set use-ds true
@@ -1031,9 +1025,10 @@ stop</go>
       <value value="512"/>
       <value value="1024"/>
       <value value="2048"/>
+      <value value="4096"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="benchmark-simulator-no-churn" repetitions="3" runMetricsEveryStep="true">
+  <experiment name="benchmark-simulator-no-churn" repetitions="5" runMetricsEveryStep="true">
     <preExperiment>reset
 profiler:reset
 set P-encounter 0
@@ -1051,9 +1046,10 @@ stop</go>
       <value value="512"/>
       <value value="1024"/>
       <value value="2048"/>
+      <value value="4096"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="benchmark-simulator-churn" repetitions="3" runMetricsEveryStep="true">
+  <experiment name="benchmark-simulator-churn" repetitions="5" runMetricsEveryStep="true">
     <preExperiment>reset
 profiler:reset</preExperiment>
     <setup>setup</setup>
@@ -1069,6 +1065,7 @@ stop</go>
       <value value="512"/>
       <value value="1024"/>
       <value value="2048"/>
+      <value value="4096"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
