@@ -14,55 +14,55 @@ run_fatint() {
 
 	echo '  - Default settings'
 	fatint \
-		--output thesis/data/default-libfatint.csv
+    --output thesis/data/default-libfatint.csv
 
 	echo '  - Sweeping P_encounter'
 	fatint \
-		--sweep p_encounter \
-		--sweep-from 0.05 \
-		--sweep-by 0.005 \
-		--sweep-to 0.095 \
-		--output thesis/data/p_encounter-libfatint.csv
+    --sweep p_encounter \
+    --sweep-from 0.05 \
+    --sweep-by 0.005 \
+    --sweep-to 0.095 \
+    --output thesis/data/p_encounter-libfatint.csv
 
 	echo '  - Sweeping P_crossing'
 	fatint \
-	    --sweep p_crossing \
-		--sweep-from 0 \
-		--sweep-by 0.1 \
-		--sweep-to 0.5 \
-		--output thesis/data/p_crossing-libfatint.csv
+    --sweep p_crossing \
+    --sweep-from 0 \
+    --sweep-by 0.1 \
+    --sweep-to 0.5 \
+    --output thesis/data/p_crossing-libfatint.csv
 
 	echo '  - Sweeping P_mutation'
 	fatint \
-        --sweep p_mutation \
-        --sweep-from 0 \
-        --sweep-by 0.1 \
-        --sweep-to 0.5 \
-		--output thesis/data/p_mutation-libfatint.csv
+    --sweep p_mutation \
+    --sweep-from 0 \
+    --sweep-by 0.1 \
+    --sweep-to 0.5 \
+    --output thesis/data/p_mutation-libfatint.csv
 
 	echo '  - Sweeping P_change'
 	fatint \
-	    --sweep p_change \
-        --sweep-from 0.0005 \
-        --sweep-by 0.00005 \
-        --sweep-to 0.001 \
-		--output thesis/data/p_change-libfatint.csv
+    --sweep p_change \
+    --sweep-from 0.0005 \
+    --sweep-by 0.00005 \
+    --sweep-to 0.001 \
+    --output thesis/data/p_change-libfatint.csv
 
 	echo '  - Sweeping M_limit'
 	fatint \
-	    --p_change 0.0005 \
-        --sweep m_limit \
-        --sweep-from 0 \
-        --sweep-to 20 \
-		--output thesis/data/m_limit-libfatint.csv
+    --p_change 0.0005 \
+    --sweep m_limit \
+    --sweep-from 0 \
+    --sweep-to 20 \
+    --output thesis/data/m_limit-libfatint.csv
 
 	echo '  - Sweeping V_stretch'
 	fatint \
-        --p_change 0.0005 \
-        --sweep v_stretch \
-        --sweep-from 1 \
-        --sweep-to 20 \
-		--output thesis/data/v_stretch-libfatint.csv
+    --p_change 0.0005 \
+    --sweep v_stretch \
+    --sweep-from 1 \
+    --sweep-to 20 \
+    --output thesis/data/v_stretch-libfatint.csv
 
 }
 
