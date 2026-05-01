@@ -20,7 +20,7 @@ TEST_CASE("ReservoirSampling - always picks single option")
 {
     fatint::measurement::ReservoirSampling<int> reservoir;
 
-    for(size_t i = 0; i < ITERATIONS; i++)
+    for (size_t i = 0; i < ITERATIONS; i++)
     {
         fatint::math::Random rng(i);
 
@@ -34,7 +34,7 @@ TEST_CASE("ReservoirSampling - reset works")
 {
     fatint::measurement::ReservoirSampling<size_t> reservoir;
 
-    for(size_t i = 0; i < ITERATIONS; i++)
+    for (size_t i = 0; i < ITERATIONS; i++)
     {
         fatint::math::Random rng(i);
 
@@ -67,7 +67,6 @@ TEST_CASE("ReservoirSampling - deterministic given same seed")
     CHECK(res2.has_value());
     CHECK(res1.value() == res2.value());
 }
-
 
 TEST_CASE("ReservoirSampling statistical behavior")
 {

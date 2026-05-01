@@ -1,7 +1,7 @@
 #include "io/CSVWriter.hpp"
 
-#include "simulation/types.hpp"
 #include "math/Statistics.hpp"
+#include "simulation/types.hpp"
 
 namespace fatint::io
 {
@@ -27,8 +27,8 @@ void CSVWriter::write_header(const simulation::ExperimentParameters &params, std
     }
 }
 
-void CSVWriter::write_row(size_t step, const simulation::ExperimentParameters &params,
-                          const math::Statistics &result, std::ostream &dest)
+void CSVWriter::write_row(size_t step, const simulation::ExperimentParameters &params, const math::Statistics &result,
+                          std::ostream &dest)
 {
     dest << "\n";
     dest << params.run_parameters.reproduction_parameters.m_init << ",";

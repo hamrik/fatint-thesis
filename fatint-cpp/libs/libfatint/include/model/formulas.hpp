@@ -24,7 +24,8 @@ inline auto offspring_count(double genetic_distance, size_t m_const, size_t m_li
     assert(m_const >= 0);
     assert(m_limit >= genetic_distance);
     assert(m_slope >= 0);
-    return static_cast<int>(floor(static_cast<double>(m_const) + (static_cast<double>(m_limit) - genetic_distance) * m_slope));
+    return static_cast<int>(
+        floor(static_cast<double>(m_const) + (static_cast<double>(m_limit) - genetic_distance) * m_slope));
 }
 
 /// Determines the next gene to be added to an entity given its current

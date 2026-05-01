@@ -293,8 +293,7 @@ auto run_experiments(const fatint::simulation::ExperimentSweepParameters &experi
                        auto simulator = make_simulator(params, use_ds);
                        return simulator->run(random);
                    });
-    fatint::math::ExperimentSweepStatistics results =
-        fatint::math::measure(experiment_sweep_parameters, run_results);
+    fatint::math::ExperimentSweepStatistics results = fatint::math::measure(experiment_sweep_parameters, run_results);
     return results;
 }
 
@@ -345,8 +344,9 @@ auto main(int argc, char **argv) -> int
     }
 
     fatint::simulation::ExperimentSweepParameters parameters;
-    try {
-         parameters = parse_args(opts);
+    try
+    {
+        parameters = parse_args(opts);
     }
     catch (const fatint::error::ParameterConstraintException &e)
     {

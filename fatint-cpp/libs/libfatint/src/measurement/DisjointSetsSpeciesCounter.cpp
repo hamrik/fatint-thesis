@@ -79,11 +79,11 @@ class DisjointSets
 };
 
 DisjointSetsSpeciesCounter::DisjointSetsSpeciesCounter(std::unique_ptr<genetics::ISimilarity> similarity)
-: similarity(std::move(similarity))
-{}
+    : similarity(std::move(similarity))
+{
+}
 
-auto DisjointSetsSpeciesCounter::count_species(
-                                               const model::Population &population) const -> size_t
+auto DisjointSetsSpeciesCounter::count_species(const model::Population &population) const -> size_t
 {
     DisjointSets sets(population.size());
     for (size_t i = 0; i < population.size(); i++)

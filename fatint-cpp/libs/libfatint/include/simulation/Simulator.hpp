@@ -15,8 +15,7 @@ class Simulator
   public:
     Simulator(std::unique_ptr<genetics::ISimilarity> similarity, std::unique_ptr<genetics::ISelection> selection,
               std::unique_ptr<genetics::IReproduction> reproduction, std::unique_ptr<genetics::IGeneAdder> gene_adder,
-              std::unique_ptr<measurement::ISpeciesCounter> species_counter,
-              RunParameters params);
+              std::unique_ptr<measurement::ISpeciesCounter> species_counter, RunParameters params);
 
     auto run(math::Random &random) const -> RunStates;
 

@@ -46,16 +46,13 @@ class ParameterConstraintException : public std::runtime_error
 class MismatchException : public std::runtime_error
 {
   public:
-    MismatchException(const char *msg, double a, double b)
-      : std::runtime_error(build_error_msg(msg, a, b))
+    MismatchException(const char *msg, double a, double b) : std::runtime_error(build_error_msg(msg, a, b))
     {
     }
-    MismatchException(const char *msg, int a, int b)
-      : std::runtime_error(build_error_msg(msg, a, b))
+    MismatchException(const char *msg, int a, int b) : std::runtime_error(build_error_msg(msg, a, b))
     {
     }
-    MismatchException(const char *msg, size_t a, size_t b)
-      : std::runtime_error(build_error_msg(msg, a, b))
+    MismatchException(const char *msg, size_t a, size_t b) : std::runtime_error(build_error_msg(msg, a, b))
     {
     }
 
@@ -63,19 +60,19 @@ class MismatchException : public std::runtime_error
     [[nodiscard]] static auto build_error_msg(const char *msg, double a, double b) -> std::string
     {
         std::stringstream ss;
-        ss << "value mismatch (" << a << " != " << b <<  "):" << msg;
+        ss << "value mismatch (" << a << " != " << b << "):" << msg;
         return ss.str();
     }
     [[nodiscard]] static auto build_error_msg(const char *msg, int a, int b) -> std::string
     {
         std::stringstream ss;
-        ss << "value mismatch (" << a << " != " << b <<  "):" << msg;
+        ss << "value mismatch (" << a << " != " << b << "):" << msg;
         return ss.str();
     }
     [[nodiscard]] static auto build_error_msg(const char *msg, size_t a, size_t b) -> std::string
     {
         std::stringstream ss;
-        ss << "value mismatch (" << a << " != " << b <<  "):" << msg;
+        ss << "value mismatch (" << a << " != " << b << "):" << msg;
         return ss.str();
     }
 };

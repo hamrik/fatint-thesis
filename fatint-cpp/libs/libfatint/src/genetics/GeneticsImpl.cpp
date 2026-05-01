@@ -12,8 +12,7 @@ namespace fatint::genetics
 {
 
 EuclideanDistanceSimilarity::EuclideanDistanceSimilarity(model::ReproductionParameters params)
-    : params(params),
-      m_limit_sqr(static_cast<size_t>(params.m_limit) * static_cast<size_t>(params.m_limit))
+    : params(params), m_limit_sqr(static_cast<size_t>(params.m_limit) * static_cast<size_t>(params.m_limit))
 {
 }
 
@@ -22,7 +21,8 @@ auto EuclideanDistanceSimilarity::compatible(const model::Entity &a, const model
 {
     if (a.genotype.size() != b.genotype.size())
     {
-        throw fatint::error::MismatchException("EuclideanDistanceSimilarity requires uniform genotype sizes", a.genotype.size(), b.genotype.size());
+        throw fatint::error::MismatchException("EuclideanDistanceSimilarity requires uniform genotype sizes",
+                                               a.genotype.size(), b.genotype.size());
     }
     return euclidean_distance_sqr(a.genotype, b.genotype) <= m_limit_sqr;
 }
@@ -101,7 +101,8 @@ void Crossover::combine(math::Random &rng, const model::Genotype &a, const model
     }
     if (a.size() != out.size())
     {
-        throw fatint::error::MismatchException("Crossover requires child genotype size to match parents", a.size(), out.size());
+        throw fatint::error::MismatchException("Crossover requires child genotype size to match parents", a.size(),
+                                               out.size());
     }
     for (size_t i = 0; i < a.size(); i++)
     {

@@ -25,27 +25,18 @@ class DummySpeciesCounter : public fatint::measurement::ISpeciesCounter
 
 auto make_simulator(fatint::simulation::RunParameters params) -> std::unique_ptr<fatint::simulation::Simulator>
 {
-    fatint::genetics::EuclideanDistanceSimilarity similarity(
-        params.reproduction_parameters
-    );
+    fatint::genetics::EuclideanDistanceSimilarity similarity(params.reproduction_parameters);
     return std::make_unique<fatint::simulation::Simulator>(
         std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(similarity),
         std::make_unique<fatint::genetics::ReservoirSelection>(
-            std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(similarity)
-        ),
+            std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(similarity)),
         std::make_unique<fatint::genetics::GeneticReproduction>(
-            std::make_unique<fatint::genetics::BoundedMutation>(params.genetic_probabilities.p_mutation, params.genetic_parameters.v_mutation),
-            std::make_unique<fatint::genetics::Crossover>(params.genetic_probabilities.p_crossing),
-            params.limits.v_min,
-            params.limits.v_max
-        ),
-        std::make_unique<fatint::genetics::RandomGeneAdder>(
-            params.limits.v_min,
-            params.limits.v_max
-        ),
-        std::make_unique<DummySpeciesCounter>(),
-        params
-    );
+            std::make_unique<fatint::genetics::BoundedMutation>(params.genetic_probabilities.p_mutation,
+                                                                params.genetic_parameters.v_mutation),
+            std::make_unique<fatint::genetics::Crossover>(params.genetic_probabilities.p_crossing), params.limits.v_min,
+            params.limits.v_max),
+        std::make_unique<fatint::genetics::RandomGeneAdder>(params.limits.v_min, params.limits.v_max),
+        std::make_unique<DummySpeciesCounter>(), params);
 }
 
 auto measure_no_churn(size_t sz) -> double

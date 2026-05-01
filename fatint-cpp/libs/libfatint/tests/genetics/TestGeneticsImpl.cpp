@@ -8,12 +8,9 @@
 
 TEST_CASE("EuclideanDistanceSimilarity - similar entities are compatible")
 {
-    fatint::genetics::EuclideanDistanceSimilarity similarity({ .m_limit = 1});
+    fatint::genetics::EuclideanDistanceSimilarity similarity({.m_limit = 1});
 
-    fatint::model::Entity a
-    {
-        .age = 0, .energy = 0, .genotype = {0, 0, 0, 0, 0}
-    };
+    fatint::model::Entity a{.age = 0, .energy = 0, .genotype = {0, 0, 0, 0, 0}};
     fatint::model::Entity b{.age = 0, .energy = 0, .genotype = {0, 0, 0, 0, 1}};
 
     CHECK(similarity.compatible(a, b) == true);
@@ -21,12 +18,9 @@ TEST_CASE("EuclideanDistanceSimilarity - similar entities are compatible")
 
 TEST_CASE("EuclideanDistanceSimilarity - dissimilar entities are not compatible")
 {
-    fatint::genetics::EuclideanDistanceSimilarity similarity({ .m_limit = 1});
+    fatint::genetics::EuclideanDistanceSimilarity similarity({.m_limit = 1});
 
-    fatint::model::Entity a
-    {
-        .age = 0, .energy = 0, .genotype = {0, 0, 0, 0, 0}
-    };
+    fatint::model::Entity a{.age = 0, .energy = 0, .genotype = {0, 0, 0, 0, 0}};
     fatint::model::Entity b{.age = 0, .energy = 0, .genotype = {0, 0, 0, 1, 1}};
 
     CHECK(similarity.compatible(a, b) == false);
@@ -144,7 +138,7 @@ TEST_CASE("RandomGeneAdder - correctly adds genes")
 
     fatint::model::Genotype genotype = {0, 0, 0, 0, 0};
 
-    for(int i = 0; i < 100; i++)
+    for (int i = 0; i < 100; i++)
     {
         random_gene_adder.add_gene(random, genotype);
         CHECK(genotype.size() == 6 + i);

@@ -9,77 +9,48 @@ TEST_CASE("Constraint violations are caught")
 {
     SUBCASE("ExperimentSweepParameters - own variable")
     {
-        fatint::simulation::ExperimentSweepParameters p{
-            .experiments = 0
-        };
+        fatint::simulation::ExperimentSweepParameters p{.experiments = 0};
         CHECK_THROWS(p.validate());
     }
     SUBCASE("ExperimentSweepParameters - child varilable")
     {
         fatint::simulation::ExperimentSweepParameters p{
-            .starting_parameters = {
-                .run_parameters = {
-                    .reproduction_probabilities = {
-                        .p_encounter = 0.9
-                    }
-                }
-            },
-            .delta = {
-                .reproduction_probabilities = {
-                    .p_encounter = 0.1
-                }
-            },
+            .starting_parameters = {.run_parameters = {.reproduction_probabilities = {.p_encounter = 0.9}}},
+            .delta = {.reproduction_probabilities = {.p_encounter = 0.1}},
             .experiments = 3,
         };
         CHECK_THROWS(p.validate());
     }
     SUBCASE("ExperimentParams")
     {
-        fatint::simulation::ExperimentParameters p{
-            .runs = 0
-        };
+        fatint::simulation::ExperimentParameters p{.runs = 0};
         CHECK_THROWS(p.validate());
     }
     SUBCASE("RunParameters - steps")
     {
-        fatint::simulation::RunParameters p{
-            .steps = 0
-        };
+        fatint::simulation::RunParameters p{.steps = 0};
         CHECK_THROWS(p.validate());
     }
     SUBCASE("RunParameters - Limits")
     {
-        fatint::simulation::RunParameters p{
-            .limits = {
-                .v_min = 3,
-                .v_max = 2
-            }
-        };
+        fatint::simulation::RunParameters p{.limits = {.v_min = 3, .v_max = 2}};
         CHECK_THROWS(p.validate());
     }
     SUBCASE("RunParameters - ReproductionProbabilities")
     {
-        fatint::simulation::RunParameters p0{
-            .reproduction_probabilities = {
-                .p_encounter = -0.5,
-            }
-        };
+        fatint::simulation::RunParameters p0{.reproduction_probabilities = {
+                                                 .p_encounter = -0.5,
+                                             }};
         CHECK_THROWS(p0.validate());
 
-        fatint::simulation::RunParameters p1{
-            .reproduction_probabilities = {
-                .p_change = 1.2,
-            }
-        };
+        fatint::simulation::RunParameters p1{.reproduction_probabilities = {
+                                                 .p_change = 1.2,
+                                             }};
         CHECK_THROWS(p1.validate());
     }
     SUBCASE("RunParameters - ReproductionParameters")
     {
-        fatint::simulation::RunParameters p0{
-            .reproduction_parameters = {
-                .m_init = 0
-            }
-        };
+        fatint::simulation::RunParameters p0{.reproduction_parameters = {.m_init = 0}};
         CHECK_THROWS(p0.validate());
 
         // fatint::simulation::RunParameters p1{
@@ -95,96 +66,47 @@ TEST_CASE("Constraint violations are caught")
         //     }
         // };
         // CHECK_THROWS(p2.validate());
-
     }
     SUBCASE("RunParameters - GeneticProbabilities")
     {
-        fatint::simulation::RunParameters p0{
-            .genetic_probabilities = {
-                .p_crossing  = -0.5
-            }
-        };
+        fatint::simulation::RunParameters p0{.genetic_probabilities = {.p_crossing = -0.5}};
         CHECK_THROWS(p0.validate());
 
-        fatint::simulation::RunParameters p1{
-            .genetic_probabilities = {
-                .p_crossing  = 1.2
-            }
-        };
+        fatint::simulation::RunParameters p1{.genetic_probabilities = {.p_crossing = 1.2}};
         CHECK_THROWS(p1.validate());
 
-        fatint::simulation::RunParameters p2{
-            .genetic_probabilities = {
-                .p_mutation = -0.1
-            }
-        };
+        fatint::simulation::RunParameters p2{.genetic_probabilities = {.p_mutation = -0.1}};
         CHECK_THROWS(p2.validate());
 
-        fatint::simulation::RunParameters p3{
-            .genetic_probabilities = {
-                .p_mutation = 1.1
-            }
-        };
+        fatint::simulation::RunParameters p3{.genetic_probabilities = {.p_mutation = 1.1}};
         CHECK_THROWS(p3.validate());
     }
     SUBCASE("RunParameters - GeneticParameters")
     {
-        fatint::simulation::RunParameters p0{
-            .genetic_parameters = {
-                .n_init = 0
-            }
-        };
+        fatint::simulation::RunParameters p0{.genetic_parameters = {.n_init = 0}};
         CHECK_THROWS(p0.validate());
 
-        fatint::simulation::RunParameters p1{
-            .genetic_parameters = {
-                .v_mutation = -1
-            }
-        };
+        fatint::simulation::RunParameters p1{.genetic_parameters = {.v_mutation = -1}};
         CHECK_THROWS(p1.validate());
 
-        fatint::simulation::RunParameters p2{
-            .genetic_parameters = {
-                .v_stretch = -1
-            }
-        };
+        fatint::simulation::RunParameters p2{.genetic_parameters = {.v_stretch = -1}};
         CHECK_THROWS(p2.validate());
     }
     SUBCASE("RunParameters - EnergyParameters")
     {
-        fatint::simulation::RunParameters p0{
-            .energy_parameters = {
-                .e_consumption = -1
-            }
-        };
+        fatint::simulation::RunParameters p0{.energy_parameters = {.e_consumption = -1}};
         CHECK_THROWS(p0.validate());
 
-        fatint::simulation::RunParameters p1{
-            .energy_parameters = {
-                .e_increase = -1
-            }
-        };
+        fatint::simulation::RunParameters p1{.energy_parameters = {.e_increase = -1}};
         CHECK_THROWS(p1.validate());
 
-        fatint::simulation::RunParameters p2{
-            .energy_parameters = {
-                .e_intake = -1
-            }
-        };
+        fatint::simulation::RunParameters p2{.energy_parameters = {.e_intake = -1}};
         CHECK_THROWS(p2.validate());
 
-        fatint::simulation::RunParameters p3{
-            .energy_parameters = {
-                .e_discount = -1
-            }
-        };
+        fatint::simulation::RunParameters p3{.energy_parameters = {.e_discount = -1}};
         CHECK_THROWS(p3.validate());
 
-        fatint::simulation::RunParameters p4{
-            .energy_parameters = {
-                .e_discount = 2
-            }
-        };
+        fatint::simulation::RunParameters p4{.energy_parameters = {.e_discount = 2}};
         CHECK_THROWS(p4.validate());
     }
 }

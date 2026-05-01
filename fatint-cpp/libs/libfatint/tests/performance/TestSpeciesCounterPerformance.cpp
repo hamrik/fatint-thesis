@@ -18,9 +18,8 @@ const auto NS_IN_MS = 1e6;
 TEST_CASE("SpeciesCounterPerformance - DisjointSets one species")
 {
     fatint::measurement::DisjointSetsSpeciesCounter counter(
-        std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(fatint::model::ReproductionParameters {
-            .m_limit = 1
-        }));
+        std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(
+            fatint::model::ReproductionParameters{.m_limit = 1}));
     fatint::model::Population pop;
 
     for (size_t sz = STARTING_SIZE, i = 0; i < SIZES; sz *= 2, i++)
@@ -49,9 +48,8 @@ TEST_CASE("SpeciesCounterPerformance - DisjointSets one species")
 TEST_CASE("SpeciesCounterPerformance - DisjointSets many species")
 {
     fatint::measurement::DisjointSetsSpeciesCounter counter(
-        std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(fatint::model::ReproductionParameters{
-            .m_limit = 1
-        }));
+        std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(
+            fatint::model::ReproductionParameters{.m_limit = 1}));
     fatint::model::Population pop;
 
     for (size_t sz = STARTING_SIZE, i = 0; i < SIZES; sz *= 2, i++)
@@ -81,9 +79,8 @@ TEST_CASE("SpeciesCounterPerformance - DisjointSets many species")
 TEST_CASE("SpeciesCounterPerformance - DepthFirstSearch one species")
 {
     fatint::measurement::DepthFirstSearchSpeciesCounter counter(
-        std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(fatint::model::ReproductionParameters{
-            .m_limit = 1
-        }));
+        std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(
+            fatint::model::ReproductionParameters{.m_limit = 1}));
     fatint::model::Population pop;
 
     for (size_t sz = STARTING_SIZE, i = 0; i < SIZES; sz *= 2, i++)
@@ -112,9 +109,8 @@ TEST_CASE("SpeciesCounterPerformance - DepthFirstSearch one species")
 TEST_CASE("SpeciesCounterPerformance - DepthFirstSearch many species")
 {
     fatint::measurement::DepthFirstSearchSpeciesCounter counter(
-        std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(fatint::model::ReproductionParameters{
-            .m_limit = 1
-        }));
+        std::make_unique<fatint::genetics::EuclideanDistanceSimilarity>(
+            fatint::model::ReproductionParameters{.m_limit = 1}));
     fatint::model::Population pop;
 
     for (size_t sz = STARTING_SIZE, i = 0; i < SIZES; sz *= 2, i++)

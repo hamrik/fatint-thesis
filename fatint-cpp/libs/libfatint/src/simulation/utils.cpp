@@ -1,5 +1,5 @@
-#include "simulation/types.hpp"
 #include "model/utils.hpp"
+#include "simulation/types.hpp"
 
 namespace fatint::simulation
 {
