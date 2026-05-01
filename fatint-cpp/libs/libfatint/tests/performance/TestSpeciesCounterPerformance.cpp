@@ -10,8 +10,8 @@
 #include <doctest.hpp>
 
 const auto STARTING_SIZE = 16;
-const auto SIZES = 8;
-const auto RUNS = 3;
+const auto SIZES = 9;
+const auto RUNS = 5;
 
 const auto NS_IN_MS = 1e6;
 

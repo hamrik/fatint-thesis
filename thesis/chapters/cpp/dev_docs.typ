@@ -1,5 +1,5 @@
-#import "/lib/elteikthesis.typ": todo
 #import "/lib/plot.typ": *
+#import "@preview/lovelace:0.3.1": *
 
 == Fejlesztői dokumentáció (C++) <cpp-spec>
 
@@ -154,13 +154,14 @@ konstans referencia, vagy érték.
 
 ==== A program szakaszai
 
-Az egyes elemek egy adatcsővezetéket (_"data pipeline"_) alkotnak, melyek között
-az adatfolyamot a `Simulator` osztály szervezi, lásd @libfatint-dataflow diagram.
+Az egyes elemek egy adatcsővezetéket (_"data pipeline"_) alkotnak, több transzformációs lépéssel.//, lásd @libfatint-dataflow.
 
+/*
 #figure(
   image("/assets/diagrams/cpp_dataflow.svg"),
   caption: [Az adatok transzformációja `fatint` programban és a `libfatint` könyvtárban],
 ) <libfatint-dataflow>
+*/
 
 + A program a `cxxopts` könyvtár segítségével értelmezi a parancssori
   kapcsolókat és előállít egy `ExperimentSweepParameters` objektumot. Ez az
@@ -196,6 +197,83 @@ A `Simulator::run` metódus egy teljes kísérletet lefuttat, majd visszaadja
 a lépésenként mért populáció létszámot, gének számát és fajok számát. Az alábbi
 lépésekből áll:
 
+#figure(
+  pseudocode-list[
+    + *metódus* `Simulator::run`(&rng):
+      + környezet := `Environment`()
+      + állapotok := `vector<State>`(lépésszám)
+      + egyedek := `vector<Entity>`($M_"init"$)
+      + génszám := $N_"init"$
+      + *ciklus* $forall "egyed" in "egyedek"$:
+        + $"egyed.kor" := 0$
+        + $"egyed.energia" := 0$
+        + $"egyed.genotípus" := N_"init"$ darab véletlenszám $[V_"min", V_"max"]$ között
+      + *ciklus vége*
+      + *ciklus* $forall "állapot" in "állapotok"$
+        + *ha* $"egyedek" = emptyset$
+          + $"állapot.egyedszám" := 0$
+          + $"állapot.fajszám" := 0$
+          + $"állapot.génszám" := "génszám"$
+        + *különben*
+          + környezet energiaszintjének növelése $E_"increase"$-szel
+          + `tick`(környezet, egyedek)
+          + $N_"add"$ := `reproduce`(egyedek)
+          + *ismétlés* $N_"add"$ *alkalommal:*
+            + *ciklus* $forall "egyed" in "egyedek"$:
+              + `IGeneAdder.add_gene(`egyed.genotípus`)`
+            + *ciklus vége*
+            + $"génszám" := "génszám" + 1$
+          + *ismétlés vége*
+          + $"állapot.egyedszám" := |"egyedek"|$
+          + $"állapot.fajszám" :=$ `ISpeciesCounter::count_species(`egyedek`)`
+          + $"állapot.génszám" := "génszám"$
+        + *elágazás vége*
+      + *ciklus vége*
+      + *visszatér* állapotok
+    + *metódus vége*
+  ],
+  caption: [A `Simulator::run` lépései]
+) <cpp-simulator-run-listing>
+#figure(
+  pseudocode-list[
+    + *metódus* `Simulator::tick`(&környzet, &egyedek)
+      + *ciklus* $forall "egyed" in "egyedek"$ véletlen sorrendben:
+        + $"egyed.kor" := "egyed.kor" + 1$
+        + $E_"in" :=$ legfeljebb $E_"intake"$ energia kivonása a környezetből
+        + $"egyed.energia" := "egyed.energia" + E_"in" dot (E_"discount") ^ "egyed.kor" - E_"consumption"$
+      + *ciklus vége*
+      + $"egyedek" := { e in "egyedek" | "e.energia" > 0 }$
+    + *metódus vége*
+  ],
+  caption: [A `Simulator::tick` lépései]
+) <cpp-simulator-tick-listing>
+#figure(
+  pseudocode-list[
+    + *metódus* `Simulator::reproduce`(&rng, &egyedek)
+      + $N_"add" := 0$
+      + *ciklus* $forall "egyed" in "egyedek"$
+        + egyed kihagyása, ha $P_"encounter"$ nem teljesül
+        + partner := `ISelection::select(`rng, egyedek, egyed`)`
+        + *ismétlés* `ISimilarity::offspring_count(`egyed, partner`)`  *alkalommal*:
+          + $"utód" := "Egyed"()$
+          + $"utód.kor" := 0$
+          + $"utód.energia" := 0$
+          + $"életképes" := $ `IReproduction::reproduce(`egyed, partner, utód`)`
+          + *ha* életképes:
+            + utód hozzáfűzése egyedekhez
+            + *ha* $P_"change"$ teljesül:
+              + $N_"add" := N_"add" + 1$
+            + *elágazás vége*
+          + *elágazás vége*
+        + *ismétlés vége*
+      + *ciklus vége*
+      + *visszatér* $N_"add"$
+    + *metódus vége*
+  ],
+  caption: [A `Simulator::reproduce` lépései]
+) <cpp-simulator-reproduce-listing>
+
+/*
 + A szimuláció létrehoz egy új `Environment` példányt. Ez az osztály tartja
   számon a környezet energiaszintjét.
 + Létrehoz egy vektort a szimuláció állapotok tárolásához. Ezt a vektort úgy
@@ -242,6 +320,7 @@ lépésekből áll:
     hozzáadja az állapotvektorhoz.
   - Ha nem maradt több egyed, a ciklus terminál.
 + A szimuláció végül visszatér az állapotvektorral.
+*/
 
 ==== A szimuláció paraméter objektumainak rövid bemutatása
 
@@ -515,12 +594,12 @@ A `tests/model/` könyvtárban 10 egységteszt vizsgálja a modell egyenleteit, 
 
 A `tests/performance` könyvtárban 4 teljesítmény teszt méri a faj számlálók időgényét, és 2 további teszt a `Simulator` időigényét:
 
-- `DisjointSetsSpeciesCounter` időigénye $2^n, n in NN inter [3, 11]$ darab közös fajba tartozó egyed megszámolásához
-- `DisjointSetsSpeciesCounter` időigénye $2^n, n in NN inter [3, 11]$ darab önálló fajba tartozó egyed megszámolásához
-- `DepthFirstSearchSpeciesCounter` időigénye $2^n, n in NN inter [3, 11]$ darab közös fajba tartozó egyed megszámolásához
-- `DepthFirstSearchSpeciesCounter` időigénye $2^n, n in NN inter [3, 11]$ darab önálló fajba tartozó egyed megszámolásához
-- `Simulator` időigénye $2^n, n in NN inter [3, 11]$ darab hallhatatlan, steril egyed szimulálásához 1000 lépésben
-- `Simulator` időigénye 1000 lépés szimulálásához, ahol $E_"increase" in {2^n | n in NN inter [3, 11]}$, azaz a környezet egyre több egyedet tud eltartani, növelve körönkénti születések és halálok számát
+- `DisjointSetsSpeciesCounter` időigénye $2^n, n in NN inter [3, 12]$ darab közös fajba tartozó egyed megszámolásához (5 futás átlaga)
+- `DisjointSetsSpeciesCounter` időigénye $2^n, n in NN inter [3, 12]$ darab önálló fajba tartozó egyed megszámolásához (5 futás átlaga)
+- `DepthFirstSearchSpeciesCounter` időigénye $2^n, n in NN inter [3, 12]$ darab közös fajba tartozó egyed megszámolásához (5 futás átlaga)
+- `DepthFirstSearchSpeciesCounter` időigénye $2^n, n in NN inter [3, 12]$ darab önálló fajba tartozó egyed megszámolásához (5 futás átlaga)
+- `Simulator` időigénye $2^n, n in NN inter [3, 12]$ darab hallhatatlan, steril egyed szimulálásához 1000 lépésben (5 futás átlaga)
+- `Simulator` időigénye 1000 lépés szimulálásához, ahol $E_"increase" in {2^n | n in NN inter [3, 12]}$, azaz a környezet egyre több egyedet tud eltartani, növelve körönkénti születések és halálok számát (5 futás átlaga)
 
 A `tests/simulation` könyvtárban 22 teszt vizsálja a paraméter validáló függvényeket, egy a `RunParameters` túlterhelt `+=` operátorát, 1-1 teszt az `ExperimentParameters` és `ExperimentSweepParameters` `expand` segédfüggvényeit és 6 integrációs teszt a `Simulator` osztályt:
 
@@ -555,9 +634,6 @@ fatint -e 21 --p_change 0.0005 --m_limit 0 --sweep_m_limit 1 --output p_change_0
 fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 --output p_change_0.0005_v_stretch_1-20.csv
 ```
 
-Alapértelmezett paraméterek mellett a fajok átlagos száma nem eshet 0-ra, lásd
-@cpp-species-comp-default.
-
 #figure(
   grid(
     columns: 1,
@@ -572,9 +648,8 @@ Alapértelmezett paraméterek mellett a fajok átlagos száma nem eshet 0-ra, l�
   ],
 ) <cpp-species-comp-default>
 
-$P_"encounter"$ alacsony értékeknél biztos kipusztulást, és magasabb értékeknél
-is legfeljebb egy faj fennmaradását garantálja, lásd
-@cpp-species-comp-p-encounter.
+Alapértelmezett paraméterek mellett a fajok átlagos száma nem eshet 0-ra, lásd
+@cpp-species-comp-default.
 
 #figure(
   grid(
@@ -590,9 +665,9 @@ is legfeljebb egy faj fennmaradását garantálja, lásd
   ],
 ) <cpp-species-comp-p-encounter>
 
-$P_"mutation"$ magasabb értékeknél létrehozhat egy-egy rövid életű fajt, de
-mivel ezen fajok gyakran egy egydből állnak, így az egyed halálával a faj is
-kihal. Továbbra is egyetlen faj dominál. Lásd @cpp-species-comp-p-mutation.
+$P_"encounter"$ alacsony értékeknél biztos kipusztulást, és magasabb értékeknél
+is legfeljebb egy faj fennmaradását garantálja, lásd
+@cpp-species-comp-p-encounter.
 
 #figure(
   grid(
@@ -608,8 +683,9 @@ kihal. Továbbra is egyetlen faj dominál. Lásd @cpp-species-comp-p-mutation.
   ],
 ) <cpp-species-comp-p-mutation>
 
-$P_"crossing"$ magas értékeknél hasonlóan viselkedik, mint a $P_"mutation"$
-eset, lásd @cpp-species-comp-p-crossing.
+$P_"mutation"$ magasabb értékeknél létrehozhat egy-egy rövid életű fajt, de
+mivel ezen fajok gyakran egy egydből állnak, így az egyed halálával a faj is
+kihal. Továbbra is egyetlen faj dominál. Lásd @cpp-species-comp-p-mutation.
 
 #figure(
   grid(
@@ -625,11 +701,8 @@ eset, lásd @cpp-species-comp-p-crossing.
   ],
 ) <cpp-species-comp-p-crossing>
 
-Ahogy a @model-desc fejezet is kifejtette, $P_"change"$ a FATINT modell egyik
-legfontosabb paramétere. Ahogy a @cpp-species-comp-p-change ábrán is
-látható, bármilyen nem nulla érték mellett "tüskéket" okoz a faj számokban, mert
-egyszerre hat az összes egyed párosodási preferenciáira. Minél magasabb
-$P_"change"$, annál gyakoribbak a tüskék.
+$P_"crossing"$ magas értékeknél hasonlóan viselkedik, mint a $P_"mutation"$
+eset, lásd @cpp-species-comp-p-crossing.
 
 #figure(
   grid(
@@ -645,10 +718,11 @@ $P_"change"$, annál gyakoribbak a tüskék.
   ],
 ) <cpp-species-comp-p-change>
 
-$P_"change" = 0.0005$-el garantálva az új gének hozzáadását, $M_"limit"$
-különböző értékei arra hatással vannak a "tüskék" méretére. Minél magasabb,
-annál több faj keletkezik a gének hozzáadásakor, ugyanakkor ezen fajok annál
-kisebbek és rövidebb életűek. Lásd @cpp-species-comp-m-limit.
+Ahogy a @model-desc fejezet is kifejtette, $P_"change"$ a FATINT modell egyik
+legfontosabb paramétere. Ahogy a @cpp-species-comp-p-change ábrán is
+látható, bármilyen nem nulla érték mellett "tüskéket" okoz a faj számokban, mert
+egyszerre hat az összes egyed párosodási preferenciáira. Minél magasabb
+$P_"change"$, annál gyakoribbak a tüskék.
 
 #figure(
   grid(
@@ -665,10 +739,10 @@ kisebbek és rövidebb életűek. Lásd @cpp-species-comp-m-limit.
   ],
 ) <cpp-species-comp-m-limit>
 
-Ha véletlenszerű gének helyett a @stretch-formula egyenletet használjuk, akkor
-ahogy a @cpp-species-comp-v-stretch ábrán is látható, a létrejövő fajok
-száma gének hozzáadások hirtelen megugrik, majd lassabban csökken, mint amikor
-véletlenszerűen adunk az egyedekhez új géneket.
+$P_"change" = 0.0005$-el garantálva az új gének hozzáadását, $M_"limit"$
+különböző értékei arra hatással vannak a "tüskék" méretére. Minél magasabb,
+annál több faj keletkezik a gének hozzáadásakor, ugyanakkor ezen fajok annál
+kisebbek és rövidebb életűek. Lásd @cpp-species-comp-m-limit.
 
 #figure(
   grid(
@@ -685,6 +759,11 @@ véletlenszerűen adunk az egyedekhez új géneket.
   ],
 ) <cpp-species-comp-v-stretch>
 
+Ha véletlenszerű gének helyett a @stretch-formula egyenletet használjuk, akkor
+ahogy a @cpp-species-comp-v-stretch ábrán is látható, a létrejövő fajok
+száma hirtelen megugrik, majd lassabban csökken, mint amikor
+véletlenszerűen adunk az egyedekhez új géneket.
+
 ==== Teljesítmény
 
 #figure(
@@ -693,39 +772,90 @@ véletlenszerűen adunk az egyedekhez új géneket.
     (
       (
         path: "/data/benchmark-species-counter-dfs-one-species-libfatint.csv",
-        label: [Mélységi bejárás, egy faj],
+        label: [C++, Mélységi bejárás, egy faj],
         skip: 0,
         x: 0,
         y: 1,
       ),
       (
         path: "/data/benchmark-species-counter-dfs-many-species-libfatint.csv",
-        label: [Mélységi bejárás, sok faj],
+        label: [C++, Mélységi bejárás, sok faj],
         skip: 0,
         x: 0,
         y: 1,
       ),
       (
         path: "/data/benchmark-species-counter-ds-one-species-libfatint.csv",
-        label: [Diszjunkt-Halmaz, egy faj],
+        label: [C++, Diszjunkt-Halmaz, egy faj],
         skip: 0,
         x: 0,
         y: 1,
       ),
       (
         path: "/data/benchmark-species-counter-ds-many-species-libfatint.csv",
-        label: [Diszjunkt-Halmaz, sok faj],
+        label: [C++, Diszjunkt-Halmaz, sok faj],
         skip: 0,
         x: 0,
         y: 1,
+      ),
+      (
+        path: "/data/benchmark-species-counter-dfs-one-species-NetLogo.csv",
+        label: [NetLogo, Mélységi bejárás, egy faj],
+        skip: 7,
+        x: 0,
+        y: 2,
+      ),
+      (
+        path: "/data/benchmark-species-counter-dfs-many-species-NetLogo.csv",
+        label: [NetLogo, Mélységi bejárás, sok faj],
+        skip: 7,
+        x: 0,
+        y: 2,
+      ),
+      (
+        path: "/data/benchmark-species-counter-ds-one-species-NetLogo.csv",
+        label: [NetLogo, Diszjunkt-Halmaz, egy faj],
+        skip: 7,
+        x: 0,
+        y: 2,
+      ),
+      (
+        path: "/data/benchmark-species-counter-ds-many-species-NetLogo.csv",
+        label: [NetLogo, Diszjunkt-Halmaz, sok faj],
+        skip: 7,
+        x: 0,
+        y: 2,
       ),
     ),
   ),
   caption: [
     Az élek létrehozásának és a fajszámláló algorimusok futásidejének összege a
-    populáció létszámának függvényében (logaritmikus skála).
+    populáció létszámának függvényében. Logaritmikus skála.
   ],
-) <cpp-species-counter-perf>
+) <cpp-species-counter-perf-comp>
+
+#figure(
+  perf_plot(
+    [Létszám],
+    (
+      (
+        path: "/data/benchmark-simulator-nochurn-libfatint.csv",
+        label: [C++ implementáció],
+        skip: 0,
+        x: 0,
+        y: 1,
+      ),
+      (
+        path: "/data/benchmark-simulator-nochurn-NetLogo.csv",
+        label: [NetLogo implementáció],
+        skip: 7,
+        x: 0,
+        y: 2,
+      ),
+    ),
+  ),
+  caption: [Egy 1000 lépéses szimuláció időigénye steril, hallhatatlan egyedek számának függvényében. Logaritmikus skála.],
+) <cpp-simulation-nochurn-perf>
 
 #figure(
   perf_plot(
@@ -738,7 +868,17 @@ véletlenszerűen adunk az egyedekhez új géneket.
         x: 0,
         y: 1,
       ),
+      (
+        path: "/data/benchmark-simulator-churn-NetLogo.csv",
+        label: [NetLogo implementáció],
+        skip: 7,
+        x: 0,
+        y: 2,
+      ),
     ),
   ),
-  caption: [Egy 1000 lépéses szimuláció időigénye a környezet eltartóképességének függvényében],
+  caption: [Egy 1000 lépéses szimuláció időigénye a környezet eltartóképességének függvényében. Logaritmikus skála.)],
 ) <cpp-simulation-perf>
+
+A @cpp-species-counter-perf-comp, @cpp-simulation-nochurn-perf és @cpp-simulation-perf diagramok alapján elmondható, hogy a C++ implementáció
+jelentősen gyorsabb a NetLogo implementációnál.

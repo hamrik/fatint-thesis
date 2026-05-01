@@ -1,4 +1,4 @@
-#import "lib/elteikthesis.typ": thesis, todo
+#import "lib/elteikthesis.typ": thesis
 
 #show: thesis.with(
   university: "Eötvös Loránd Tudományegyetem",
@@ -22,7 +22,7 @@
 
   language: "hu",
 
-  finalized: false,
+  finalized: true,
 )
 
 #include "chapters/introduction/main.typ"

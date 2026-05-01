@@ -1,5 +1,5 @@
-#import "/lib/elteikthesis.typ": todo
 #import "/lib/plot.typ": *
+#import "@preview/lovelace:0.3.1": *
 
 == Fejlesztői dokumentáció (NetLogo)
 
@@ -116,6 +116,11 @@ táblázatban szereplő interakciókra a táblázatban előírt módon reagál.
 
 ==== A NetLogo architekturája
 
+A FATINT modell implementációja a `model.nlogo` fájlban van.
+A mélységi bejárásos fajszámláló algoritmus ki van szervezve a `depth-first-search.nls` fájlba.
+A diszjunkt-halmazos fajszámláló pedig a `disjoint-sets.nls` fájlba.
+A `model.nlogo` fájl megnyitásához az `nls` mellékfájloknak ugyanabban a mappában kell lenniük, mint az `nlogo` fájl.
+
 A NetLogo programozási nyelv az *ágensek* koncepciója köré szervezve. Minden
 ágens felfogható egy-egy objektumként, mezői vannak és függvényeket, eljárásokat
 hajt végre. Ezen eljárások egy globális névtérben helyezkednek el, nem tartoznak
@@ -188,20 +193,109 @@ A szimuláció megkezése előtt a felhasználó rákattinint a _"Setup"_ gombra
 kézzel (A _"Step"_ gombra kattintva) vagy automatikusan (A _"Go"_ gombra
 kattintva) futtatja a `go` eljárást.
 
-A FATINT modellben a `setup` eljárás:
-+ Kitöröl minden élt és teknőst
-+ Nullázza az eltelt körök számát (*`tick`*)
-+ Beállítja `M-limit-sqr`-t
-+ Létehoz `m-init` számú új teknőst:
-  - A teknős a korát és energiaszinjét nullára állítja
-  - Az `e-discounting` segédváltozót $E_"dicount"^"age" = E_"discount"^0 = 1$-re állítja
-  - Genotípusnak létrehoz egy `n-init` elemű vektort,
-    $[V_"min", V_"max"]$ alléltartományba eső véletlen génekkel.
-  - A teknős létrehoz egy-egy közös, irányítatlan élt minden olyan teknőssel,
-    mellyel még nincs éle, de genotípusuk euklédeszi távolsága nem nagyobb, mint
-    $M_"limit"$
+A `setup` eljárás alaphelyzetbe állítja a szimulációt a megadott paraméterekkel
+(@netlogo-setup-listing).
+A `go` eljárás (@netlogo-go-listing) egy szimulációs kört futtat le,
+melynek részét képezi a környezet karbantartása,
+az egyedek táplálkozása (@netlogo-eat-or-die-listing),
+az egyedek párzása (@netlogo-reproduce-listing),
+és a fajok megszámolása (lásd @netlogo-counting-species)
 
-A `go` eljárás lefuttat egy szimulációs kört, mely négy lépésből áll:
+#figure(
+  pseudocode-list[
+    + *eljárás* setup:
+      + Minden él és teknős törlése
+      + NetLogo lépésszámláló nullázása (`reset-ticks`)
+      + $"M-limit-sqr" := M_"limit" ^ 2$
+      + $"available-energy" := 0$
+      + $"gene-count" := N_"init"$
+      + $M_"init"$ számú új teknős létrehozása
+      + *ciklus* $forall a in "teknősök"$:
+        + $"a.energy" := 0$
+        + $"a.e-discounting" := E_"discount"^"a.kor" = E_"discount"^0 = 1$
+        + $"a.genotype" := N_"init"$ darab $[V_"min", V_"max"]$ tartományba eső véletlen gén
+        + *ciklus* $forall "b" in { b in "teknősök" | $`euclidean_distance_sqr(a,b)` $<= M_"limit"^2}$
+          + közös irányítatlan él létrehozása a $a$ és $b$ között
+        + *ciklus vége*
+      + *ciklus vége*
+    + *eljárás vége*
+  ],
+  caption: [A `setup` eljárás lépései]
+) <netlogo-setup-listing>
+
+#figure(
+  pseudocode-list[
+    + *eljárás* `go`:
+      + $"available-energy" := "available-energy" + E_"increase"$
+      + `eat-or-die`
+      + `reproduce`
+      + Ha nem maradt élő egyed, szimuláció megszakítása
+      + `count-species`
+      + NetLogo lépésszámláló inkrementálása (`tick`)
+    + *eljárás vége*
+  ],
+  caption: [A `go` eljárás lépései]
+) <netlogo-go-listing>
+#figure(
+  pseudocode-list[
+    + *eljárás* `eat-or-die`:
+      + *ciklus* $forall t in "teknősök"$ véletlen sorrendben:
+        + $E_"in" := min(E_"intake", "available-energy")$
+        + $"available-energy" := "available-energy" - E_"in"$
+        + $"t.energy" := "t.energy" + E_"in" dot "t.e-discounting" - E_"consumption"$
+        + $"t.e-discounting" := "t.e-discounting" dot E_"discount"$
+        + *ha* $"t.energy" <= 0$:
+          + $t$ eltávolítása
+        + *elágazás vége*
+      + *ciklus vége*
+    + *eljárás vége*
+  ],
+  caption: [Az `eat-or-die` segédeljárás lépései]
+) <netlogo-eat-or-die-listing>
+#figure(
+  pseudocode-list[
+    + *eljárás* `reproduce`:
+      + *ciklus* $forall a in {t in "teknősök" | P_"encounter" "valószínűség teljesül" }$:
+        + Ha $a$-nak nincs éle, ezt az iterációt kihagyjuk
+        + Véletlenszerűen kiválasztjuk $a$ egyik $l$ élét, melyek másik vége $b$
+        + $D := $`euclidean_distance_sqr(`$a$, $b$`)`
+        + $o := M_"const" + (M_"limit" - sqrt(D)) * M_"slope"$
+        + *ismétlés* $o$ alkalommal:
+          + Új teknős $u$ létrehozása
+          + $"u.energy" := 0$
+          + $"u.e-discounting" := 1$
+          + $"u.genotype" := $` combine(`$a$,$b$`)`
+          + *ha* ${g in "u.genotype" | g in.not [V_"min", V_"max"]} != emptyset$
+            + $u$ eltávolítása
+          + *elágazás vége*
+        + *ismétlés vége*
+      + *ciklus vége*
+    + *eljárás vége*
+  ],
+  caption: [Az `reproduce` segédeljárás lépései]
+) <netlogo-reproduce-listing>
+#figure(
+  pseudocode-list[
+    + *függvény* `combine(a,b)`:
+      + $c := "gene-count hosszú tömb"$
+      + *ciklus* $i in [0.."gene-count") inter NN$
+        + *ha* $P_"crossing"$ valószínűség teljesül:
+          + $c[i] := b[i]$
+        + *különben*:
+          + $c[i] := a[i]$
+        + *elágazás vége*
+        + *ha* $P_"mutation"$ valószínűség teljesül:
+          + $m := $ véletlenszám $[-V_"mutation", V_"mutation"] inter ZZ$ halmazból
+          + $c[i] := c[i] + m$
+        + *elágazás vége*
+      + *ciklus vége*
+      + *visszatérés* $c$-vel
+    + *függvény vége*
+  ],
+  caption: [A `combine` függvény lépései]
+) <netlogo-combine-listing>
+
+/*
 + Környezet energiaszintjét megnöveli $E_"increase"$-szel
 + Utána az `eat-or-die` procedúrával a minden teknőst tartalmazó `turtles`
   ágenshalmaz minden tagján futtatja az alábbi lépéseket:
@@ -237,18 +331,76 @@ A `go` eljárás lefuttat egy szimulációs kört, mely négy lépésből áll:
       olyan teknőssel, mellyel genotípuk euklédeszi távolsága nem nagyobb, mint
       $M_"limit"$
 + A `count-species` procedúrával megszámolja a fajokat. Lásd
-  @fatint-counting-species.
+  @netlogo-counting-species.
 + A szimulációban eltelt körök számát (*`tick`*) megnöveli eggyel.
+*/
 
-==== A fajok megszámlálása <fatint-counting-species>
+==== A fajok megszámlálása <netlogo-counting-species>
 
 A fajok megszámlálására két algoritmust kínál az implementáció:
-/ `dft-count-species`: Mélységi bejárással számolja meg a fajokat.
-/ `ds-count-species`: Diszjunkt-Halmaz algoritmussal számolja meg a fajokat.
+/ `dft-count-species`: Mélységi bejárással számolja meg a fajokat, lásd @netlogo-dft-listing.
+/ `ds-count-species`: Diszjunkt-Halmaz algoritmussal számolja meg a fajokat, lásd @netlogo-ds-listing.
 
-Az implementációk között a `use-ds` kapcsoló / globális változóval lehet
+Az implementációk között a `use-ds` kapcsolóval / globális változóval lehet
 váltani.
 
+#figure(
+  pseudocode-list[
+    + *eljárás* `dft-count-species`:
+      + $"species-count" := 0$
+      + ${ "t.visited" = "hamis" forall t in "teknősök" }$
+      + *ciklus* Amíg $exists t in {t in "teknősök" | "t.visited" = "hamis"}$
+        + $"species-count" := "species-count" + 1$
+        + `dft-traverse(t)`
+      + *ciklus vége*
+    + *eljárás vége*
+    + *eljárás* `dft-traverse(a)`:
+      + $"t.visited" = "igaz"$
+      + *ciklus* $a$ minden $l$ élének minden $b$ csúcsa ahol $"b.visited" = "hamis"$:
+        + `dft-traverse(b)`
+      + *ciklus vége*
+    + *eljárás vége*
+  ],
+  caption: [A mélységi bejárásos fajszámláló algoritmus]
+) <netlogo-dft-listing>
+
+#figure(
+  pseudocode-list[
+    + *eljárás* `ds-count-species`:
+      + $"species-count" := |"teknősök"|$
+      + *ciklus* $forall t in "teknősök"$
+        + $"t.parent" := t$ _Azaz $t$ gyökérelem_
+        + $"t.rank" := t$ _Rang alapú fa magasság optimalizálás_
+      + *ciklus vége*
+      + *ciklus* $forall l in "élek"$
+        + $a,b := l$ csúcsai
+        + $R_a := $ `ds-find-root(a)`
+        + $R_b := $ `ds-find-root(b)`
+        + *ha* $R_a != R_b$ _azaz eddig két külön fába tartoztak_
+          + $"species-count" := "species-count" - 1$
+          + *ha* $R_a".rank" = R_b".rank"$:
+            + $R_a".rank" := R_a".rank" + 1$
+          + *elágazás vége*
+          + *ha* $R_a".rank" > R_b".rank"$:
+            + $R_b".parent" := R_a$ _$R_b$ fájának beolvasztása $R_a$ fájába_
+          + *különben*:
+            + $R_a".parent" := R_b$ _$R_a$ fájának beolvasztása $R_b$ fájába_
+          + *elágazás vége*
+        + *elágazás vége*
+      + *ciklus vége*
+    + *eljárás vége*
+    + *függvény* `ds-find-root(a)`: _Gyökérelem megkeresése_
+      + *ciklus* amíg $a".parent" != a$:
+        + $a".parent" := a".parent.parent"$ _Útfelezési optimalizálás_
+        + $a := a".parent"$
+      + *ciklus vége*
+      + *visszatérés* $a$-val
+    + *függvény vége*
+  ],
+  caption: [A diszjunkt-halmaz alapú fajszámláló algoritmus]
+) <netlogo-ds-listing>
+
+/*
 A mélységi bejárás algorimus működése:
 + Nullázzuk a fajok számát
 + Töröljük minden teknősből a `visited` flag-et. (Hamisra állítjuk)
@@ -278,6 +430,7 @@ A Diszjunk-Halmaz algoritmus működése:
     gyökér a másik gyökeret beállítja szülő elemének. Ez az egyed többé nem
     gyökér, az altala feszített fa beolvad a másik gyökér fájába.
   - A halmazok száma eggyel csökkent, tehát a fajok számát eggyel csökkentjük.
+*/
 
 === Tesztelés
 
@@ -348,27 +501,39 @@ NetLogo$ ./NetLogo_Console --headless --model model.nlogo --experiment experimen
 / `--table`: A szimuláció ereményének mentési útvonala
 / `--stats`: A statisztikák mentési útvonala
 
-A @fatint cikkben szereplő kísérletek az alábbi nevekkel érhetők el ebben a modellben:
+A @fatint cikkben szereplő kísérletek a @netlogo-experiment-table táblázatban
+szereplő nevekkel lettek definiálva:
 
-- `default-settings`
-- `sweep-p-encounter`
-- `sweep-p-mutation`
-- `sweep-p-crossing`
-- `sweep-p-change`
-- `sweep-m-limit`
-- `sweep-v-stretch`
+#figure(
+  [
+    #show table.cell.where(x: 0): it => align(left)[#it]
+    #table(
+      columns: 5,
+      table.header[Név][Kulcs paraméter][Kezdő érték][Lépésméret][Végső érték],
+      [`default-settings`], [Lásd @model-defaults], [], [], [],
+      [`sweep-p-encounter`], [$P_"encounter"$], [$0.05$], [$0.005$], [$0.095$],
+      [`sweep-p-mutation`], [$P_"mutation"$], [$0$], [$0.1$], [$0.5$],
+      [`sweep-p-crossing`], [$P_"crossing"$], [$0$], [$0.1$], [$0.5$],
+      [`sweep-p-change`], [$P_"change"$], [$0.0005$], [$0.00005$], [$0.001$],
+      [`sweep-m-limit`], [$M_"limit"$,
+
+      $P_"change" = 0.0005$], [$0$], [$1$], [$20$],
+      [`sweep-v-stretch`], [$V_"stretch"$,
+
+      $P_"change" = 0.0005$], [$1$], [$1$], [$20$],
+    )
+  ],
+  caption: [A @fatint cikkben szereplő kísérletsorok NetLogo megfelelői]
+) <netlogo-experiment-table>
 
 A fenti kísérleten túl a modell tartalmaz három teljesítmény felmérést:
 
-- `benchmark-species-counter-dfs-one-species`
-- `benchmark-species-counter-dfs-many-species`
-- `benchmark-species-counter-ds-one-species`
-- `benchmark-species-counter-ds-many-species`
-- `benchmark-simulator-no-churn`
-- `benchmark-simulator-churn`
-
-Alapértelmezett paraméterek mellett a fajok átlagos száma nem eshet 0-ra,
-lásd @netlogo-species-comp-default.
+/ `benchmark-species-counter-dfs-one-species`: Mélységi bejárás futásideje ${2^4, 2^5, ..., 2^12}$ egyed mellett, melyek egy fajba tartoznak
+/ `benchmark-species-counter-dfs-many-species`: Mélységi bejárás futásideje ${2^4, 2^5, ..., 2^12}$  egyed mellett, melyek külön fajba tartoznak
+/ `benchmark-species-counter-ds-one-species`: Diszjunkt-halmaz futásideje ${2^4, 2^5, ..., 2^12}$  egyed mellett, melyek egy fajba tartoznak
+/ `benchmark-species-counter-ds-many-species`: Diszjunkt-halmaz futásideje ${2^4, 2^5, ..., 2^12}$  egyed mellett, melyek külön fajba tartoznak
+/ `benchmark-simulator-no-churn`: Szimuláció időigénye ${2^4, 2^5, ..., 2^12}$ darab steril, hallhatatlan egyedből álló populációval
+/ `benchmark-simulator-churn`: Szimuláció időigénye $E_"intake" in {2^4, 2^5, ..., 2^12}$ esetekben, azaz ahol a környezet egyre több egyedet képes eltartani
 
 #figure(
   grid(
@@ -384,9 +549,8 @@ lásd @netlogo-species-comp-default.
   ],
 ) <netlogo-species-comp-default>
 
-$P_"encounter"$ alacsony értékeknél biztos kipusztulást, és magasabb értékeknél
-is legfeljebb egy faj fennmaradását garantálja, lásd
-@netlogo-species-comp-p-encounter.
+Alapértelmezett paraméterek mellett a fajok átlagos száma nem eshet 0-ra,
+lásd @netlogo-species-comp-default.
 
 #figure(
   grid(
@@ -402,9 +566,9 @@ is legfeljebb egy faj fennmaradását garantálja, lásd
   ],
 ) <netlogo-species-comp-p-encounter>
 
-$P_"mutation"$ magasabb értékeknél létrehozhat egy-egy rövid életű fajt, de
-mivel ezen fajok gyakran egy egydből állnak, így az egyed halálával a faj is
-kihal. Továbbra is egyetlen faj dominál. Lásd @netlogo-species-comp-p-mutation.
+$P_"encounter"$ alacsony értékeknél biztos kipusztulást, és magasabb értékeknél
+is legfeljebb egy faj fennmaradását garantálja, lásd
+@netlogo-species-comp-p-encounter.
 
 #figure(
   grid(
@@ -420,8 +584,9 @@ kihal. Továbbra is egyetlen faj dominál. Lásd @netlogo-species-comp-p-mutatio
   ],
 ) <netlogo-species-comp-p-mutation>
 
-$P_"crossing"$ magas értékeknél hasonlóan viselkedik, mint a $P_"mutation"$
-eset, lásd @netlogo-species-comp-p-crossing.
+$P_"mutation"$ magasabb értékeknél létrehozhat egy-egy rövid életű fajt, de
+mivel ezen fajok gyakran egy egydből állnak, így az egyed halálával a faj is
+kihal. Továbbra is egyetlen faj dominál. Lásd @netlogo-species-comp-p-mutation.
 
 #figure(
   grid(
@@ -437,11 +602,8 @@ eset, lásd @netlogo-species-comp-p-crossing.
   ],
 ) <netlogo-species-comp-p-crossing>
 
-Ahogy a @model-desc fejezet is kifejtette, $P_"change"$ a FATINT modell egyik
-legfontosabb paramétere. Ahogy a @netlogo-species-comp-p-change ábrán is
-látható, bármilyen nem nulla érték mellett "tüskéket" okoz a faj számokban, mert
-egyszerre hat az összes egyed párosodási preferenciáira. Minél magasabb
-$P_"change"$, annál gyakoribbak a tüskék.
+$P_"crossing"$ magas értékeknél hasonlóan viselkedik, mint a $P_"mutation"$
+eset, lásd @netlogo-species-comp-p-crossing.
 
 #figure(
   grid(
@@ -457,10 +619,11 @@ $P_"change"$, annál gyakoribbak a tüskék.
   ],
 ) <netlogo-species-comp-p-change>
 
-$P_"change" = 0.0005$-el garantálva az új gének hozzáadását, $M_"limit"$
-különböző értékei arra hatással vannak a "tüskék" méretére. Minél magasabb,
-annál több faj keletkezik a gének hozzáadásakor, ugyanakkor ezen fajok annál
-kisebbek és rövidebb életűek. Lásd @netlogo-species-comp-m-limit.
+Ahogy a @model-desc fejezet is kifejtette, $P_"change"$ a FATINT modell egyik
+legfontosabb paramétere. Ahogy a @netlogo-species-comp-p-change ábrán is
+látható, bármilyen nem nulla érték mellett "tüskéket" okoz a faj számokban, mert
+egyszerre hat az összes egyed párosodási preferenciáira. Minél magasabb
+$P_"change"$, annál gyakoribbak a tüskék.
 
 #figure(
   grid(
@@ -477,10 +640,10 @@ kisebbek és rövidebb életűek. Lásd @netlogo-species-comp-m-limit.
   ],
 ) <netlogo-species-comp-m-limit>
 
-Ha véletlenszerű gének helyett a @stretch-formula egyenletet használjuk, akkor
-ahogy a @netlogo-species-comp-v-stretch ábrán is látható, a létrejövő fajok
-száma gének hozzáadások hirtelen megugrik, majd lassabban csökken, mint amikor
-véletlenszerűen adunk az egyedekhez új géneket.
+$P_"change" = 0.0005$-el garantálva az új gének hozzáadását, $M_"limit"$
+különböző értékei arra hatással vannak a "tüskék" méretére. Minél magasabb,
+annál több faj keletkezik a gének hozzáadásakor, ugyanakkor ezen fajok annál
+kisebbek és rövidebb életűek. Lásd @netlogo-species-comp-m-limit.
 
 #figure(
   grid(
@@ -496,6 +659,11 @@ véletlenszerűen adunk az egyedekhez új géneket.
     Felül: NetLogo 6.4.0 implementáció. Alul: @fatint.
   ],
 ) <netlogo-species-comp-v-stretch>
+
+Ha véletlenszerű gének helyett a @stretch-formula egyenletet használjuk, akkor
+ahogy a @netlogo-species-comp-v-stretch ábrán is látható, a létrejövő fajok
+száma gének hozzáadások hirtelen megugrik, majd lassabban csökken, mint amikor
+véletlenszerűen adunk az egyedekhez új géneket.
 
 ==== Teljesítmény
 
@@ -540,10 +708,25 @@ véletlenszerűen adunk az egyedekhez új géneket.
 ) <netlogo-species-counter-perf>
 
 A @netlogo-species-counter-perf diagram alapján elmondható, hogy a fajok száma
-sokkal nagyobb hatással van az fejszámlálás időigényére, mint a választott
+sokkal nagyobb hatással van az fajszámlálás időigényére, mint a választott
 algoritmus. Sok faj esetén a különbség elhanyagolható. Kevés faj esetén a
 mélységi bejárás kicsit gyorsabb.
 
+#figure(
+  perf_plot(
+    [Egyedek száma],
+    (
+      (
+        path: "/data/benchmark-simulator-nochurn-NetLogo.csv",
+        label: [NetLogo 6.4.0],
+        skip: 7,
+        x: 0,
+        y: 2,
+      ),
+    ),
+  ),
+  caption: [Egy 1000 lépéses szimuláció időigénye steril, hallhatatlan egyedek számának függvényében],
+) <netlogo-simulation-nochurn-perf>
 #figure(
   perf_plot(
     [$E_"increase"$],
@@ -560,7 +743,4 @@ mélységi bejárás kicsit gyorsabb.
   caption: [Egy 1000 lépéses szimuláció időigénye a környezet eltartóképességének függvényében],
 ) <netlogo-simulation-perf>
 
-A @netlogo-simulation-perf diagram azt a látszatot kelti, mintha az egyedszám
-növekedése egy bizonyos pont után nem befolyásolná a futásidőt. Ezt vizsgálni kell.
-
-#todo[This result seems anomalous, investigate]
+A @netlogo-simulation-nochurn-perf és @netlogo-simulation-perf grafikonokon látható, hogy a szimulációt jelentősen lassítja a régi egyedek és éleik törlése, az új egyedek inicializálása és azok éleinek felépítése.

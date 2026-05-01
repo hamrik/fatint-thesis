@@ -50,8 +50,8 @@ auto define_args(cxxopts::Options &options, int argc, char **argv) -> cxxopts::P
         "random gene)",
         def<double>("0.0"));
 
-    opt("m_const", "Minimum number of offsprings per reproduction", def<double>("1"));
-    opt("m_limit", "Maximum number of offsprings per reproduction", def<double>("15"));
+    opt("m_const", "Minimum number of offsprings per reproduction", def<unsigned int>("1"));
+    opt("m_limit", "Maximum number of offsprings per reproduction", def<unsigned int>("15"));
     opt("m_slope", "How much should similarity affect offspring count", def<double>("0.0"));
 
     opt("e_increase",
@@ -111,8 +111,9 @@ auto parse_args(cxxopts::ParseResult &result) -> fatint::simulation::ExperimentS
     initial_run_parameters.genetic_parameters.v_mutation = result["v_mutation"].as<int>();
     initial_run_parameters.genetic_parameters.v_stretch = result["v_stretch"].as<double>();
 
-    initial_run_parameters.reproduction_parameters.m_const = result["m_const"].as<double>();
+    initial_run_parameters.reproduction_parameters.m_const = result["m_const"].as<unsigned int>();
     initial_run_parameters.reproduction_parameters.m_slope = result["m_slope"].as<double>();
+    initial_run_parameters.reproduction_parameters.m_limit = result["m_limit"].as<unsigned int>();
 
     initial_run_parameters.energy_parameters.e_increase = result["e_increase"].as<double>();
     initial_run_parameters.energy_parameters.e_consumption = result["e_consumption"].as<double>();
@@ -182,38 +183,47 @@ auto parse_args(cxxopts::ParseResult &result) -> fatint::simulation::ExperimentS
         else if (sweep_param == "v_mutation")
         {
             initial_run_parameters.genetic_parameters.v_mutation = static_cast<int>(sweep_from);
+            delta.genetic_parameters.v_mutation = static_cast<int>(sweep_by);
         }
         else if (sweep_param == "v_stretch")
         {
             initial_run_parameters.genetic_parameters.v_stretch = sweep_from;
+            delta.genetic_parameters.v_stretch = sweep_by;
         }
         else if (sweep_param == "m_const")
         {
-            initial_run_parameters.reproduction_parameters.m_const = sweep_from;
+            initial_run_parameters.reproduction_parameters.m_const = static_cast<size_t>(sweep_from);
+            delta.reproduction_parameters.m_const = static_cast<size_t>(sweep_by);
         }
         else if (sweep_param == "m_slope")
         {
             initial_run_parameters.reproduction_parameters.m_slope = sweep_from;
+            delta.reproduction_parameters.m_slope = sweep_by;
         }
         else if (sweep_param == "m_limit")
         {
-            initial_run_parameters.reproduction_parameters.m_limit = sweep_from;
+            initial_run_parameters.reproduction_parameters.m_limit = static_cast<size_t>(sweep_from);
+            delta.reproduction_parameters.m_limit = static_cast<size_t>(sweep_by);
         }
         else if (sweep_param == "e_increase")
         {
             initial_run_parameters.energy_parameters.e_increase = sweep_from;
+            delta.energy_parameters.e_increase = sweep_by;
         }
         else if (sweep_param == "e_intake")
         {
             initial_run_parameters.energy_parameters.e_intake = sweep_from;
+            delta.energy_parameters.e_intake = sweep_by;
         }
         else if (sweep_param == "e_discount")
         {
             initial_run_parameters.energy_parameters.e_discount = sweep_from;
+            delta.energy_parameters.e_discount = sweep_by;
         }
         else if (sweep_param == "e_consumption")
         {
             initial_run_parameters.energy_parameters.e_consumption = sweep_from;
+            delta.energy_parameters.e_consumption = sweep_by;
         }
     }
     else
