@@ -112,12 +112,17 @@
   set par(
     justify: true,
     leading: 0.65em, // Approximates 1.427465 line spacing
-    first-line-indent: 3.5em,
+    first-line-indent: 1em,
   )
 
   // Heading settings
   set heading(numbering: "1.1")
+  show heading.where(level: 1): it => {
+    pagebreak(weak: true)
+    it
+  }
 
+  /*
   show heading.where(level: 1): it => {
     pagebreak(weak: true)
     v(1em)
@@ -145,8 +150,9 @@
     ]
     v(0.3em)
   }
+  */
 
-  set cite(form: "prose")
+  set cite(form: "prose", style: "ieee")
 
   show link: it => {
     set text(fill: blue.darken(30%))
@@ -178,6 +184,8 @@
       it
     )
   }
+
+  set bibliography(style: "ieee")
 
   // COVER PAGE
   page(
@@ -353,10 +361,17 @@
   <todo>
 ]
 
+#let list(body, caption: none) = figure(
+  pseudocode-list(line-number-alignment: top + right, body),
+  kind: "list",
+  supplement: "Lista",
+  caption: caption
+)
+
 #let pseudocode-listing(body, caption: none) = figure(
   pseudocode-list(line-number-alignment: top + right, body),
   kind: "listing",
-  supplement: "Lista",
+  supplement: "Kódrészlet",
   caption: caption
 )
 

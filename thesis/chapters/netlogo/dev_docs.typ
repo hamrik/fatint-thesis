@@ -123,7 +123,7 @@ táblázatban szereplő interakciókra a táblázatban előírt módon reagál.
 
 === Implementáció részletei
 
-==== A NetLogo architektúrája
+==== A NetLogo implementáció architektúrája
 
 A FATINT modell implementációja a `model.nlogo` fájlban van.
 A mélységi bejárásos fajszámláló algoritmus ki van szervezve a `depth-first-search.nls` fájlba.
@@ -455,7 +455,9 @@ vizsgálatával.
 
 ==== Kézi tesztelés
 
-#pseudocode-listing(caption: "Készi teszt lépései populáció kipusztulásának teszteléséhez")[
+Kézi tesztekre mutatnak példát a @netlogo-test-dying, @netlogo-test-defaults és @netlogo-test-speciation lépései.
+
+#list(caption: "Készi teszt lépései populáció kipusztulásának teszteléséhez")[
 + Kattintsunk a *Reset* gombra, hogy minden paraméter alapértelmezett értéket
   vegyen fel.
 + Állítsuk $P_"encounter"$ értékét $0$-ra, minden mást hagyjunk alapértelmezett
@@ -465,7 +467,7 @@ vizsgálatával.
   belül terminálnia kell.
 ] <netlogo-test-dying>
 
-#pseudocode-listing(caption: "Készi teszt lépései alapértelmezett működés teszteléséhez")[
+#list(caption: "Készi teszt lépései alapértelmezett működés teszteléséhez")[
 + Kattintsunk a *Reset* gombra, hogy minden paraméter alapértelmezett értéket
   vegyen fel.
 + Kattintsunk a *Setup*, majd a *500 steps* gombra.
@@ -474,7 +476,7 @@ vizsgálatával.
   @netlogo-test-default-settings.
 ] <netlogo-test-defaults>
 
-#pseudocode-listing(caption: "Készi teszt lépései új gének automatikus létrehozásának teszteléséhez")[
+#list(caption: "Készi teszt lépései új gének automatikus létrehozásának teszteléséhez")[
 + Kattintsunk a *Reset* gombra, hogy minden paraméter alapértelmezett értéket
   vegyen fel.
 + Állítsuk $P_"change"$ értékét egy pozitív, egynél kisebb értékre, például $0.0005$.

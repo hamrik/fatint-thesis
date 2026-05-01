@@ -37,7 +37,7 @@ A NetLogo és a szimulációk futtatásához az alábbiak a minimális követelm
 A NetLogo telepítéséhez és a FATINT modell NetLogo implementációjának
 megnyitásához kövessük a @netlogo-setup-tutorial lépéseit:
 
-#pseudocode-listing(caption: "FATINT és NetLogo telepítése és indítása")[
+#list(caption: "FATINT és NetLogo telepítése és indítása")[
 + Látogassuk meg #link("https://github.com/hamrik/fatint-thesis/releases/latest")[a projekt GitHub tárhelyét].
 + Töltsük le a legfrissebb verzió bejegyzésének alján linkelt ZIP fájlt.
 + Csomagoljuk ki egy nekünk tetsző helyre.

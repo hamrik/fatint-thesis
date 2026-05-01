@@ -23,9 +23,9 @@ A `fatint` program futtatásához az alábbiak a minimális követelmények:
 
 === Telepítés
 
-==== Linux rendszer
+==== Telepítés Linux rendszeren
 
-#pseudocode-listing(caption: "A program telepítése Ubuntu 20.04 rendszeren")[
+#list(caption: "A program telepítése Ubuntu 20.04 rendszeren")[
 + Telepítsük az #text("Intel Threading Building Blocks", lang: "en") futásidejű
   könyvtárat. Ubuntu rendszereken ehhez a `libtbb12` csomagot kell telepíteni vagy
   egy grafikus csomagkezelővel, vagy a @cpp-install-tbb paranccsal:
@@ -66,7 +66,7 @@ a kísérletsorban generált egyik paraméter a megengedett intervallumán kív�
 esik. Ellenőrizzük a hivatkozott paraméter kapcsolóját.
 
 
-==== Egyéb rendszer
+==== Telepítés egyéb rendszeren
 
 A program csak Ubuntu operációs rendszeren került tesztelésre, így a megfelelő
 működés egyéb operációs rendszereken nem garantálható. Forráskódból való

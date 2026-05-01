@@ -940,3 +940,9 @@ véletlenszerűen adunk az egyedekhez új géneket.
 
 A @cpp-species-counter-perf-comp, @cpp-simulation-nochurn-perf és @cpp-simulation-perf diagramok alapján elmondható, hogy a C++ implementáció
 jelentősen gyorsabb a NetLogo implementációnál.
+
+== Mesterséges intelligencia <cpp-ai>
+
+A C++ implementáció fejlesztése során egyes egységtesztek első vázlatait
+mesterséges intelligencia (#text("Antigravity Supercomplete", lang: "en"))
+generálta. Ezen egységteszteket a fejlesztő felülvizsgálta, majd nagy részüket kézzel jelentősen módosította.
