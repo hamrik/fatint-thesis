@@ -4,28 +4,28 @@
 
 A C++ implementáció (továbbiakban *a program*) egy felület nélküli,
 parancssorból futtatható implementációja a FATINT modellnek (@model-desc),
-továbbá egy könyvtár (továbbiakban *libfatint*), mely beépíthető egyéb
+továbbá egy könyvtár (továbbiakban *`libfatint`*), mely beépíthető egyéb
 programokba. Elsődleges célja, hogy a @fatint cikkben megfogalmazott
-kísérletsorokat gyorsabban lefuttassa, mint a NetLogo immplementáció. Másodlagos
-célja egy objetumelvű megvalósítása a FATINT modellnek.
+kísérletsorokat gyorsabban lefuttassa, mint a NetLogo implementáció. Másodlagos
+célja egy objektumelvű megvalósítása a FATINT modellnek.
 
 === Rendszerkövetelmények
 
-- 2 évnél nem régebbi Linux disztribúció, például Ubuntu Linux 24.04 LTS
-- C++ futásidejű könyvtárak (pl `libc++` vagy `libstdc++`). Nagy valószínűséggel
+- 2 évnél nem régebbi Linux disztribúció, például #text("Ubuntu Linux 24.04 LTS", lang: "en")
+- C++ futásidejű könyvtárak (például `libc++` vagy `libstdc++`). Nagy valószínűséggel
   az operációs rendszer már tartalmazza.
 - 1MB tárhely a programnak
 - Nagyjából 100MB tárhely a generálandó adatoknak
 - Legalább 128MB memória
-- #link("https://www.intel.com/content/www/us/en/developer/tools/oneapi/onetbb.html")[Intel Threading Building Blocks] futásidejű könyvtárai
+- #link("https://www.intel.com/content/www/us/en/developer/tools/oneapi/onetbb.html")[#text("Intel Threading Building Blocks", lang: "en")] futásidejű könyvtárai
 
 === Telepítés
 
 ==== Linux rendszer
 
-+ Telepítsük az Intel Threading Building Blocks futásidejű könyvtárat.
-  Ubuntu rendszeren ehhez a `libtbb12` csomagot kell telepíteni vagy egy
-  grafikus csomagkezelővel, vagy az alábbi pararanccsal:
++ Telepítsük az #text("Intel Threading Building Blocks", lang: "en") futásidejű
+  könyvtárat. Ubuntu rendszereken ehhez a `libtbb12` csomagot kell telepíteni vagy
+  egy grafikus csomagkezelővel, vagy az alábbi paranccsal:
   ```bash
   $ sudo apt install libtbb12
   ```
@@ -38,17 +38,16 @@ célja egy objetumelvű megvalósítása a FATINT modellnek.
   $ ./fatint -h
   ```
   - Ha egy súgót kapunk, minden készen áll a kísérletek futtatására.
-  - Ha `No such file or directory` hibaüzetet kapjuk akkor nem jó mappában áll
+  - Ha `No such file or directory` hibaüzenetet kapjuk akkor nem jó mappában áll
     a parancssor. Győződjünk meg róla, hogy abban a mappában áll a parancssor,
     amelyikben a `fatint` nevű fájl is található. Ehhez használhatjuk a `pwd`,
-    `ls` és `cd` parancsokat, melyről bővebb lerást a `man pwd`, `man cd` és
-    `mav ls` parancsok nyújtanak.
-    Ha a megfelelő mappában állunk, győződjünk meg róla, hogy a kiadott
-    `./fatint` parancs a `./` karakterekkel kezdődik. Ez utasítja a parancssort,
-    hogy a programot a jelenlegi mappában kell keresni, és nem a rendszerben.
+    `ls` és `cd` parancsokat, melyről bővebb leírást a `man pwd`, `man cd` és
+    `mav ls` parancsok nyújtanak. Ha a megfelelő mappában állunk, győződjünk meg róla,
+    hogy a kiadott `./fatint` parancs a `./` karakterekkel kezdődik.
+    Ez utasítja a parancssort, hogy a programot a jelenlegi mappában kell keresni,
+    és nem a rendszerben.
   - Ha `error while loading shared libraries: libtbb.so.12` hibaüzenetet kapunk,
-    győződjünk meg róla, hogy telepítettük az Intel Threading Building Blocks
-    könyvtárat (lásd 1. lépés).
+    győződjünk meg róla, hogy telepítettük az #text("Intel Threading Building Blocks", lang: "en") könyvtárat (lásd 1. lépés).
   - Ha `constraint violation` hibaüzenetet kapunk, akkor a kézzel megadott vagy
     a kísérletsorban generált egyik paraméter a megengedett intervallumán kívül
     esik. Ellenőrizzük a hivatkozott paraméter kapcsolóját.
@@ -56,7 +55,7 @@ célja egy objetumelvű megvalósítása a FATINT modellnek.
 ==== Egyéb rendszer
 
 A program csak Ubuntu operációs rendszeren került tesztelésre, így a megfelelő
-működés egyéb operációs rendrszereken nem garantálható. Forráskódból való
+működés egyéb operációs rendszereken nem garantálható. Forráskódból való
 fordításhoz lásd a fejlesztői dokumentáció @build-from-source fejezetét.
 
 === Parancssori opciók
@@ -73,7 +72,7 @@ formájában átadhatóak a `fatint` parancssori programnak, lásd @fatint-flags
       #table(
         columns: 3,
         table.header[*Kapcsoló*][*Magyarázat*][*Alapérték*],
-        [`--runs arg`],[Szimulációk száma kíséletenként],[$10$],
+        [`--runs arg`],[Szimulációk száma kísérletenként],[$10$],
         [`--steps arg`],[Maximális körök száma szimulációnként],[$6000$],
         [`--seed arg`],[Véletlenszám generátor kezdőparamétere kísérletenként],[$1$],
         [`--m_init arg`],[$M_"init"$, avagy a populáció kezdő mérete],[$100$],
@@ -102,7 +101,7 @@ formájában átadhatóak a `fatint` parancssori programnak, lásd @fatint-flags
         [`--sweep-to arg`],[Kísérletsor paraméterének utolsó értéke],[],
         [`--disjoint-sets`],[
           Diszjunkt-Halmaz alapú fajszámlálás mélységi bejárás helyett.
-          Kapcsoló, tahát nem kell a `true` értéket kiírni.
+          Kapcsoló, tehát nem kell a `true` értéket kiírni.
         ],[`false`],
         [`--format`],[Eredmények kimeneti formátuma, `csv` vagy `svg`.],[`csv`],
         [`--output`],[Kimeneti fájl útvonala. Ha `-` az értéke, a standard kimenetre ír a program],[`-`],
@@ -115,11 +114,11 @@ formájában átadhatóak a `fatint` parancssori programnak, lásd @fatint-flags
 
 === Egy kísérlet futtatása
 
-Egyetlen kísérlet futtatásához nincs más teendőnk, mint a `fatint` eszközt az
-általunk kívánt paraméterekkel futtatni. Minden meg nem adott paraméter a fent
+Egyetlen kísérlet futtatásához nincs más teendőnk, mint a `fatint` eszközt a
+kívánt paraméterekkel futtatni. Minden meg nem adott paraméter a fent
 meghatározott alapértelmezett értéket kapja, lásd @model-desc fejezet.
 
-Például, ha a $P_"change"$ paramétert $0.03$-ra szerenénk állítani egy
+Például, ha a $P_"change"$ paramétert $0.03$-ra szeretnénk állítani egy
 kísérletben, akkor a `--p_change 0.03` kapcsolót kell beállítanunk. Példa:
 
 ```bash
@@ -169,9 +168,9 @@ lépésben, lásd @fatint-csv-columns.
       [`gene_count_sd`, `gene_count_error`],[Az genotípusok hosszának normális eloszlása és standard hibája az adott lépésben],
       [`minimum_species_count`, `average_species_count`, `maximum_species_count`],[Az fajok számának minimuma, átlaga, maximuma az szimulációk adott lépésében],
       [`species_count_sd`, `species_count_error`],[Az fajok számának normális eloszlása és standard hibája az adott lépésben],
-      [`run_N_entity_count`],[Az $N$-dik szimuláció populációjának száma az adott lépésben],
-      [`run_N_gene_count`],[Az $N$-dik szimulációban a genotípus hossza az adott lépésben],
-      [`run_N_species_count`],[Az $N$-dik szimulációban a fajok száma az adott lépésben],
+      [`run_N_entity_count`],[Az $N$. szimuláció populációjának száma az adott lépésben],
+      [`run_N_gene_count`],[Az $N$. szimulációban a genotípus hossza az adott lépésben],
+      [`run_N_species_count`],[Az $N$. szimulációban a fajok száma az adott lépésben],
     ),
     caption: "A generált CSV fájl szerkezete"
   ) <fatint-csv-columns>
@@ -181,15 +180,14 @@ lépésben, lásd @fatint-csv-columns.
 
 Egyetlen kísérlet gyakran nem elég ahhoz, hogy felmérjük egy paraméter hatását
 a modell viselkedésére. Kerekebb képet kapunk, ha a paraméter több értékével
-lefuttatunk egy-egy kísérletet. Ezt nevezzük *paramétervizsgálatnak*,
-*kísérletsornak*, _"parameter sweep"_-nek vagy _"experiment sweep"_-nek.
+lefuttatunk egy-egy kísérletet. Ezt nevezzük *kísérletsornak*, paramétervizsgálatnak, _"parameter sweep"_-nek vagy _"experiment sweep"_-nek.
 
 Több kísérlet futtatásához az `--sweep`, `--sweep-from`, `--sweep-by` és
 `--sweep-to` kapcsolók értékét kell beállítani. Ezen kapcsolókat egyszerre kell
-alkalmazni, különben hiabüzetet kapunk. Ezalól egyedüli kivétel a `--sweep-by`,
+alkalmazni, különben hibaüzenetet kapunk. Ez alól egyedüli kivétel a `--sweep-by`,
 melynek alapértelmezett értéke $1$.
 
-Például, hogy egyszerre szerenénk kísétleteket futtatni
+Például, hogy egyszerre szeretnénk kísérleteket futtatni
 $M_"limit" in {10, 20, 30}$ értékkel:
 
 ```bash
@@ -230,16 +228,16 @@ target_link_libraries(some_program PRIVATE libfatint)
 #...
 ```
 
-A könytár magja a `Simulator` osztály. Ez az osztály végzi a szimuláció
-futtatását, a konstruktárában megadott implementációs példányok koordinálásával.
+A könyvtár magja a `Simulator` osztály. Ez az osztály végzi a szimuláció
+futtatását, a konstruktorában megadott implementációs példányok koordinálásával.
 
 A konstruktorába a következő függőségeket kell injektálni:
 
-/ `fatint::genetics::ISimilarity`: Ellenőrzi egy távolságmetrika alapján, hogy két egyed hány utódot képes létrhozni. A könyvár jelenleg egy implmentációt tartalamaz: `EulideanDistanceSimilarity`
+/ `fatint::genetics::ISimilarity`: Ellenőrzi egy távolságmetrika alapján, hogy két egyed hány utódot képes létrehozni. A könyvár jelenleg egy implementációt tartalmaz: `EulideanDistanceSimilarity`
 / `fatint::genetics::ISelection`: A párválasztó algoritmus. A könyvtár jelenleg egy implementációt tartalmaz: `ReservoirSelection`
 / `fatint::genetics::IReproduction`: Az egyed örökítő algoritmus. A könyvtár jelenleg egy implementációt tartalmaz: `GeneticReproduction`
 / `fatint::genetics::IGeneAdder`: Az egyedek új genotípusát bővítő algoritmus. A könyvtár jelenleg két implementációt kínál: `RandomGeneAdder` és `VStretchGeneAdder`
-/ `fatint::measurement::ISpeciesCounter`: A faj számláló algoritmus. A könytár jelenleg két implementációt kínál: `DepthFirstSearchSpeciesCounter` és `DisjointSetsSpeciesCounter`
+/ `fatint::measurement::ISpeciesCounter`: A faj számláló algoritmus. A könyvtár jelenleg két implementációt kínál: `DepthFirstSearchSpeciesCounter` és `DisjointSetsSpeciesCounter`
 
 A konstruktor `unique_ptr` pointereket vesz át, tehát az implementációs
 példányok élettartamát a `Simulator` osztály kezeli. Egy minimális példát nyújt

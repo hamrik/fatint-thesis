@@ -9,7 +9,7 @@
   vagy minimalizálandó "költségfüggvényük".
 ]
 
-A *FATINT* modell (melynek neve a Fat Interactions, magyarul _kövér interakciók_
+A *FATINT* modell (melynek neve a #text("Fat Interactions", lang: "en"), magyarul _kövér interakciók_
 rövidítése) egy olyan egyed szimulációs modell, melynek célja a nyitott evolúció
 demonstrálása egy stabil, de folyamatosan változó "ökoszisztéma" fenntartásával.
 Ezt arra a megfigyelésre alapozza, hogy való életben az élőlények génjeinek
@@ -32,9 +32,7 @@ előrehaladtával már nem képes megfelelően hasznosítani a felvett energiát
   / Allél: Egy gén egy lehetséges értéke.
 ]
 
-Minden egyednek van egy genotípusa, mely meghatározza, hogy mely további
-egyedekkel tud párosodni. Ezen párosodási "preferenciák" mentén az egyedek külön
-halmazokba sorolhatók, ahol az egyes egyedek a halmazukon kívül eső egyedekkel
+Minden egyednek van egy úgynevezett *genotípusa*, mely meghatározza, hogy mely további egyedekkel tud párosodni. Ezen párosodási "preferenciák" mentén az egyedek külön halmazokba sorolhatók, ahol az egyes egyedek a halmazukon kívül eső egyedekkel
 nem tudnak párosodni.
 
 #definition[
@@ -53,21 +51,20 @@ módon a szimuláció során az egyedekben újabb és újabb géneket "aktiválh
 új fajok létrejöttéhez vezethet.
 
 Új fajok több módon is létrejöhetnek:
-- Egy egyed halálával annak faja két vagy több új fajjá eshet szét, ha a *G_P*
+- Egy egyed halálával annak faja két vagy több új fajjá eshet szét, ha a $G_P$
   preferenciagráfban az egyednek egy vagy több híd éle volt.
 - Párosodás során két szülő egyed létrehoz egy vagy több gyermek egyedet. Ezen
   egyedek mindkét szülőtől örökölnek géneket, valamint mutálódhatnak is.
   Előfordulhat, hogy az új egyedek már képesek más fajok egyedeivel párosodni,
   egyesítve két vagy több fajt egy új fajjá. Az is előfordulhat, hogy nem
   képesek párosodni senkivel, önmagukban alkotva új fajokat.
-- Új gének aktivációjakor a párosodási preferenciák megváltozásával a meglévő
-  fajok összeolvadhatnak vagy széteshetnek.
+- Új gének aktiválásakor a párosodási preferenciák megváltozásának következtében a meglévő fajok összeolvadhatnak vagy széteshetnek.
 
-=== A szimuláció körei
+=== A szimuláció körei <model-steps>
 
 A szimuláció körökre van osztva. Az első kör előtt létrehozunk egy $M_"init"$
 egyedből álló populációt, véletlenszerű $N_"init"$ méretű genotípusú, nulla korú
-és energiájú egyedekkel. A környzet energiaszintjét szintén nullára állítjuk.
+és energiájú egyedekkel. A környezet energiaszintjét szintén nullára állítjuk.
 Utána minden kör az alábbi forgatókönyvet követi:
 
 + A környezet energiatartalékát növeljük $E_"increase"$ értékével.
@@ -79,7 +76,7 @@ Utána minden kör az alábbi forgatókönyvet követi:
 + Azon egyedeket, melyek energia szintje már nem pozitív, eltávolítjuk.
 + Az többi egyed külön-külön $P_"encounter"$ valószínűséggel véletlenszerűen
   keres egy kompatibilis párt. Két egyed kompatibilis, ha genotípusuk távolsága
-  egy adott metrika (pl. Euklédeszi távolság) szerint nem több, mint
+  egy adott metrika (például Euklideszi távolság) szerint nem több, mint
   $M_"limit"$.
 + Minden kompatibilis pár a @offspring-count-formula egyenletnek megfelelő
   számú új egyedet hoz létre, a genotípusuk távolsága, $M_"limit"$, $M_"const"$

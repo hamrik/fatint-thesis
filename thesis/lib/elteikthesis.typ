@@ -114,7 +114,7 @@
   )
 
   // Heading settings
-  set heading(numbering: "1.1", supplement: none)
+  set heading(numbering: "1.1")
 
   show heading.where(level: 1): it => {
     pagebreak(weak: true)
@@ -162,7 +162,7 @@
   }
 
   // Formula numbering
-  set math.equation(numbering: n => [(#n)], supplement: none)
+  set math.equation(numbering: n => [(#n)])
 
   // Code blocks styling
   show raw.where(block: true): it => {

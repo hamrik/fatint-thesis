@@ -12,13 +12,13 @@ menetét.
 A NetLogo implementáció feladata a FATINT (@model-desc) modell pontos
 szimulációja, és a @fatint cikkben közölt adatok replikációja. A NetLogo ehhez
 egyszerű programozási nyelvével, felülettervező eszközeivel, a processzor magok
-hatékony kihasználásával, és a BehaviorSpace nevű kísérletsor szerkesző és
+hatékony kihasználásával, és a BehaviorSpace nevű kísérletsor szerkesztő és
 futtató eszközzel járul hozzá.
 
 ==== Funkcionális követelmények
 
 Az implementáció:
-- Lehetőséget nyújt a @model-params fejeztben szereplő összes paraméter
+- Lehetőséget nyújt a @model-params fejezetben szereplő összes paraméter
   beállítására.
 - Ellenőrzi a felhasználó által megadott paramétereket és jelenti a hibákat.
 - Lehetőséget nyújt az összes paraméter alapértékre való visszaállítására.
@@ -47,6 +47,9 @@ Az implementáció:
 
 ==== Felhasználói esetek
 
+A felhasználó és a NetLogo implementáció közötti interakciókat az @netlogo-usecase
+diagram foglalja össze.
+
 #figure(
   image("/assets/diagrams/netlogo_usecase.svg"),
   caption: [
@@ -57,13 +60,17 @@ Az implementáció:
 
 ==== Felületi terv
 
-A NetLogo program grafikus felülete interaktívan szerkeszthető, így megfelelő
-eszköz a felület terv elkészítésére is, lásd @netlogo-model-ui-plan.
+A NetLogo program grafikus felülete futás közben szerkeszthető, így megfelelő
+eszköz a modell felületi tervének elkészítésére is, lásd @netlogo-model-ui-plan.
 
 #figure(
   image("../../assets/screenshots/netlogo_model_ui.png", width: 50%),
   caption: [ A NetLogo 6.4.0 fő ablaka benne a modell "felülettervével" ],
 ) <netlogo-model-ui-plan>
+
+A modell állapotának grafikonjait egy csoportba, egymás gyűjti, így futás közben
+átlátható a modell állapotának alakulása, és könnyen felfedezhetőek ok-okozati
+összefüggések, például a fajok számának megugrása a génszám növekedésének pillanatában.
 
 ==== Felhasználói történetek
 
@@ -74,7 +81,8 @@ táblázatban szereplő interakciókra a táblázatban előírt módon reagál.
 #figure(
   table(
     columns: 3,
-    table.header[*GIVEN / Feltéve, hogy a felhasználó...*][*WHEN / Amikor...*][*THEN / Akkor...*],
+    table.header[*#text("GIVEN", lang: "en") / Feltéve, hogy a felhasználó...*][*#text("WHEN", lang: "en") / Amikor...*][*#text("THEN", lang:"en") / Akkor...*],
+
     [Érvénytelen paramétereket állított be], [Rákattint a _"Setup"_ gombra], [A hibás paraméterekről hibaüzenetet kap],
     [Érvénytelen paramétereket állított be], [Rákattint a _"Step"_ vagy _"500 steps"_ gombra], [A hibás paraméterekről hibaüzenetet kap],
     [Érvénytelen paramétereket állított be], [Rákattint a _"Go"_ gombra], [A hibás paraméterekről hibaüzenetet kap],
@@ -114,7 +122,7 @@ táblázatban szereplő interakciókra a táblázatban előírt módon reagál.
 
 === Implementáció részletei
 
-==== A NetLogo architekturája
+==== A NetLogo architektúrája
 
 A FATINT modell implementációja a `model.nlogo` fájlban van.
 A mélységi bejárásos fajszámláló algoritmus ki van szervezve a `depth-first-search.nls` fájlba.
@@ -122,44 +130,47 @@ A diszjunkt-halmazos fajszámláló pedig a `disjoint-sets.nls` fájlba.
 A `model.nlogo` fájl megnyitásához az `nls` mellékfájloknak ugyanabban a mappában kell lenniük, mint az `nlogo` fájl.
 
 A NetLogo programozási nyelv az *ágensek* koncepciója köré szervezve. Minden
-ágens felfogható egy-egy objektumként, mezői vannak és függvényeket, eljárásokat
-hajt végre. Ezen eljárások egy globális névtérben helyezkednek el, nem tartoznak
-osztályhoz vagy modulhoz. A NetLogo különbséget teszt *függvények*
-(`to report foo`) és *eljárás* (`to bar`) között. A függvényeknek mindig van
-visszatérési értékük. Az eljárásoknak nincs, ők *mellékhatásokat* (_"effect"_)
-váltanak ki, azaz módosítják egy vagy több ágens állapotát. A függvényeknek is
-lehetnek mellékhatásaik. Nincs szoros összerendelés a függvények/eljárások és az
-ágensek között. Néhány beépített függvényt és eljárást csak egyes ágens típusok
-képesek futtatni, ezek használata határozza meg, hogy a fejlesztő által írt
-függényeket és eljárásokat mely típusok képesek futtatni. Lekérhetők az ágensek
-különböző *ágenshalmazai*, és ezeken egyszerre futtathatóak eljárások
-(függvények nem). A NetLogo az ágenshalmaz tagjain véletlenszerű sorrendben
-futtatja a eljárást, garantálva az igazságosságot, ha az ágensek egy közös
-forrásért versenyeznek (mint például a környzet energiakészlete).
+ágens felfogható egy-egy objektumként, saját mezőkkel rendelkeznek és függvényeket, eljárásokat hajtanak végre. Ezen függvények és eljárások egy globális névtérben helyezkednek el, nem tartoznak szorosan az ágenshez vagy annak típusához.
+A NetLogo nyelv procedurális, nincsenek osztályok vagy modulok. Néhány beépített
+függvényt és eljárást csak egyes ágens típusok képesek futtatni, ezek használata
+határozza meg, hogy a fejlesztő által írt függvényeket és eljárásokat mely ágensek
+képesek futtatni.
+
+A NetLogo különbséget teszt *függvények* (`to report foo`) és *eljárások* (`to bar`)
+között. A függvényeknek visszatérési értékük van. Az eljárásoknak nincs, azok célja a modell paramétereinek vagy a szimuláció elemeinek állapotának módosítása. Ezt *mellékhatásnak* (_"effect"_) hívjuk. A függvényeknek is lehetnek mellékhatásaik.
+
+Leszűrhetők az szimulációban részt vevő ágensek különböző *ágenshalmazai*,
+és ezeken a halmazokon egyszerre futtathatóak eljárások, de függvények nem.
+A NetLogo az ágenshalmaz elemein véletlenszerű sorrendben futtatja az eljárást,
+garantálva az igazságosságot, amikor az ágensek egy közös forrásért versenyeznek
+(mint például a környezet energiakészlete).
 
 A NetLogo alapból négy ágens típust definiál:
 
-/ Turtle, avagy teknős: A tradícionális Logo nyelvekből származó, fizikai térben
+/ #text("Turtle", lang: "en"), avagy teknős:
+  A tradicionális Logo nyelvekből származó, fizikai térben
   létező, mozgó, rajzolni tudó ágensek. A NetLogo egy _"World"_, avagy _világ_
-  nevű térben helyezi el őket, de ezt a nézetet a FATINT nem használja.
+  nevű térben helyezi el a teknősöket, de ezt a tényt, illetve az a világot ábrázoló nézetet a FATINT nem használja.
   A FATINT modellben a teknősök alkotják a szimuláció populációját.
-/ Link, avagy él: Nincs saját pozíciójuk, hanem két teknőst kötnek össze.
+/ #text("Link", lang: "en"), avagy él:
+  Nincs saját pozíciójuk, hanem két teknőst kötnek össze.
   A FATINT modellben a $G_P$ párosodási preferencia gráf éleit reprezentálják.
-/ Patch: A környzet fizikai terei, a FATINT modell nem használja.
-/ Observer: Egyke objektum (singleton), nincs pozíciója vagy megjelenése, a
-  szimuláció kezeléséért és az egyedek koordinálásáért felel.
+/ #text("Patch", lang: "en"), avagy folt:
+  A fizikai tér egy szekciója. A FATINT modell nem használja.
+/ #text("Observer", lang: "en"), avagy megfigyelő: Egyke objektum (singleton), nincs
+  pozíciója vagy megjelenése, a szimuláció kezeléséért és az egyedek koordinálásáért felel.
 
 A fejlesztő definiálhat altípusokat (_"breed"_). Ez nem keverendő a FATINT
 modell által definiált *faj* fogalmával. A FATINT NetLogo implementációja nem
 használ típusokat.
 
-A fejlesztő definiálhat globális változóket, valamint bármely típushoz rendelhet
+A fejlesztő definiálhat globális változókat, valamint bármely típushoz rendelhet
 további mezőket. Ezek mindig publikusak. A grafikus felületre felvett gombok
-szintén globális válzotók. A FATINT modell implmenetáció globális változóként
+szintén globális változók. A FATINT modell implementáció globális változóként
 tárolja:
-/ `p-encounter`, `v-min`, `m-limit`, stb: a modell kezdő paraméterei
-/ `m-init`: a szimuláció populációjának kezdő létszáma
-/ `n-init`: az egyedek genotípusának kezdő hossza
+/ `p-encounter`, `v-min`, `m-limit`, ...: a modell kezdő paraméterei
+/ `m-init`: $M_"init"$, a szimuláció populációjának kezdő létszáma
+/ `n-init`: $N_"init"$, az egyedek genotípusának kezdő hossza
 / `available-energy`: a környezet energiaszintje
 / `gene-count`: az egyedek genotípusának hossza
 / `species-count`: a fajok száma
@@ -179,7 +190,10 @@ Továbbá definiálja rajtuk a következő segédmezőket:
 / `visited`: A mélységi bejárás segédváltozója.
 / `parent` és `rank`: A Diszjunkt-Halmaz algoritmus segédváltozói.
 
-A NetLogoban konvenció egy `setup` és egy `go` eljárás definiálása.
+Nem definiáljuk külön a teknős korát, az `e-discounting` elég információt tartalmaz a
+korfüggő számításokhoz.
+
+A NetLogo modelleknél bevett konvenció egy `setup` és egy `go` eljárás definiálása.
 / `setup`: Eltakarítja a korábbi szimulációk állapotát és inicializál egy új
   kezdőállapotot.
 / `go`: Végrehajt egy szimulációs kört.
@@ -189,9 +203,8 @@ vezetve a felületre.
 
 ==== Az egyedek életciklusa
 
-A szimuláció megkezése előtt a felhasználó rákattinint a _"Setup"_ gombra. Majd
-kézzel (A _"Step"_ gombra kattintva) vagy automatikusan (A _"Go"_ gombra
-kattintva) futtatja a `go` eljárást.
+Új szimuláció kezdése előtt a felhasználó rákattint a _"Setup"_ gombra, inicializálva
+a szimuláció állapotát. Utána kézzel (A _"Step"_ gombra kattintva) vagy automatikusan (A _"Go"_ gombra kattintva) futtatja a `go` eljárást.
 
 A `setup` eljárás alaphelyzetbe állítja a szimulációt a megadott paraméterekkel
 (@netlogo-setup-listing).
@@ -203,8 +216,8 @@ az egyedek párzása (@netlogo-reproduce-listing),
 
 #figure(
   pseudocode-list[
-    + *eljárás* setup:
-      + Minden él és teknős törlése
+    + *eljárás* `setup`:
+      + Minden teknős és éleik törlése
       + NetLogo lépésszámláló nullázása (`reset-ticks`)
       + $"M-limit-sqr" := M_"limit" ^ 2$
       + $"available-energy" := 0$
@@ -256,7 +269,7 @@ az egyedek párzása (@netlogo-reproduce-listing),
   pseudocode-list[
     + *eljárás* `reproduce`:
       + *ciklus* $forall a in {t in "teknősök" | P_"encounter" "valószínűség teljesül" }$:
-        + Ha $a$-nak nincs éle, ezt az iterációt kihagyjuk
+        + Ha $a$ teknősnek nincs éle, ezt az iterációt kihagyjuk
         + Véletlenszerűen kiválasztjuk $a$ egyik $l$ élét, melyek másik vége $b$
         + $D := $`euclidean_distance_sqr(`$a$, $b$`)`
         + $o := M_"const" + (M_"limit" - sqrt(D)) * M_"slope"$
@@ -289,7 +302,7 @@ az egyedek párzása (@netlogo-reproduce-listing),
           + $c[i] := c[i] + m$
         + *elágazás vége*
       + *ciklus vége*
-      + *visszatérés* $c$-vel
+      + *visszatérés* $c$ tömbbel
     + *függvény vége*
   ],
   caption: [A `combine` függvény lépései]
@@ -394,7 +407,7 @@ váltani.
         + $a".parent" := a".parent.parent"$ _Útfelezési optimalizálás_
         + $a := a".parent"$
       + *ciklus vége*
-      + *visszatérés* $a$-val
+      + *visszatérés* $a$ gyökérelemmel
     + *függvény vége*
   ],
   caption: [A diszjunkt-halmaz alapú fajszámláló algoritmus]
@@ -439,7 +452,7 @@ reakció elemzésével, illetve a kísérletsorok által
 
 ==== Populáció öregedése
 
-+ Kattinsunk a *Reset* gombra, hogy minden paraméter alapértelmezett értéket
++ Kattintsunk a *Reset* gombra, hogy minden paraméter alapértelmezett értéket
   vegyen fel.
 + Állítsuk $P_"encounter"$ értékét $0$-ra, minden mást hagyjunk alapértelmezett
   értéken.
@@ -449,7 +462,7 @@ reakció elemzésével, illetve a kísérletsorok által
 
 ==== Alapértelmezett működés
 
-+ Kattinsunk a *Reset* gombra, hogy minden paraméter alapértelmezett értéket
++ Kattintsunk a *Reset* gombra, hogy minden paraméter alapértelmezett értéket
   vegyen fel.
 + Kattintsunk a *Setup*, majd a *500 steps* gombra.
 + A populáció létszáma először megugrik, majd stabilizálódik a $[100, 120]$
@@ -458,7 +471,7 @@ reakció elemzésével, illetve a kísérletsorok által
 
 ==== Új gének létrejötte
 
-+ Kattinsunk a *Reset* gombra, hogy minden paraméter alapértelmezett értéket
++ Kattintsunk a *Reset* gombra, hogy minden paraméter alapértelmezett értéket
   vegyen fel.
 + Állítsuk $P_"change"$ értékét egy pozitív, egynél kisebb értékre, például $0.0005$.
 + Kattintsunk a *Setup*, majd a *500 steps* gombra.
@@ -487,7 +500,7 @@ reakció elemzésével, illetve a kísérletsorok által
 ==== A cikk grafikonjai, mint integrációs tesztek
 
 A modellbe előre beépített kísérletsorok segítségével meggyőződhetünk róla,
-hogy a NetLogo implmenetáció az elvárt módon viselkedik. Ezen kísérletek grafikus
+hogy a NetLogo implementáció az elvárt módon viselkedik. Ezen kísérletek grafikus
 felület nélkül is futtathatóak a NetLogo gyökérmappájában található
 `NetLogo_Console` eszköz segítségével:
 
@@ -498,7 +511,7 @@ NetLogo$ ./NetLogo_Console --headless --model model.nlogo --experiment experimen
 / `--headless`: Ez a kapcsoló megakadályozza a felhasználói felület betöltését
 / `--model`: Ennek a kapcsolónak kell megadni a modell fájl elérési útvonalát
 / `--experiment`: A futtatni kívánt BehaviorSpace kísérlet neve
-/ `--table`: A szimuláció ereményének mentési útvonala
+/ `--table`: A szimuláció eredményének mentési útvonala
 / `--stats`: A statisztikák mentési útvonala
 
 A @fatint cikkben szereplő kísérletek a @netlogo-experiment-table táblázatban
@@ -585,7 +598,7 @@ is legfeljebb egy faj fennmaradását garantálja, lásd
 ) <netlogo-species-comp-p-mutation>
 
 $P_"mutation"$ magasabb értékeknél létrehozhat egy-egy rövid életű fajt, de
-mivel ezen fajok gyakran egy egydből állnak, így az egyed halálával a faj is
+mivel ezen fajok gyakran egy egyedből állnak, így az egyed halálával a faj is
 kihal. Továbbra is egyetlen faj dominál. Lásd @netlogo-species-comp-p-mutation.
 
 #figure(
@@ -702,7 +715,7 @@ véletlenszerűen adunk az egyedekhez új géneket.
     ),
   ),
   caption: [
-    Az élek létrehozásának és a fajszámláló algorimusok futásidejének összege a
+    Az élek létrehozásának és a fajszámláló algoritmusok futásidejének összege a
     populáció létszámának függvényében (logaritmikus skála).
   ],
 ) <netlogo-species-counter-perf>

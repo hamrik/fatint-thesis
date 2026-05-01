@@ -6,9 +6,9 @@
   department: "Mesterséges Intelligencia Tanszék",
 
   title: [
-    Evolutionary Technology:
+    #text("Evolutionary Technology:", lang: "en")
 
-    Replication of the FATINT system
+    #text("Replication of the FATINT system", lang: "en")
   ],
 
   author: "Hamrik Szabin",

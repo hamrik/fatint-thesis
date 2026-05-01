@@ -5,7 +5,7 @@
 Ezen projekt célja @fatint cikkében leírt *FATINT* elnevezésű nyitott evolúciós
 modell újbóli implementációja, és a cikkben közölt eredmények reprodukálása.
 Ehhez két implementációt mutatunk be, egyet a NetLogo keretrendszerben, másikat
-a C++ programozási nyelven implementálva.
+a C++ programozási nyelvben implementálva.
 
 Mindkét implementációhoz tartozik egy-egy felhasználói dokumentáció, melyek
 tartalmazzák az adott implementáció leírását és használati utasítását. Továbbá
