@@ -1,4 +1,5 @@
 #import "/lib/plot.typ": *
+#import "/lib/elteikthesis.typ": *
 #import "@preview/lovelace:0.3.1": *
 
 == Fejlesztői dokumentáció (C++) <cpp-spec>
@@ -154,15 +155,9 @@ konstans referencia, vagy érték.
 
 ==== A program szakaszai
 
-Az egyes elemek egy adatcsővezetéket (_"#text("data pipeline", lang: "en")"_) alkotnak, több transzformációs lépéssel.//, lásd @libfatint-dataflow.
+Az egyes elemek egy adatcsővezetéket (_"#text("data pipeline", lang: "en")"_) alkotnak, több transzformációs lépéssel, lásd @libfatint-dataflow.
 
-/*
-#figure(
-  image("/assets/diagrams/cpp_dataflow.svg"),
-  caption: [Az adatok transzformációja `fatint` programban és a `libfatint` könyvtárban],
-) <libfatint-dataflow>
-*/
-
+#pseudocode-listing(caption: [A `fatint` adatfolyama])[
 + A program a `cxxopts` könyvtár segítségével értelmezi a parancssori
   kapcsolókat és előállít egy `ExperimentSweepParameters` objektumot. Ez az
   objektum minden, a kísérletsorral kapcsolatos paramétert tartalmaz.
@@ -190,6 +185,7 @@ Az egyes elemek egy adatcsővezetéket (_"#text("data pipeline", lang: "en")"_) 
   (`CSVWriter` vagy `SVGWriter`) példányosítja, majd átadja az exportálónak a
   paramétereket, statisztikákat és a folyamot.
 + Az exportáló végeztével a program kilép.
+] <libfatint-dataflow>
 
 ==== A szimuláció menete <cpp-sim-steps>
 
@@ -421,7 +417,7 @@ a fajokat a kapott populációban:
 ) <cpp-dfs-listing>
 
 Mivel minden lépésben összehasonlít minden egyed párt, ezért időbeli
-komplexitása $O(|V| + |V|^2) approx O(|V|^2$ ahol, $|V|$ a populáció létszáma.
+komplexitása $ O(|V| + |V|^2) approx O(|V|^2) $ ahol, $|V|$ a populáció létszáma.
 
 A *`DisjointSetsSpeciesCounter`* a Diszjunkt-Halmaz adatszerkezetet (@cpp-ds-listing) használja a fajok megszámolásához:
 
@@ -453,7 +449,8 @@ A *`DisjointSetsSpeciesCounter`* a Diszjunkt-Halmaz adatszerkezetet (@cpp-ds-lis
 Az egyesítés időigénye $O(1)$, a gyökér keresés időigénye pedig
 $O(alpha(|V|))$, ahol $alpha$ az elhanyagolhatóan lassan növekvő inverz
 Ackermann függvény. Viszont az időigényt dominálja a kompatibilis párok
-megkeresése, ami $O(|V|^2)$ időigényű.
+megkeresése, ami $O(|V|^2)$ időigényű. Így a teljes időigény
+$ O(alpha(|V|) + |V|^2) $
 
 ==== A fajszámlálók teljesítményének összehasonlítása
 
@@ -512,24 +509,28 @@ A forráskód fordításához a következő elemekre van szükség:
   Egyes standard könyvtárak (például `libstdc++`) megkövetelik, mások
   (például `libc++`) nem.
 
-Például Ubuntu 24.04 rendszeren a függőségeket a következő paranccsal
+Például Ubuntu 24.04 rendszeren a függőségeket a @cpp-install-deps paranccsal
 telepítjük:
 
+#command(caption: [`fatint` fordításához szükséges eszközök telepítése Ubuntun])[
 ```bash
 $ sudo apt install build-essential cmake libtbb12 libtbb-dev
 ```
+] <cpp-install-deps>
 
 Minden további függőség a forráskód része.
 
 A fordításhoz a projekt `fatint-cpp` könyvtárában állva kiadjuk az alábbi
 parancsokat:
 
+#command(caption: [`fatint` fordításához szükséges parancsok])[
 ```bash
 $ cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release
 $ cmake --build build --parallel
 ```
+] <cpp-build>
 
-A kész program a `./build` mappába kerül.
+A @cpp-build parancsok lefutása után kész program a `./build` mappába kerül.
 
 === Tesztek futtatása
 
@@ -644,17 +645,52 @@ A @fatint cikkben szereplő kísérletek adaptált megfelelői a következők:
 
 A @fatint cikkben demonstrált kísérletsorok segítségével meggyőződhetünk róla,
 hogy a C++ implementáció az elvárt módon viselkedik. A @fatint cikkben szereplő
-összes kísérlet elvégezhető az alábbi parancsokkal:
+összes kísérlet elvégezhető az @cpp-run-paper-experiments parancsaival:
 
+#command(caption: [@fatint kísérletsorainak futtatása `fatint` programmal])[
 ```bash
-fatint --output default_params.csv
-fatint -e 11 --p_encounter 0.05 --sweep_p_encounter 0.005 --output  p_encounter_0.05-0.10.csv
-fatint -e 6 --p_mutation 0 --sweep_p_mutation 0.1 --output p_mutation_0.00-0.50.csv
-fatint -e 9 --p_crossing 0 --sweep_p_crossing 0.1 --output p_crossing_0.00-0.80.csv
-fatint -e 11 --p_change 0.0005 --sweep_p_change 0.00005 --output p_change_0.0005-0.001.csv
-fatint -e 21 --p_change 0.0005 --m_limit 0 --sweep_m_limit 1 --output p_change_0.0005_m_limit_0-20.csv
-fatint -e 20 --p_change 0.0005 --v_stretch 1 --sweep_v_stretch 1 --output p_change_0.0005_v_stretch_1-20.csv
+$ fatint \
+    --output thesis/data/default-libfatint.csv
+$ fatint \
+    --sweep p_encounter \
+    --sweep-from 0.05 \
+    --sweep-by 0.005 \
+    --sweep-to 0.095 \
+    --output thesis/data/p_encounter-libfatint.csv
+$ fatint \
+    --sweep p_crossing \
+    --sweep-from 0 \
+    --sweep-by 0.1 \
+    --sweep-to 0.5 \
+    --output thesis/data/p_crossing-libfatint.csv
+$ fatint \
+    --sweep p_mutation \
+    --sweep-from 0 \
+    --sweep-by 0.1 \
+    --sweep-to 0.5 \
+    --output thesis/data/p_mutation-libfatint.csv
+$ fatint \
+    --sweep p_change \
+    --sweep-from 0.0005 \
+    --sweep-by 0.00005 \
+    --sweep-to 0.001 \
+    --output thesis/data/p_change-libfatint.csv
+$ fatint \
+    --p_change 0.0005 \
+    --sweep m_limit \
+    --sweep-from 0 \
+    --sweep-to 20 \
+    --output thesis/data/m_limit-libfatint.csv
+$ fatint \
+    --p_change 0.0005 \
+    --sweep v_stretch \
+    --sweep-from 1 \
+    --sweep-to 20 \
+    --output thesis/data/v_stretch-libfatint.csv
+
+
 ```
+] <cpp-run-paper-experiments>
 
 #figure(
   grid(

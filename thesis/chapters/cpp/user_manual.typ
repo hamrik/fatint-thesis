@@ -1,4 +1,4 @@
-#import "../../lib/elteikthesis.typ": todo, warning
+#import "../../lib/elteikthesis.typ": *
 
 == Felhasználói dokumentáció (C++) <cpp-user-manual>
 
@@ -11,9 +11,11 @@ célja egy objektumelvű megvalósítása a FATINT modellnek.
 
 === Rendszerkövetelmények
 
+A `fatint` program futtatásához az alábbiak a minimális követelmények:
+
 - 2 évnél nem régebbi Linux disztribúció, például #text("Ubuntu Linux 24.04 LTS", lang: "en")
-- C++ futásidejű könyvtárak (például `libc++` vagy `libstdc++`). Nagy valószínűséggel
-  az operációs rendszer már tartalmazza.
+- C++ futásidejű könyvtárak (például `libc++` vagy `libstdc++`).
+  Nagy valószínűséggel az operációs rendszer már tartalmazza.
 - 1MB tárhely a programnak
 - Nagyjából 100MB tárhely a generálandó adatoknak
 - Legalább 128MB memória
@@ -23,34 +25,46 @@ célja egy objektumelvű megvalósítása a FATINT modellnek.
 
 ==== Linux rendszer
 
+#pseudocode-listing(caption: "A program telepítése Ubuntu 20.04 rendszeren")[
 + Telepítsük az #text("Intel Threading Building Blocks", lang: "en") futásidejű
   könyvtárat. Ubuntu rendszereken ehhez a `libtbb12` csomagot kell telepíteni vagy
-  egy grafikus csomagkezelővel, vagy az alábbi paranccsal:
+  egy grafikus csomagkezelővel, vagy a @cpp-install-tbb paranccsal:
+  #command(caption: "Intel Threading Building Blocks telepítése Ubuntun")[
   ```bash
   $ sudo apt install libtbb12
   ```
+  ] <cpp-install-tbb>
 + Látogassuk meg #link("https://github.com/hamrik/fatint-thesis/releases/latest")[a projekt GitHub tárhelyét].
-+ Töltsük le a legfrissebb verzió bejegyzésének alján linkelt ZIP fájlt.
++ Töltsük le a legfrissebb verzió bejegyzésének alján linkelt `fatint` nevű programot.
 + Csomagoljuk ki egy nekünk tetsző helyre.
 + Nyissunk egy terminált a kicsomagolt mappában.
 + Ellenőrizzük, hogy a program elindul:
+  #command(caption: [`fatint` súgó lehívása])[
   ```bash
   $ ./fatint -h
   ```
-  - Ha egy súgót kapunk, minden készen áll a kísérletek futtatására.
-  - Ha `No such file or directory` hibaüzenetet kapjuk akkor nem jó mappában áll
-    a parancssor. Győződjünk meg róla, hogy abban a mappában áll a parancssor,
-    amelyikben a `fatint` nevű fájl is található. Ehhez használhatjuk a `pwd`,
-    `ls` és `cd` parancsokat, melyről bővebb leírást a `man pwd`, `man cd` és
-    `mav ls` parancsok nyújtanak. Ha a megfelelő mappában állunk, győződjünk meg róla,
-    hogy a kiadott `./fatint` parancs a `./` karakterekkel kezdődik.
-    Ez utasítja a parancssort, hogy a programot a jelenlegi mappában kell keresni,
-    és nem a rendszerben.
-  - Ha `error while loading shared libraries: libtbb.so.12` hibaüzenetet kapunk,
-    győződjünk meg róla, hogy telepítettük az #text("Intel Threading Building Blocks", lang: "en") könyvtárat (lásd 1. lépés).
-  - Ha `constraint violation` hibaüzenetet kapunk, akkor a kézzel megadott vagy
-    a kísérletsorban generált egyik paraméter a megengedett intervallumán kívül
-    esik. Ellenőrizzük a hivatkozott paraméter kapcsolóját.
+  ] <cpp-help>
++ Ha a @cpp-help kiadása után egy súgót kapunk, minden készen áll a kísérletek futtatására.
+] <cpp-install>
+
+Kövessük a @cpp-install lépéseit.
+
+Ha `No such file or directory` hibaüzenetet kapjuk akkor nem jó mappában áll
+a parancssor. Győződjünk meg róla, hogy abban a mappában áll a parancssor,
+amelyikben a `fatint` nevű fájl is található. Ehhez használhatjuk a `pwd`,
+`ls` és `cd` parancsokat, melyről bővebb leírást a `man pwd`, `man cd` és
+`mav ls` parancsok nyújtanak. Ha a megfelelő mappában állunk, győződjünk meg róla,
+hogy a kiadott `./fatint` parancs a `./` karakterekkel kezdődik.
+Ez utasítja a parancssort, hogy a programot a jelenlegi mappában kell keresni,
+és nem a rendszerben.
+
+Ha `error while loading shared libraries: libtbb.so.12` hibaüzenetet kapunk,
+győződjünk meg róla, hogy telepítettük az #text("Intel Threading Building Blocks", lang: "en") könyvtárat (lásd 1. lépés).
+
+Ha `constraint violation` hibaüzenetet kapunk, akkor a kézzel megadott vagy
+a kísérletsorban generált egyik paraméter a megengedett intervallumán kívül
+esik. Ellenőrizzük a hivatkozott paraméter kapcsolóját.
+
 
 ==== Egyéb rendszer
 
@@ -119,35 +133,43 @@ kívánt paraméterekkel futtatni. Minden meg nem adott paraméter a fent
 meghatározott alapértelmezett értéket kapja, lásd @model-desc fejezet.
 
 Például, ha a $P_"change"$ paramétert $0.03$-ra szeretnénk állítani egy
-kísérletben, akkor a `--p_change 0.03` kapcsolót kell beállítanunk. Példa:
+kísérletben, akkor a `--p_change 0.03` kapcsolót kell beállítanunk, lásd @cpp-demo-p-change:
 
+#command(caption: [Paraméter átadása `fatint` programnak])[
 ```bash
 $ ./fatint --p_change 0.03
 ```
+] <cpp-demo-p-change>
 
 A program az eredményeket CSV formátumban a standard kimenetre fogja írni. Ha
-fájlba szeretnénk irányítani, azt az `output` kapcsolóval tehetjük meg:
+fájlba szeretnénk irányítani, azt az `output` kapcsolóval tehetjük meg, lásd @cpp-demo-output:
 
+#command(caption: [`fatint` eredmények fájlba írása])[
 ```bash
 $ ./fatint --p_change 0.03 --output results.csv
 ```
+] <cpp-demo-output>
 
 Egy kísérlet alapértelmezett beállítás mellett 10 szimulációt futtat, és azok
-eredményeit átlagolja. Ez a szám a `--runs` kapcsolóval állítható:
+eredményeit átlagolja. Ez a szám a `--runs` kapcsolóval állítható, lásd @cpp-demo-runs:
 
+#command(caption: [Szimulációk számának megadása `fatint` programnak])[
 ```bash
 $ ./fatint --runs 20 --p_change 0.03 --output results.csv
 ```
+] <cpp-demo-runs>
 
 Egy szimuláció addig tart, amíg az utolsó egyed eltávolításra nem kerül, vagy
 amíg a megtett körök száma el nem ér egy limitet. Ez a limit alapértelmezett
 beállítások mellett 6000 kör. A generált CSV fájlok mindig a maximális körök
-számának megfelelő sort fognak tartalmazni kísérletenként, akkor is, ha a
-szimuláció hamarabb terminál. Ez a limit a `--steps` kapcsolóval állítható:
+számának megfelelő sort fogják tartalmazni kísérletenként, akkor is, ha a
+szimuláció hamarabb terminál. Ez a limit a `--steps` kapcsolóval állítható, lásd @cpp-demo-steps:
 
+#command(caption: [Szimulációk számának megadása `fatint` programnak])[
 ```bash
 $ ./fatint --runs 20 --steps 1000 --p_change 0.03 --output results.csv
 ```
+] <cpp-demo-steps>
 
 === A generált CSV fájl szerkezete <fatint-csv-desc>
 
@@ -187,12 +209,14 @@ Több kísérlet futtatásához az `--sweep`, `--sweep-from`, `--sweep-by` és
 alkalmazni, különben hibaüzenetet kapunk. Ez alól egyedüli kivétel a `--sweep-by`,
 melynek alapértelmezett értéke $1$.
 
-Például, hogy egyszerre szeretnénk kísérleteket futtatni
-$M_"limit" in {10, 20, 30}$ értékkel:
+Például a @cpp-demo-sweep három kísérletet futtat
+$M_"limit" in {10, 20, 30}$ értékkel
 
+#command(caption: [Kísérletsor paraméterezése `fatint` programmal])[
 ```bash
 $ ./fatint --sweep m_limit 10 --sweep-from 10 --sweep-by 10 --sweep-to 30 --output results.csv
 ```
+] <cpp-demo-sweep>
 
 A @fatint-csv-desc fejezetben definiált formátumban itt kap jelentőséget az,
 hogy lépésenként listázzuk a paramétereket. Az egyes kísérletek egymás alá
@@ -203,11 +227,13 @@ az egyes eredményeket szétválogatni.
 
 A C++ implementáció képes a nyers adatok helyett grafikonon ábrázolni azokat
 vektorgrafika (SVG) formátumban. Ehhez a `--format svg` kapcsolót kell
-használni.
+használni, lásd @cpp-demo-plot:
 
+#command(caption: [`fatint` eredményének ábrázolása grafikonon])[
 ```bash
 $ ./fatint --sweep m_limit 10 --sweep-from 10 --sweep-by 10 --sweep-to 30 --format svg --output results.svg
 ```
+] <cpp-demo-plot>
 
 A grafikonon minden a kísérletsor minden kísérlete ugyanarra a grafikonra kerül,
 más-más színnel.
@@ -218,8 +244,9 @@ A C++ implementáció egyszerre egy eszköz és egy könyvtár, mely beépíthet
 programokba.
 
 Ehhez a projektünkbe fel kell venni a `libfatint` könyvtárat, majd hivatkozni
-rá:
+rá, lásd @cpp-cmake:
 
+#source-listing(caption: [`fatint` hivatkozása `CMakeLists.txt` fájlban])[
 ```cmake
 #...
 add_subdirectory(libs/libfatint)
@@ -227,6 +254,7 @@ add_executable(some_program "src/main.cpp")
 target_link_libraries(some_program PRIVATE libfatint)
 #...
 ```
+] <cpp-cmake>
 
 A könyvtár magja a `Simulator` osztály. Ez az osztály végzi a szimuláció
 futtatását, a konstruktorában megadott implementációs példányok koordinálásával.
@@ -243,10 +271,9 @@ A konstruktor `unique_ptr` pointereket vesz át, tehát az implementációs
 példányok élettartamát a `Simulator` osztály kezeli. Egy minimális példát nyújt
 a @libfatint-example.
 
-#figure(
-  align(left)[
-    #show block: set text(size: 7pt)
-    ```cpp
+#source-listing(caption: [Minimális példa egy szimuláció futtatására és kiértékelésére, alapértelmezett paraméterekkel])[
+#show block: set text(size: 8pt)
+```cpp
 auto make_simulator(fatint::simulation::RunParameters params)
   -> std::unique_ptr<fatint::simulation::Simulator>
 {
@@ -288,6 +315,5 @@ fatint::math::Random rng(params.seed);
 fatint::simulator::RunStates states = simulator->run(rng);
 
 fatint::math::ExperimentResults results = fatint::math::measure(1, params.steps, states);
-  ```],
-  caption: "Minimális példa egy szimuláció futtatására és kiértékéelésére, alapértelmezett paraméterekkel"
-) <libfatint-example>
+```
+] <libfatint-example>

@@ -1,4 +1,5 @@
 #import "/lib/plot.typ": *
+#import "../../lib/elteikthesis.typ": *
 #import "@preview/lovelace:0.3.1": *
 
 == Fejlesztői dokumentáció (NetLogo)
@@ -145,8 +146,26 @@ A NetLogo az ágenshalmaz elemein véletlenszerű sorrendben futtatja az eljár�
 garantálva az igazságosságot, amikor az ágensek egy közös forrásért versenyeznek
 (mint például a környezet energiakészlete).
 
-A NetLogo alapból négy ágens típust definiál:
+#definition(caption: "NetLogo programnyelvi koncepciók")[
+/ Ágens:
+  Egy, a NetLogo szimulációban részt vevő objektum.
+/ Ágenshalmaz:
+  A szimuláció összes ágensének halmaza, vagy egy logikai feltétellel leszűrt részhalmaza.
+/ Függvény:
+  Egy visszatérési értéket előállító procedúra.
+/ Eljárás:
+  Egy visszatérési érték nélküli procedúra, mely egy vagy több mellékhatást
+  kiválthat. Ágenshalmazokon is meghívható, ekkor a halmaz minden eleme
+  lefuttatja.
+/ Mellékhatás:
+  Egy függvény vagy eljárás futtatása miatt bekövetkező állapotváltozás.
+] <netlogo-concepts>
 
+A @netlogo-concepts összefoglalja a fent tárgyalt koncepciókat.
+
+A NetLogo alapból a @netlogo-agent-types definícióban részletezett négy ágens típust definiálja:
+
+#definition(caption: "NetLogo ágens típusok")[
 / #text("Turtle", lang: "en"), avagy teknős:
   A tradicionális Logo nyelvekből származó, fizikai térben
   létező, mozgó, rajzolni tudó ágensek. A NetLogo egy _"World"_, avagy _világ_
@@ -159,6 +178,7 @@ A NetLogo alapból négy ágens típust definiál:
   A fizikai tér egy szekciója. A FATINT modell nem használja.
 / #text("Observer", lang: "en"), avagy megfigyelő: Egyke objektum (singleton), nincs
   pozíciója vagy megjelenése, a szimuláció kezeléséért és az egyedek koordinálásáért felel.
+] <netlogo-agent-types>
 
 A fejlesztő definiálhat altípusokat (_"breed"_). Ez nem keverendő a FATINT
 modell által definiált *faj* fogalmával. A FATINT NetLogo implementációja nem
@@ -214,99 +234,87 @@ az egyedek táplálkozása (@netlogo-eat-or-die-listing),
 az egyedek párzása (@netlogo-reproduce-listing),
 és a fajok megszámolása (lásd @netlogo-counting-species)
 
-#figure(
-  pseudocode-list[
-    + *eljárás* `setup`:
-      + Minden teknős és éleik törlése
-      + NetLogo lépésszámláló nullázása (`reset-ticks`)
-      + $"M-limit-sqr" := M_"limit" ^ 2$
-      + $"available-energy" := 0$
-      + $"gene-count" := N_"init"$
-      + $M_"init"$ számú új teknős létrehozása
-      + *ciklus* $forall a in "teknősök"$:
-        + $"a.energy" := 0$
-        + $"a.e-discounting" := E_"discount"^"a.kor" = E_"discount"^0 = 1$
-        + $"a.genotype" := N_"init"$ darab $[V_"min", V_"max"]$ tartományba eső véletlen gén
-        + *ciklus* $forall "b" in { b in "teknősök" | $`euclidean_distance_sqr(a,b)` $<= M_"limit"^2}$
-          + közös irányítatlan él létrehozása a $a$ és $b$ között
-        + *ciklus vége*
+#pseudocode-listing(caption: [A `setup` eljárás lépései])[
+  + *eljárás* `setup`:
+    + Minden teknős és éleik törlése
+    + NetLogo lépésszámláló nullázása (`reset-ticks`)
+    + $"M-limit-sqr" := M_"limit" ^ 2$
+    + $"available-energy" := 0$
+    + $"gene-count" := N_"init"$
+    + $M_"init"$ számú új teknős létrehozása
+    + *ciklus* $forall a in "teknősök"$:
+      + $"a.energy" := 0$
+      + $"a.e-discounting" := E_"discount"^"a.kor" = E_"discount"^0 = 1$
+      + $"a.genotype" := N_"init"$ darab $[V_"min", V_"max"]$ tartományba eső véletlen gén
+      + *ciklus* $forall "b" in { b in "teknősök" | $`euclidean_distance_sqr(a,b)` $<= M_"limit"^2}$
+        + közös irányítatlan él létrehozása a $a$ és $b$ között
       + *ciklus vége*
-    + *eljárás vége*
-  ],
-  caption: [A `setup` eljárás lépései]
-) <netlogo-setup-listing>
+    + *ciklus vége*
+  + *eljárás vége*
+] <netlogo-setup-listing>
 
-#figure(
-  pseudocode-list[
-    + *eljárás* `go`:
-      + $"available-energy" := "available-energy" + E_"increase"$
-      + `eat-or-die`
-      + `reproduce`
-      + Ha nem maradt élő egyed, szimuláció megszakítása
-      + `count-species`
-      + NetLogo lépésszámláló inkrementálása (`tick`)
-    + *eljárás vége*
-  ],
-  caption: [A `go` eljárás lépései]
-) <netlogo-go-listing>
-#figure(
-  pseudocode-list[
-    + *eljárás* `eat-or-die`:
-      + *ciklus* $forall t in "teknősök"$ véletlen sorrendben:
-        + $E_"in" := min(E_"intake", "available-energy")$
-        + $"available-energy" := "available-energy" - E_"in"$
-        + $"t.energy" := "t.energy" + E_"in" dot "t.e-discounting" - E_"consumption"$
-        + $"t.e-discounting" := "t.e-discounting" dot E_"discount"$
-        + *ha* $"t.energy" <= 0$:
-          + $t$ eltávolítása
+#pseudocode-listing(caption: [A `go` eljárás lépései])[
+  + *eljárás* `go`:
+    + $"available-energy" := "available-energy" + E_"increase"$
+    + `eat-or-die`
+    + `reproduce`
+    + Ha nem maradt élő egyed, szimuláció megszakítása
+    + `count-species`
+    + NetLogo lépésszámláló inkrementálása (`tick`)
+  + *eljárás vége*
+] <netlogo-go-listing>
+
+#pseudocode-listing(caption: [Az `eat-or-die` segédeljárás lépései])[
+  + *eljárás* `eat-or-die`:
+    + *ciklus* $forall t in "teknősök"$ véletlen sorrendben:
+      + $E_"in" := min(E_"intake", "available-energy")$
+      + $"available-energy" := "available-energy" - E_"in"$
+      + $"t.energy" := "t.energy" + E_"in" dot "t.e-discounting" - E_"consumption"$
+      + $"t.e-discounting" := "t.e-discounting" dot E_"discount"$
+      + *ha* $"t.energy" <= 0$:
+        + $t$ eltávolítása
+      + *elágazás vége*
+    + *ciklus vége*
+  + *eljárás vége*
+] <netlogo-eat-or-die-listing>
+
+#pseudocode-listing(caption: [Az `reproduce` segédeljárás lépései])[
+  + *eljárás* `reproduce`:
+    + *ciklus* $forall a in {t in "teknősök" | P_"encounter" "valószínűség teljesül" }$:
+      + Ha $a$ teknősnek nincs éle, ezt az iterációt kihagyjuk
+      + Véletlenszerűen kiválasztjuk $a$ egyik $l$ élét, melyek másik vége $b$
+      + $D := $`euclidean_distance_sqr(`$a$, $b$`)`
+      + $o := M_"const" + (M_"limit" - sqrt(D)) * M_"slope"$
+      + *ismétlés* $o$ alkalommal:
+        + Új teknős $u$ létrehozása
+        + $"u.energy" := 0$
+        + $"u.e-discounting" := 1$
+        + $"u.genotype" := $` combine(`$a$,$b$`)`
+        + *ha* ${g in "u.genotype" | g in.not [V_"min", V_"max"]} != emptyset$
+          + $u$ eltávolítása
         + *elágazás vége*
-      + *ciklus vége*
-    + *eljárás vége*
-  ],
-  caption: [Az `eat-or-die` segédeljárás lépései]
-) <netlogo-eat-or-die-listing>
-#figure(
-  pseudocode-list[
-    + *eljárás* `reproduce`:
-      + *ciklus* $forall a in {t in "teknősök" | P_"encounter" "valószínűség teljesül" }$:
-        + Ha $a$ teknősnek nincs éle, ezt az iterációt kihagyjuk
-        + Véletlenszerűen kiválasztjuk $a$ egyik $l$ élét, melyek másik vége $b$
-        + $D := $`euclidean_distance_sqr(`$a$, $b$`)`
-        + $o := M_"const" + (M_"limit" - sqrt(D)) * M_"slope"$
-        + *ismétlés* $o$ alkalommal:
-          + Új teknős $u$ létrehozása
-          + $"u.energy" := 0$
-          + $"u.e-discounting" := 1$
-          + $"u.genotype" := $` combine(`$a$,$b$`)`
-          + *ha* ${g in "u.genotype" | g in.not [V_"min", V_"max"]} != emptyset$
-            + $u$ eltávolítása
-          + *elágazás vége*
-        + *ismétlés vége*
-      + *ciklus vége*
-    + *eljárás vége*
-  ],
-  caption: [Az `reproduce` segédeljárás lépései]
-) <netlogo-reproduce-listing>
-#figure(
-  pseudocode-list[
-    + *függvény* `combine(a,b)`:
-      + $c := "gene-count hosszú tömb"$
-      + *ciklus* $i in [0.."gene-count") inter NN$
-        + *ha* $P_"crossing"$ valószínűség teljesül:
-          + $c[i] := b[i]$
-        + *különben*:
-          + $c[i] := a[i]$
-        + *elágazás vége*
-        + *ha* $P_"mutation"$ valószínűség teljesül:
-          + $m := $ véletlenszám $[-V_"mutation", V_"mutation"] inter ZZ$ halmazból
-          + $c[i] := c[i] + m$
-        + *elágazás vége*
-      + *ciklus vége*
-      + *visszatérés* $c$ tömbbel
-    + *függvény vége*
-  ],
-  caption: [A `combine` függvény lépései]
-) <netlogo-combine-listing>
+      + *ismétlés vége*
+    + *ciklus vége*
+  + *eljárás vége*
+] <netlogo-reproduce-listing>
+
+#pseudocode-listing(caption: [A `combine` függvény lépései])[
+  + *függvény* `combine(a,b)`:
+    + $c := "gene-count hosszú tömb"$
+    + *ciklus* $i in [0.."gene-count") inter NN$
+      + *ha* $P_"crossing"$ valószínűség teljesül:
+        + $c[i] := b[i]$
+      + *különben*:
+        + $c[i] := a[i]$
+      + *elágazás vége*
+      + *ha* $P_"mutation"$ valószínűség teljesül:
+        + $m := $ véletlenszám $[-V_"mutation", V_"mutation"] inter ZZ$ halmazból
+        + $c[i] := c[i] + m$
+      + *elágazás vége*
+    + *ciklus vége*
+    + *visszatérés* $c$ tömbbel
+  + *függvény vége*
+] <netlogo-combine-listing>
 
 /*
 + Környezet energiaszintjét megnöveli $E_"increase"$-szel
@@ -357,61 +365,55 @@ A fajok megszámlálására két algoritmust kínál az implementáció:
 Az implementációk között a `use-ds` kapcsolóval / globális változóval lehet
 váltani.
 
-#figure(
-  pseudocode-list[
-    + *eljárás* `dft-count-species`:
-      + $"species-count" := 0$
-      + ${ "t.visited" = "hamis" forall t in "teknősök" }$
-      + *ciklus* Amíg $exists t in {t in "teknősök" | "t.visited" = "hamis"}$
-        + $"species-count" := "species-count" + 1$
-        + `dft-traverse(t)`
-      + *ciklus vége*
-    + *eljárás vége*
-    + *eljárás* `dft-traverse(a)`:
-      + $"t.visited" = "igaz"$
-      + *ciklus* $a$ minden $l$ élének minden $b$ csúcsa ahol $"b.visited" = "hamis"$:
-        + `dft-traverse(b)`
-      + *ciklus vége*
-    + *eljárás vége*
-  ],
-  caption: [A mélységi bejárásos fajszámláló algoritmus]
-) <netlogo-dft-listing>
+#pseudocode-listing(caption: [A mélységi bejárásos fajszámláló algoritmus])[
+  + *eljárás* `dft-count-species`:
+    + $"species-count" := 0$
+    + ${ "t.visited" = "hamis" forall t in "teknősök" }$
+    + *ciklus* Amíg $exists t in {t in "teknősök" | "t.visited" = "hamis"}$
+      + $"species-count" := "species-count" + 1$
+      + `dft-traverse(t)`
+    + *ciklus vége*
+  + *eljárás vége*
+  + *eljárás* `dft-traverse(a)`:
+    + $"t.visited" = "igaz"$
+    + *ciklus* $a$ minden $l$ élének minden $b$ csúcsa ahol $"b.visited" = "hamis"$:
+      + `dft-traverse(b)`
+    + *ciklus vége*
+  + *eljárás vége*
+] <netlogo-dft-listing>
 
-#figure(
-  pseudocode-list[
-    + *eljárás* `ds-count-species`:
-      + $"species-count" := |"teknősök"|$
-      + *ciklus* $forall t in "teknősök"$
-        + $"t.parent" := t$ _Azaz $t$ gyökérelem_
-        + $"t.rank" := t$ _Rang alapú fa magasság optimalizálás_
-      + *ciklus vége*
-      + *ciklus* $forall l in "élek"$
-        + $a,b := l$ csúcsai
-        + $R_a := $ `ds-find-root(a)`
-        + $R_b := $ `ds-find-root(b)`
-        + *ha* $R_a != R_b$ _azaz eddig két külön fába tartoztak_
-          + $"species-count" := "species-count" - 1$
-          + *ha* $R_a".rank" = R_b".rank"$:
-            + $R_a".rank" := R_a".rank" + 1$
-          + *elágazás vége*
-          + *ha* $R_a".rank" > R_b".rank"$:
-            + $R_b".parent" := R_a$ _$R_b$ fájának beolvasztása $R_a$ fájába_
-          + *különben*:
-            + $R_a".parent" := R_b$ _$R_a$ fájának beolvasztása $R_b$ fájába_
-          + *elágazás vége*
+#pseudocode-listing(caption: [A diszjunkt-halmaz alapú fajszámláló algoritmus])[
+  + *eljárás* `ds-count-species`:
+    + $"species-count" := |"teknősök"|$
+    + *ciklus* $forall t in "teknősök"$
+      + $"t.parent" := t$ _Azaz $t$ gyökérelem_
+      + $"t.rank" := t$ _Rang alapú fa magasság optimalizálás_
+    + *ciklus vége*
+    + *ciklus* $forall l in "élek"$
+      + $a,b := l$ csúcsai
+      + $R_a := $ `ds-find-root(a)`
+      + $R_b := $ `ds-find-root(b)`
+      + *ha* $R_a != R_b$ _azaz eddig két külön fába tartoztak_
+        + $"species-count" := "species-count" - 1$
+        + *ha* $R_a".rank" = R_b".rank"$:
+          + $R_a".rank" := R_a".rank" + 1$
         + *elágazás vége*
-      + *ciklus vége*
-    + *eljárás vége*
-    + *függvény* `ds-find-root(a)`: _Gyökérelem megkeresése_
-      + *ciklus* amíg $a".parent" != a$:
-        + $a".parent" := a".parent.parent"$ _Útfelezési optimalizálás_
-        + $a := a".parent"$
-      + *ciklus vége*
-      + *visszatérés* $a$ gyökérelemmel
-    + *függvény vége*
-  ],
-  caption: [A diszjunkt-halmaz alapú fajszámláló algoritmus]
-) <netlogo-ds-listing>
+        + *ha* $R_a".rank" > R_b".rank"$:
+          + $R_b".parent" := R_a$ _$R_b$ fájának beolvasztása $R_a$ fájába_
+        + *különben*:
+          + $R_a".parent" := R_b$ _$R_a$ fájának beolvasztása $R_b$ fájába_
+        + *elágazás vége*
+      + *elágazás vége*
+    + *ciklus vége*
+  + *eljárás vége*
+  + *függvény* `ds-find-root(a)`: _Gyökérelem megkeresése_
+    + *ciklus* amíg $a".parent" != a$:
+      + $a".parent" := a".parent.parent"$ _Útfelezési optimalizálás_
+      + $a := a".parent"$
+    + *ciklus vége*
+    + *visszatérés* $a$ gyökérelemmel
+  + *függvény vége*
+] <netlogo-ds-listing>
 
 /*
 A mélységi bejárás algorimus működése:
@@ -447,11 +449,13 @@ A Diszjunk-Halmaz algoritmus működése:
 
 === Tesztelés
 
-Az implementáció két módon tesztelhető: a felületen kézzel bevitt adatokra adott
-reakció elemzésével, illetve a kísérletsorok által
+Az implementáció két módon tesztelhető: a felületen kézzel bevitt adatokra
+adott reakciók elemzésével, illetve a kísérletsorok által generált eredmények
+vizsgálatával.
 
-==== Populáció öregedése
+==== Kézi tesztelés
 
+#pseudocode-listing(caption: "Készi teszt lépései populáció kipusztulásának teszteléséhez")[
 + Kattintsunk a *Reset* gombra, hogy minden paraméter alapértelmezett értéket
   vegyen fel.
 + Állítsuk $P_"encounter"$ értékét $0$-ra, minden mást hagyjunk alapértelmezett
@@ -459,18 +463,18 @@ reakció elemzésével, illetve a kísérletsorok által
 + Kattintsunk a *Setup*, majd a *500 steps* gombra.
 + A populáció létszáma 30 kör alatt nullára kell essen. A szimulációnak 30 körön
   belül terminálnia kell.
+] <netlogo-test-dying>
 
-==== Alapértelmezett működés
-
+#pseudocode-listing(caption: "Készi teszt lépései alapértelmezett működés teszteléséhez")[
 + Kattintsunk a *Reset* gombra, hogy minden paraméter alapértelmezett értéket
   vegyen fel.
 + Kattintsunk a *Setup*, majd a *500 steps* gombra.
 + A populáció létszáma először megugrik, majd stabilizálódik a $[100, 120]$
   intervallumon belül. A fajok száma a szimuláció végére $1$. Lásd
   @netlogo-test-default-settings.
+] <netlogo-test-defaults>
 
-==== Új gének létrejötte
-
+#pseudocode-listing(caption: "Készi teszt lépései új gének automatikus létrehozásának teszteléséhez")[
 + Kattintsunk a *Reset* gombra, hogy minden paraméter alapértelmezett értéket
   vegyen fel.
 + Állítsuk $P_"change"$ értékét egy pozitív, egynél kisebb értékre, például $0.0005$.
@@ -479,6 +483,7 @@ reakció elemzésével, illetve a kísérletsorok által
   intervallumon belül. A gének száma a szimuláció végére magasabb, mint $5$.
   A fajszámláló grafikonon előfordulhatnak kisebb tüskék. Lásd
   @netlogo-test-p-change.
+] <netlogo-test-speciation>
 
 #grid(
   columns: 2,
@@ -497,16 +502,20 @@ reakció elemzésével, illetve a kísérletsorok által
   ],
 )
 
-==== A cikk grafikonjai, mint integrációs tesztek
+==== A @fatint cikk grafikonjai, mint integrációs tesztek
 
 A modellbe előre beépített kísérletsorok segítségével meggyőződhetünk róla,
 hogy a NetLogo implementáció az elvárt módon viselkedik. Ezen kísérletek grafikus
 felület nélkül is futtathatóak a NetLogo gyökérmappájában található
 `NetLogo_Console` eszköz segítségével:
 
+#command(caption: [A `NetLogo_Console` eszköz])[
 ```bash
 NetLogo$ ./NetLogo_Console --headless --model model.nlogo --experiment experiment-name --table output.csv --stats stats.csv
 ```
+] <netlogo-console>
+
+A @netlogo-console paraméterei a következők:
 
 / `--headless`: Ez a kapcsoló megakadályozza a felhasználói felület betöltését
 / `--model`: Ennek a kapcsolónak kell megadni a modell fájl elérési útvonalát

@@ -5,6 +5,8 @@
 // using Claude Sonnet 4.6,
 // then havily modified by hand
 
+#import "@preview/lovelace:0.3.1": *
+
 /// Setup ELTE FI thesis layout
 #let thesis(
   title: "Thesis Title",
@@ -279,20 +281,19 @@
 }
 
 /// Render a definition block
-#let definition(body, title: none) = {
+#let definition(body, caption: none) = figure(
   block(
     fill: rgb("#f0f0f0"),
     width: 100%,
     inset: 10pt,
     radius: 3pt,
-    [
-      #if title != none [
-        #text(weight: "bold")[ #title: ]
-      ]
-      #body
-    ]
-  )
-}
+    align(left)[#body]
+  ),
+  kind: "definition",
+  supplement: "Definíció",
+  caption: caption
+)
+
 
 /// Render a theorem block
 #let theorem(body, title: none) = {
@@ -351,3 +352,24 @@
   })
   <todo>
 ]
+
+#let pseudocode-listing(body, caption: none) = figure(
+  pseudocode-list(line-number-alignment: top + right, body),
+  kind: "listing",
+  supplement: "Lista",
+  caption: caption
+)
+
+#let command(body, caption: none) = figure(
+  align(left)[#body],
+  kind: "command",
+  supplement: "Parancs",
+  caption: caption
+)
+
+#let source-listing(body, caption: none) = figure(
+  align(left)[#body],
+  kind: "source",
+  supplement: "Forrás",
+  caption: caption
+)
